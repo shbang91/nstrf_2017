@@ -11,14 +11,16 @@ sudo apt-get install ros-indigo-multisense
 For Source Installation or other ros versions see: http://docs.carnegierobotics.com/SL/install.html#install:indigo
 
 # Setup Network Configuration
-The network configuration is the toughest to get right.  These instructions are what worked for me after going through `http://docs.carnegierobotics.com/SL/compatibility.html#compatibility:network` 
+The network configuration is the toughest to get right.  These instructions are what worked for me after going through http://docs.carnegierobotics.com/SL/compatibility.html#compatibility:network 
+
+I cannot guarantee these instructions will work for you, but I hope you get enough hints and insight.
 
 Typically connecting the multisense to your motherboard via the ethernet port will connect to the network interface `eth0`
 If not, be sure to change `eth0` to the proper name where it applies below.
 
 
 ## Reset MultiSense IP to factory settings
-Probably the easiest way to do this is to first reset ROS Multisense Driver IP and Gateway to factory settings (10.66.171.21, 10.66.171.1)
+Probably the easiest way to configure your MultisenseSL is to reset your ROS Multisense Driver IP and Gateway to factory settings (10.66.171.21, 10.66.171.1)
 ````
 # Connect the multisense to the ethernet port.
 source /opt/ros/indigo/setup.bash # Source ROS
@@ -73,6 +75,8 @@ And we expect 16777215 from `configureNetwork.sh`:
 cat /proc/sys/net/core/rmem_max # Should return 16777215
 cat /proc/sys/net/core/wmem_max # Should return 16777215
 ````
+If it does not return the values you expect, you may have to run `configureNetwork.sh` again
+
 Next ensure you can talk to the multisense:
 ````
 ping 10.66.171.21 
