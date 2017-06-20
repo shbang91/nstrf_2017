@@ -32,8 +32,14 @@
       <remap from="camera_info" to="/$(arg namespace)/left/image_rect_color/camera_info" />
   </node>
 
+
+<!-- Add transform for world_frame (flips the output pointcloud) -->
  <node pkg="tf" type="static_transform_publisher" name="flipped_head_publisher" args="0 0 0 0 0 3.14 /$(arg namespace)/head /$(arg namespace)/world_frame 10" />
 
+  <!-- Configure Multisense Parameters Through Dynamic-Reconfigure -->
+    <!-- specify timeout to avoid startup race condition -->
   <node pkg="dynamic_reconfigure" type="dynparam" name="set_multisense_spindle_speed" args="set --timeout=10 /$(arg namespace) motor_speed 1.5" />
+  
+  <!-- Run RVIZ -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find multisense_bringup)/rviz_config.rviz" />
 </launch>
