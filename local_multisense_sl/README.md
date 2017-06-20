@@ -30,7 +30,7 @@ rosrun multisense_lib ChangeIpUtility -b eth0
 
 For more useful command line utilities, see http://docs.carnegierobotics.com/SL/running.html#running:cli
 
-# Configure Network
+## Configure Network
 Turn off the network manager script: (This turned out to be not necessary if /etc/network/interfaces is set up properly. See below)
 ````
 sudo stop network-manager
@@ -43,7 +43,7 @@ rosrun local_multisense_sl configureNetwork.sh
 This is directly copied from the source code: `https://bitbucket.org/crl/multisense_ros/src`
 Under `multisense_bringup`
 
-# Retaining Internet connection (Optional)
+## Retaining Internet connection (Optional)
 In my case, my internet is provided via a cable. Because eth0 is now being used, you may not have internet anymore. 
 I am able to retain internet connection by connecting a USB-ethernet cable where it uses `eth1`. 
 
