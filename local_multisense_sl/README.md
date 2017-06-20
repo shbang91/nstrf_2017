@@ -4,7 +4,7 @@ This ros package uses catkin tools: https://catkin-tools.readthedocs.io/en/lates
 The package is a wrapper that brings up the multisense with custom launch parameters.
 
 # Install Pre-requisite Drivers
-For Binary Installation
+For Binary Installation (Last tested on: 06/20/2017)
 ````
 sudo apt-get install ros-indigo-multisense
 ````
