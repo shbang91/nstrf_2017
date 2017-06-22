@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   visualization_msgs  
   message_generation
+  message_filters
   roslib
   std_msgs
   tmc_yolo2_ros
@@ -57,3 +58,6 @@ target_link_libraries(tmc_cluster_based_yolo_3D_extractor ${catkin_LIBRARIES} ${
 
 add_executable(human_tmc_cluster_based_yolo_3D_extractor src/human_tmc_cluster_based_yolo_3D_extractor.cpp)
 target_link_libraries(human_tmc_cluster_based_yolo_3D_extractor ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(pc_image_repeater_180_flip src/pc_image_repeater_180_flip.cpp)
+target_link_libraries(pc_image_repeater_180_flip ${catkin_LIBRARIES} ${PCL_LIBRARIES})
