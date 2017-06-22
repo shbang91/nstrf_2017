@@ -24,8 +24,8 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
-#define CAMERA_PIXEL_WIDTH 640
-#define CAMERA_PIXEL_HEIGHT 480
+#define CAMERA_PIXEL_WIDTH 1024
+#define CAMERA_PIXEL_HEIGHT 1024
 #define VOXEL_SIZE 0.01 //1cm voxels
 #define CLUSTER_DIST_TOLERANCE 0.2
 #define CLUSTER_BOXES_NAMESPACE "cluster_3D_boxes"
@@ -227,7 +227,7 @@ Bounding_Box_dobject::Bounding_Box_dobject(): cloud(new pcl::PointCloud<pcl::Poi
 
 bool Bounding_Box_dobject::init_vars(){
 
-    std::string path = ros::package::getPath("villa_3d_object_extract");
+    std::string path = ros::package::getPath("pc_extractor");
     std::string filename = path + "/src/colors.txt";
     std::cout << filename << std::endl;
     FILE *fp = fopen(filename.c_str(),"rb"); 
@@ -821,7 +821,7 @@ int main(int argc, char **argv)
 
   	// Create Subsribers
 	bbh_obj.yolo_detectedObjects_sub = bbh_obj.node.subscribe<tmc_yolo2_ros::Detections>("yolo2_node/detections", 10, boost::bind(&Bounding_Box_dobject::yolo_detected_obj_callback, &bbh_obj, _1));	
-    bbh_obj.registered_cloud_sub = bbh_obj.node.subscribe<sensor_msgs::PointCloud2>("/hsrb/head_rgbd_sensor/depth_registered/rectified_points", 10, boost::bind(&Bounding_Box_dobject::cloud_callback, &bbh_obj, _1));
+    bbh_obj.registered_cloud_sub = bbh_obj.node.subscribe<sensor_msgs::PointCloud2>("/multisense/organized_image_points2_color_reverse_order", 10, boost::bind(&Bounding_Box_dobject::cloud_callback, &bbh_obj, _1));
 
 	bbh_obj.prism_voxels_pub = bbh_obj.node.advertise<pcl::PointCloud<pcl::PointXYZRGB> >( "/prism_voxels", 0 );
 	bbh_obj.cluster_voxels_pub = bbh_obj.node.advertise<pcl::PointCloud<pcl::PointXYZRGB> >( "/cluster_voxels", 0 );
