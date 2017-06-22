@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tmc_yolo2_ros
   tf
+  cv_bridge
 )
 
 #add_service_files(
@@ -36,6 +37,7 @@ catkin_package(
   	roscpp 
   	message_runtime
     tmc_yolo2_ros
+    cv_bridge
   rospy
 	sensor_msgs
 	std_msgs
