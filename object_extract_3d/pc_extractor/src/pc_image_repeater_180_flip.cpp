@@ -40,12 +40,10 @@ void callback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, const sensor_ms
     ROS_INFO("    Cloud Time Stamp: %f", cloud_msg->header.stamp.toSec());
     ROS_INFO("    Image Time Stamp: %f", image_msg->header.stamp.toSec());  
 
-
     // Convert Image Message to CV
     cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(image_msg, image_msg->encoding);
 
-    // Flip Image
-
+    // Flip Image ----------------------------------------------------------
     // By Copying
     /*    // Copy Image and Rotate it
     cv::Mat matImage = cv_ptr->image;
@@ -58,6 +56,7 @@ void callback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, const sensor_ms
 
     // By Mutating
     rot90(cv_ptr->image, 3); //Rotate it by 180 Degrees    
+    // End Flip Image -------------------------------------------------------
 
     // Convert CV image back to ROS message
     sensor_msgs::Image ros_image;
@@ -87,7 +86,7 @@ int main(int argc, char** argv){
 
     // Advertise Flipped Images and Pointcloud
     flipped_pc_order_pub = nh.advertise<sensor_msgs::PointCloud2>( "/flipped_cloud_order", 0 );
-    flipped_image_pub = nh.advertise<sensor_msgs::Image>( "/flipped_image", 0 );  
+    flipped_image_pub = nh.advertise<sensor_msgs::Image>( "/multisense/left/image_rect_color_rotated_180", 0 );  
 
     // Spin Forever
     ros::spin();
