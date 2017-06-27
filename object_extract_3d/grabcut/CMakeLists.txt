@@ -6,6 +6,5 @@ find_package(catkin REQUIRED)
 catkin_package(
   CATKIN_DEPENDS  
   cv_bridge 
-  opencv2
 )
 

@@ -38,6 +38,7 @@ catkin_package(
   	message_runtime
     tmc_yolo2_ros
     cv_bridge
+    pcl_ros
   rospy
 	sensor_msgs
 	std_msgs

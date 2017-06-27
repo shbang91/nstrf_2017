@@ -50,6 +50,8 @@
   <build_depend>roslib</build_depend>
   <build_depend>grabcut_msgs</build_depend>
   <build_depend>tf</build_depend>
+  <build_depend>pcl_ros</build_depend>
+
 
 
   <run_depend>tf</run_depend>
@@ -59,6 +61,7 @@
   <run_depend>roslib</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>std_msgs</run_depend>
+  <run_depend>pcl_ros</run_depend>
 
   <build_depend>tmc_yolo2_ros</build_depend>
   <run_depend>tmc_yolo2_ros</run_depend>  
