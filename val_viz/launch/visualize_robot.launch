@@ -4,7 +4,7 @@
     <param name="use_gui" value="$(arg gui)"/>
 
     <!-- Load Robot -->
-    <param name="robot_description" textfile="$(find val_description)/model/robots/valkyrie_A.xacro" /> 
+    <param name="robot_description" textfile="$(find val_viz)/robot_urdf/valkyrie_A_copy.urdf" /> 
 
     <!-- Load Joint State and Robot State Publishers -->
     <group if = "$(arg gui)">
@@ -12,5 +12,5 @@
     </group>
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
 
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find dreamer_viz)/launch/dreamer_viz.rviz" required="true" /> 
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find val_viz)/launch/val_viz.rviz" required="true" /> 
 </launch>
