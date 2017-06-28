@@ -40,6 +40,10 @@
     <!-- specify timeout to avoid startup race condition -->
   <node pkg="dynamic_reconfigure" type="dynparam" name="set_multisense_spindle_speed" args="set --timeout=10 /$(arg namespace) motor_speed 1.5" />
   
+
+  <!-- Launch repeater node which flips the image and pointcloud 180 degrees -->
+  <node name="multisense_cloud_image_repeater_node" pkg="local_multisense_sl_utils" type="pc_image_repeater_180_flip" />
+
   <!-- Run RVIZ -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find local_multisense_sl)/multisense_world_view.rviz" />
 </launch>
