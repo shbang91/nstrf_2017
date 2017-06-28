@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   tmc_yolo2_ros
   tf
   cv_bridge
+  openpose_ros_msgs
 )
 
 #add_service_files(
@@ -39,9 +40,10 @@ catkin_package(
     tmc_yolo2_ros
     cv_bridge
     pcl_ros
-  rospy
-	sensor_msgs
-	std_msgs
+    rospy
+  	sensor_msgs
+  	std_msgs
+    openpose_ros_msgs    
   DEPENDS
   	roscpp
 	system_lib
@@ -64,3 +66,8 @@ target_link_libraries(human_tmc_cluster_based_yolo_3D_extractor ${catkin_LIBRARI
 
 add_executable(pc_image_repeater_180_flip src/pc_image_repeater_180_flip.cpp)
 target_link_libraries(pc_image_repeater_180_flip ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(test_openpose_ros_service_call src/test_openpose_ros_service_call.cpp)
+target_link_libraries(test_openpose_ros_service_call ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_dependencies(test_openpose_ros_service_call ${catkin_EXPORTED_TARGETS})
+

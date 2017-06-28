@@ -75,6 +75,10 @@
   <build_depend>cv_bridge</build_depend>
   <run_depend>cv_bridge</run_depend>  
 
+  <build_depend>openpose_ros_msgs</build_depend>
+  <run_depend>openpose_ros_msgs</run_depend>  
+
+  
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
