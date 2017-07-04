@@ -160,7 +160,8 @@ auto tree = std::make_unique<RigidBodyTree<double>>();
   FindJointAndInsert(tree.get(), "torsoPitch", &torso_idx);
   FindJointAndInsert(tree.get(), "torsoRoll", &torso_idx);
   Vector3d torso_nominal = Vector3d::Zero();
-  Vector3d torso_half_range(15.0 / 180 * M_PI, 25.0 / 180 * M_PI, inf);
+//  Vector3d torso_half_range(15.0 / 180 * M_PI, 25.0 / 180 * M_PI, inf);
+  Vector3d torso_half_range(1.0 / 180 * M_PI, 1.0 / 180 * M_PI, 1.0 / 180 * M_PI);  
   Vector3d torso_lb = torso_nominal - torso_half_range;
   Vector3d torso_ub = torso_nominal + torso_half_range;
   torso_lb(1) = -5.0 / 180 * M_PI;
@@ -219,11 +220,13 @@ auto tree = std::make_unique<RigidBodyTree<double>>();
   int rh_palm = tree->FindBodyIndex("rightPalm");
   Vector4d rh_palm_quat(0.707, 0, 0, 0.707);
   auto rh_palm0 = tree->transformPoints(cache, rh_palm_origin, rh_palm, 0);
-
+//  double tol = 0.5 / 180 * M_PI;
+  WorldQuatConstraint kc_rh_palm_quat(tree.get(), rh_palm, rh_palm_quat, tol, tspan);
 
   // Position and quaternion constraints are relaxed to make the problem
   // solvable by IPOPT.
-  Vector3d rh_palm_des_pos(0.4, 0.1, 0.5);
+  Vector3d rh_palm_des_pos(0.1, 0.2, 0.3);
+//  Vector3d rh_palm_des_pos(0.0, 0.0, 0.2);  
   Vector3d pos_end;
   pos_end = rh_palm0 + rh_palm_des_pos;
 
@@ -233,8 +236,12 @@ auto tree = std::make_unique<RigidBodyTree<double>>();
 
   WorldPositionConstraint kc_rh_palm_pos(tree.get(), rh_palm, rh_palm_origin, pos_lb,
                                        pos_ub, tspan);
+
+
+  int pelvis = tree->FindBodyIndex("pelvis");
+  Vector4d pelvis_quat(1, 0, 0, 0);
 //  double tol = 0.5 / 180 * M_PI;
-  WorldQuatConstraint kc_rh_palm_quat(tree.get(), rh_palm, rh_palm_quat, tol, tspan);
+  WorldQuatConstraint kc_pelvis_quat(tree.get(), pelvis, pelvis_quat, tol, tspan);
 
 
   // 8 Quasistatic constraint
@@ -266,7 +273,8 @@ auto tree = std::make_unique<RigidBodyTree<double>>();
   constraint_array.push_back(&kc_quasi);
 
   constraint_array.push_back(&kc_rh_palm_pos);
-  constraint_array.push_back(&kc_rh_palm_quat);  
+//  constraint_array.push_back(&kc_rh_palm_quat);  
+  constraint_array.push_back(&kc_pelvis_quat);
   
 
   IKoptions ikoptions(tree.get());
