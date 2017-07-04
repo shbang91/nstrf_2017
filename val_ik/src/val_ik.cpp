@@ -207,6 +207,36 @@ auto tree = std::make_unique<RigidBodyTree<double>>();
   Eigen::Matrix<double, 7, 1> rarm_ub = rarm_lb;
   kc_posture_rarm.setJointLimits(7, rarm_idx.data(), rarm_lb, rarm_ub);
 
+
+
+
+
+
+  // 2 Left foot position and orientation constraint, position and orientation
+  // constraints are imposed on frames/bodies
+  const Vector3d rh_palm_origin(0, 0, 0);
+
+  int rh_palm = tree->FindBodyIndex("rightPalm");
+  Vector4d rh_palm_quat(0.707, 0, 0, 0.707);
+  auto rh_palm0 = tree->transformPoints(cache, rh_palm_origin, rh_palm, 0);
+
+
+  // Position and quaternion constraints are relaxed to make the problem
+  // solvable by IPOPT.
+  Vector3d rh_palm_des_pos(0.4, 0.1, 0.5);
+  Vector3d pos_end;
+  pos_end = rh_palm0 + rh_palm_des_pos;
+
+  const double pos_tol = 0.01;
+  const Vector3d pos_lb = pos_end - Vector3d::Constant(pos_tol);
+  const Vector3d pos_ub = pos_end + Vector3d::Constant(pos_tol);
+
+  WorldPositionConstraint kc_rh_palm_pos(tree.get(), rh_palm, rh_palm_origin, pos_lb,
+                                       pos_ub, tspan);
+//  double tol = 0.5 / 180 * M_PI;
+  WorldQuatConstraint kc_rh_palm_quat(tree.get(), rh_palm, rh_palm_quat, tol, tspan);
+
+
   // 8 Quasistatic constraint
   QuasiStaticConstraint kc_quasi(tree.get(), tspan);
   kc_quasi.setShrinkFactor(0.4);
@@ -232,17 +262,24 @@ auto tree = std::make_unique<RigidBodyTree<double>>();
   constraint_array.push_back(&kc_posture_torso);
   constraint_array.push_back(&kc_posture_knee);
   constraint_array.push_back(&kc_posture_larm);
-  constraint_array.push_back(&kc_posture_rarm);
+//  constraint_array.push_back(&kc_posture_rarm);
   constraint_array.push_back(&kc_quasi);
+
+  constraint_array.push_back(&kc_rh_palm_pos);
+  constraint_array.push_back(&kc_rh_palm_quat);  
+  
 
   IKoptions ikoptions(tree.get());
   VectorXd q_sol(tree->get_num_positions());
   VectorXd q_nom = reach_start;
   int info;
   std::vector<std::string> infeasible_constraint;
+  std::cout << "start IK" << std::endl;
   inverseKin(tree.get(), q_nom, q_nom, constraint_array.size(),
              constraint_array.data(), ikoptions, &q_sol, &info,
              &infeasible_constraint);
+
+  std::cout << "done!" << std::endl;
 
   // After solving
   Vector3d com = tree->centerOfMass(cache);
