@@ -3,7 +3,7 @@ ROS package for using drake's IK solver for the Valkyrie robot.
 This is a hack to use drake's IK solver and does not follow best practice. However, this is sufficient for my purposes.
 
 First ensure you have drake installed. Specifically, I am using this forked version https://github.com/stevenjj/drake/tree/my_dev_space
-This repo has a tag called `working_examples` which is the last working commit with a working example of solving valkyrie with IK.
+This repo has a tag called `working_examples` which is the last known commit with a working example of solving valkyrie's IK using Drake.
 
 
 ## Test Drake and Valkyrie IK
