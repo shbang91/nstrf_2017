@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(val_ik)
 
-set(DRAKE_CATKIN_WS /home/sjorgen1/dev/drake_catkin_workspace)
+set(DRAKE_CATKIN_WS /home/stevenjj/dev/drake_catkin_workspace)
 
 add_compile_options(-std=c++11)
 
