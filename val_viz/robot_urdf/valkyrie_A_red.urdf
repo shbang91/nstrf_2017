@@ -27,13 +27,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/pelvis/pelvis.dae"/>
+        <mesh filename="package://val_desc/model/meshes/pelvis/pelvis_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/pelvis/pelvis.dae"/>
+        <mesh filename="package://val_desc/model/meshes/pelvis/pelvis_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -46,13 +46,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/torso/torsoyaw.dae"/>
+        <mesh filename="package://val_desc/model/meshes/torso/torsoyaw_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/torso/torsoyaw.dae"/>
+        <mesh filename="package://val_desc/model/meshes/torso/torsoyaw_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -142,13 +142,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/head/neckj1.dae"/>
+        <mesh filename="package://val_desc/model/meshes/head/neckj1_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/head/neckj1.dae"/>
+        <mesh filename="package://val_desc/model/meshes/head/neckj1_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -161,13 +161,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/head/neckj2.dae"/>
+        <mesh filename="package://val_desc/model/meshes/head/neckj2_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/head/neckj2.dae"/>
+        <mesh filename="package://val_desc/model/meshes/head/neckj2_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -180,13 +180,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/head/head_multisense_no_visor.dae"/>
+        <mesh filename="package://val_desc/model/meshes/head/head_multisense_no_visor_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/head/head_multisense_no_visor.dae"/>
+        <mesh filename="package://val_desc/model/meshes/head/head_multisense_no_visor_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -238,13 +238,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj1_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj1_right_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj1_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj1_right_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -257,13 +257,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj2_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj2_right_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj2_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj2_right_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -276,13 +276,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj3_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj3_right_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj3_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj3_right_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -295,13 +295,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj4_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj4_right_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj4_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj4_right_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -366,13 +366,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj5_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj5_right_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj5_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj5_right_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -385,13 +385,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj6_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj6_right_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj6_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj6_right_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -404,13 +404,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/palm_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/palm_right_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/palm_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/palm_right_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -878,13 +878,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj1_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj1_left_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj1_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj1_left_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -897,13 +897,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj2_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj2_left_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj2_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj2_left_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -916,13 +916,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj3_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj3_left_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj3_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj3_left_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -935,13 +935,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj4_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj4_left_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj4_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj4_left_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -1006,13 +1006,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj5_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj5_left_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj5_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj5_left_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -1025,13 +1025,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj6_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj6_left_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/aj6_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/aj6_left_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -1044,13 +1044,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/palm_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/palm_left_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/arms/palm_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/arms/palm_left_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -1518,13 +1518,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/legs/lj1_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/legs/lj1_right_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/legs/lj1_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/legs/lj1_right_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -1537,13 +1537,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/legs/lj2_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/legs/lj2_right_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/legs/lj2_right.dae"/>
+        <mesh filename="package://val_desc/model/meshes/legs/lj2_right_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -1721,13 +1721,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/legs/lj1_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/legs/lj1_left_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/legs/lj1_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/legs/lj1_left_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -1740,13 +1740,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/legs/lj2_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/legs/lj2_left_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/legs/lj2_left.dae"/>
+        <mesh filename="package://val_desc/model/meshes/legs/lj2_left_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
