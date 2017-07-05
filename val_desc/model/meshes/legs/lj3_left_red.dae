@@ -34,8 +34,7 @@
               <color sid="emission">0 0 0 1</color>
             </emission>
             <ambient>
-              <color sid="ambient">1 1 1 1</color>              
-              <!-- texture texture="lj3Texture_png-sampler" texcoord="UVMap"/-->
+              <color sid="ambient">1 0.1 0.1 1</color>
             </ambient>
             <diffuse>
               <texture texture="lj3Texture_png-sampler" texcoord="UVMap"/>
