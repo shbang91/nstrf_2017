@@ -65,13 +65,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/torso/torsopitch.dae"/>
+        <mesh filename="package://val_desc/model/meshes/torso/torsopitch_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/torso/torsopitch.dae"/>
+        <mesh filename="package://val_desc/model/meshes/torso/torsopitch_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
@@ -84,13 +84,13 @@
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/torso/torso.dae"/>
+        <mesh filename="package://val_desc/model/meshes/torso/torso_red.dae"/>
       </geometry>
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://val_desc/model/meshes/torso/torso.dae"/>
+        <mesh filename="package://val_desc/model/meshes/torso/torso_red.dae"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </collision>
