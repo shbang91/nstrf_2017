@@ -1,0 +1,2 @@
+string body_name
+geometry_msgs/Point world_position

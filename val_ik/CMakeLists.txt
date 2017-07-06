@@ -10,25 +10,29 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   sensor_msgs
+  geometry_msgs
   visualization_msgs  
   message_generation
   message_filters
   roslib
   std_msgs
+  val_ik_msgs  
   tf
   cmake_modules
 )
 
+add_service_files(
+  FILES
+  DrakeIKVal.srv
+)
 
-#add_service_files(
-#   FILES
-#)
-
-#generate_messages(
-#  DEPENDENCIES
-#  sensor_msgs
-#  std_msgs
-#)
+generate_messages(
+  DEPENDENCIES
+  sensor_msgs
+  std_msgs
+  geometry_msgs
+  val_ik_msgs
+)
 
 find_package(Eigen REQUIRED)
 
@@ -38,7 +42,9 @@ catkin_package(
   	message_runtime
     rospy
   	sensor_msgs
+    geometry_msgs
   	std_msgs
+    val_ik_msgs    
   DEPENDS
   	Eigen
   	roscpp
@@ -94,3 +100,17 @@ target_link_libraries(val_ik_ros_pub_test ${catkin_LIBRARIES} ${DRAKECOMMON_LIB}
                          ${drakeJoints_LIB}
                          ${drakeIKoptions_LIB}
                          ${drakeRigidBodyConstraint_LIB})
+
+add_executable(val_ik_ros_srv_test src/val_ik_ros_srv_test.cpp)
+target_link_libraries(val_ik_ros_srv_test ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
+                         ${DRAKEIK_LIB}
+                         ${DRAKELCM_LIB} 
+                         ${DRAKEMULTIBODYPARSERS_LIB} 
+                         ${DRAKERBM_LIB}
+                         ${DRAKERIGIDBODYPLANT_LIB}
+                         ${drakeLcmSystem_LIB}
+                         ${drake_lcmtypes_LIB}
+                         ${drakeJoints_LIB}
+                         ${drakeIKoptions_LIB}
+                         ${drakeRigidBodyConstraint_LIB})
+add_dependencies(val_ik_ros_srv_test ${catkin_EXPORTED_TARGETS})

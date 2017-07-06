@@ -1,0 +1,2 @@
+string body_name
+geometry_msgs/Quaternion world_quaternion
