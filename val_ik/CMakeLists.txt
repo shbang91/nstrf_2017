@@ -101,8 +101,8 @@ target_link_libraries(val_ik_ros_pub_test ${catkin_LIBRARIES} ${DRAKECOMMON_LIB}
                          ${drakeIKoptions_LIB}
                          ${drakeRigidBodyConstraint_LIB})
 
-add_executable(val_ik_ros_srv_test src/val_ik_ros_srv_test.cpp)
-target_link_libraries(val_ik_ros_srv_test ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
+add_executable(val_ik_ros_srv_node src/val_ik_ros_srv_node.cpp)
+target_link_libraries(val_ik_ros_srv_node ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
                          ${DRAKEIK_LIB}
                          ${DRAKELCM_LIB} 
                          ${DRAKEMULTIBODYPARSERS_LIB} 
@@ -113,4 +113,4 @@ target_link_libraries(val_ik_ros_srv_test ${catkin_LIBRARIES} ${DRAKECOMMON_LIB}
                          ${drakeJoints_LIB}
                          ${drakeIKoptions_LIB}
                          ${drakeRigidBodyConstraint_LIB})
-add_dependencies(val_ik_ros_srv_test ${catkin_EXPORTED_TARGETS})
+add_dependencies(val_ik_ros_srv_node ${catkin_EXPORTED_TARGETS})

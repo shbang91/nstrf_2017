@@ -1,5 +1,8 @@
 #include <ros/ros.h>
 
+#include <signal.h>
+
+// Include drake dependencies to perform IK
 #include "drake/common/drake_path.h"
 #include "drake/lcm/drake_lcm.h"
 #include "drake/multibody/constraint/rigid_body_constraint.h"
@@ -11,12 +14,17 @@
 #include "drake/multibody/rigid_body_plant/viewer_draw_translator.h"
 #include "drake/multibody/rigid_body_tree.h"
 
+// Include ROS message types
+#include "std_msgs/String.h"
+#include "geometry_msgs/Point.h"
+#include "geometry_msgs/Quaternion.h"
 #include "sensor_msgs/JointState.h"
+#include "val_ik_msgs/BodyPositionConstraint.h"
+#include "val_ik_msgs/BodyQuaternionConstraint.h"
+#include "val_ik_msgs/JointPositionConstraint.h"
 
+// Include Ros Service
 #include "val_ik/DrakeIKVal.h"
-
-ros::Publisher joint_state_pub;
-sensor_msgs::JointState joint_state_msg;
 
 using Eigen::Vector2d;
 using Eigen::Vector3d;
@@ -24,8 +32,24 @@ using Eigen::Vector4d;
 using Eigen::VectorXd;
 using Eigen::Matrix3Xd;
 
-namespace drake {
-namespace valkyrie {
+using namespace drake;
+
+sensor_msgs::JointState joint_state_msg;
+ros::Publisher          joint_state_pub;
+ros::ServiceServer      val_ik_srv;
+
+//true if Ctrl-C is pressed
+bool g_caught_sigint=false;
+
+/* what happens when ctr-c is pressed */
+void sig_handler(int sig)
+{
+  g_caught_sigint = true;
+  ROS_INFO("caught sigint, init shutdown sequence...");
+  ros::shutdown();
+  exit(1);
+};
+
 
 /* Finds and returns the indices within the state vector of @p tree that contain
  * the position states of a joint named @p name. The model instance ID is
@@ -215,10 +239,6 @@ auto tree = std::make_unique<RigidBodyTree<double>>();
   kc_posture_rarm.setJointLimits(7, rarm_idx.data(), rarm_lb, rarm_ub);
 
 
-
-
-
-
   // 2 Left foot position and orientation constraint, position and orientation
   // constraints are imposed on frames/bodies
   const Vector3d rh_palm_origin(0, 0, 0);
@@ -301,31 +321,7 @@ auto tree = std::make_unique<RigidBodyTree<double>>();
   //EXPECT_EQ(info, 1);
   //EXPECT_GT(com(2), 0);
 
-
-  // show it in drake visualizer
-  VectorX<double> x = VectorX<double>::Zero(tree->get_num_positions() +
-                                            tree->get_num_velocities());
-  x.head(q_sol.size()) = q_sol;
-  systems::BasicVector<double> q_draw(x);
-
-  lcm::DrakeLcm lcm;
-  std::vector<uint8_t> message_bytes;
-
-  lcmt_viewer_load_robot load_msg =
-      multibody::CreateLoadRobotMessage<double>(*tree);
-  const int length = load_msg.getEncodedSize();
-  message_bytes.resize(length);
-  load_msg.encode(message_bytes.data(), 0, length);
-  lcm.Publish("DRAKE_VIEWER_LOAD_ROBOT", message_bytes.data(),
-              message_bytes.size());
-
-  systems::ViewerDrawTranslator posture_drawer(*tree);
-  posture_drawer.Serialize(0, q_draw, &message_bytes);
-  lcm.Publish("DRAKE_VIEWER_DRAW", message_bytes.data(),
-              message_bytes.size());
-
-
-  // Publish Joint Message in ROS:
+ // Publish Joint Message in ROS:
 
   std::vector<std::string> joints_to_pub;
 
@@ -365,35 +361,48 @@ auto tree = std::make_unique<RigidBodyTree<double>>();
     joint_name = joints_to_pub[i];
     int joint_id = GetJointPositionVectorIndices(tree.get(), joint_name)[0];
     double joint_pos = q_sol[joint_id];
-    std::cout << joint_name << ", id:" << joint_id << ", pos:" << joint_pos << std::endl;
+    //std::cout << joint_name << ", id:" << joint_id << ", pos:" << joint_pos << std::endl;
   
     joint_state_msg.name.push_back(joint_name);
     joint_state_msg.position.push_back(joint_pos);
   }
 
+  //joint_state_pub.publish(joint_state_msg);
+}
+
+bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Response& res){
+  ROS_INFO("ikServiceCallback: processing ik request");
+
+  ROS_INFO("    Request ended successfully. returning true");
+  return true;
 }
 
 
-
-
-
-}  // namespace valkyrie
-}  // namespace drake
 
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "val_ik");
   ros::NodeHandle       node;
-	ROS_INFO("Hello world!");
 
   joint_state_pub = node.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 0 );
+  val_ik_srv = node.advertiseService("val_ik/val_ik_service", ikServiceCallback);
 
-	drake::valkyrie::val_ik_test();
+  ROS_INFO("Testing Val IK");
+	val_ik_test();
+  ROS_INFO("Test successful");
 
-  while(true){
-      joint_state_pub.publish(joint_state_msg);
-      ros::spinOnce();
-      break;
+  // register ctrl-c
+  signal(SIGINT, sig_handler);
+
+  double ros_rate = 3.0;
+  ros::Rate r(ros_rate);
+
+  ROS_INFO("val_ik/val_ik_service is ready");
+  ROS_INFO("    Waiting for service calls");
+  // Main loop:
+  while (!g_caught_sigint && ros::ok()){
+    ros::spinOnce();
+    //r.sleep();
   }
 
   return 0;
