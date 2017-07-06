@@ -1,3 +1,4 @@
+// Barebones test of Val's IK from drake examples. Runs as a rosnode.
 #include <ros/ros.h>
 
 #include "drake/common/drake_path.h"

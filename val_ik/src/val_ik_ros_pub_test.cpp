@@ -1,3 +1,5 @@
+// Tests the IK and publishes both to ROS and Drake's Visualizer via LCM 
+
 #include <ros/ros.h>
 
 #include "drake/common/drake_path.h"

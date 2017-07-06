@@ -23,7 +23,7 @@
 #include "val_ik_msgs/BodyQuaternionConstraint.h"
 #include "val_ik_msgs/JointPositionConstraint.h"
 
-// Include Ros Service
+// Include ROS Service
 #include "val_ik/DrakeIKVal.h"
 
 using Eigen::Vector2d;
@@ -373,6 +373,16 @@ auto tree = std::make_unique<RigidBodyTree<double>>();
 bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Response& res){
   ROS_INFO("ikServiceCallback: processing ik request");
 
+  std::cout << "drake_floating_joint_names size: " << req.drake_floating_joint_names.size() << std::endl;
+  std::cout << "drake_body_joint_names size: " << req.drake_body_joint_names.size() << std::endl;
+  std::cout << "init_drake_floating_joint_pos size: " << req.init_drake_floating_joint_pos.size() << std::endl;
+  std::cout << "init_drake_body_joint_pos size: " << req.drake_body_joint_names.size() << std::endl;  
+
+  sensor_msgs::JointState joint_state_msg;
+  joint_state_msg.name.push_back("leftShoulderRoll");
+  joint_state_msg.position.push_back(1.0);
+
+  res.robot_joint_states = joint_state_msg;
   ROS_INFO("    Request ended successfully. returning true");
   return true;
 }
@@ -384,7 +394,7 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "val_ik");
   ros::NodeHandle       node;
 
-  joint_state_pub = node.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 0 );
+  //joint_state_pub = node.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 0 );
   val_ik_srv = node.advertiseService("val_ik/val_ik_service", ikServiceCallback);
 
   ROS_INFO("Testing Val IK");

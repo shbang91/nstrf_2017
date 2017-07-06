@@ -114,3 +114,8 @@ target_link_libraries(val_ik_ros_srv_node ${catkin_LIBRARIES} ${DRAKECOMMON_LIB}
                          ${drakeIKoptions_LIB}
                          ${drakeRigidBodyConstraint_LIB})
 add_dependencies(val_ik_ros_srv_node ${catkin_EXPORTED_TARGETS})
+
+
+add_executable(test_ik_service src/test_ik_service.cpp)
+target_link_libraries(test_ik_service ${catkin_LIBRARIES})
+add_dependencies(test_ik_service ${catkin_EXPORTED_TARGETS})
