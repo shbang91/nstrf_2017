@@ -38,6 +38,7 @@ void init_IK_joint_names(std::vector<std::string> &drake_floating_joint_names, s
     drake_body_joint_names.push_back("torsoYaw");
     drake_body_joint_names.push_back("torsoPitch");
     drake_body_joint_names.push_back("torsoRoll");
+    drake_body_joint_names.push_back("lowerNeckPitch");    
     drake_body_joint_names.push_back("rightShoulderPitch");
     drake_body_joint_names.push_back("rightShoulderRoll");
     drake_body_joint_names.push_back("rightShoulderYaw");
@@ -99,8 +100,6 @@ void define_IK_init_positions_test(std::vector<float>   &init_drake_floating_joi
     init_drake_body_joint_pos[5] = 1.25; // 13 rightShoulderRoll
     init_drake_body_joint_pos[6] = 0.0;  // 14 rightShoulderYaw
     init_drake_body_joint_pos[7] = 0.7853981633974483;   // 15 rightElbowPitch
-
-
     init_drake_body_joint_pos[8]  = 1.571;                // 16 rightForearmYaw
     init_drake_body_joint_pos[9]  =   0.0;                // 17 rightWristRoll
     init_drake_body_joint_pos[10] =   0.0;                // 18 rightWristPItch
@@ -122,7 +121,7 @@ void define_IK_init_positions_test(std::vector<float>   &init_drake_floating_joi
     init_drake_body_joint_pos[26] = -0.49;                // 34 leftHipPitch
     init_drake_body_joint_pos[27] = 1.205;                // 35 leftKneePitch
     init_drake_body_joint_pos[28] = -0.71;                // 36 leftAnklePitch
-    init_drake_body_joint_pos[29] =   0.0;                  // 37 leftAnkleRoll
+    init_drake_body_joint_pos[29] =   0.0;                // 37 leftAnkleRoll
 
 }
 
@@ -180,7 +179,8 @@ int main(int argc, char** argv){
             if (client.call(ik_srv)){
                 ROS_INFO("Call Successful");
                 joint_state_response = ik_srv.response.robot_joint_states;
-                std::cout << ik_srv.response.robot_joint_states.name[0] << std::endl;
+                std::cout << ik_srv.response.robot_joint_states.name.size() << std::endl;
+                std::cout << joint_state_response.name.size() << std::endl;
                 callOnce = true;
             }
             else{
