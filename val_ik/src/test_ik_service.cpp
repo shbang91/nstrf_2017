@@ -357,7 +357,7 @@ int main(int argc, char** argv){
         ros::spinOnce();
         t = t + 0.2;
         r.sleep();
-        if (t > 6.0){
+        if (t > 3.1){
             break;
         }
 
