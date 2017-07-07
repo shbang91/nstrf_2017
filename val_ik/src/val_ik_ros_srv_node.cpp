@@ -579,6 +579,10 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     int rh_palm = tree->FindBodyIndex("rightPalm");
     Vector4d rh_palm_quat(0.707, 0, 0, 0.707);
     auto rh_palm0 = tree->transformPoints(cache, rh_palm_origin, rh_palm, 0);
+
+    std::cout << "rh_palm0:" << rh_palm0[0] << " " << rh_palm0[1] << " " << rh_palm0[2] << " " << std::endl;
+
+
   //  double tol = 0.5 / 180 * M_PI;
     WorldQuatConstraint kc_rh_palm_quat(tree.get(), rh_palm, rh_palm_quat, tol, tspan);
 
