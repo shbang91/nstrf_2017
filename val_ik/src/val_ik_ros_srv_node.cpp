@@ -427,6 +427,10 @@ void init_IK_global_vars(){
 bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Response& res){
     ROS_INFO("ikServiceCallback: processing ik request");
 
+    std::cout << "world:" << tree->get_body(0).get_name() << std::endl;
+    std::cout << "root_body:" << tree->get_body(1).get_name() << std::endl;
+    std::cout << "root_joint:" <<  tree->get_body(1).getJoint().get_name() << std::endl;    
+
     std::cout << "drake_floating_joint_names size: " << req.drake_floating_joint_names.size() << std::endl;
     std::cout << "init_drake_floating_joint_pos size: " << req.init_drake_floating_joint_pos.size() << std::endl;
 

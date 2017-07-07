@@ -190,7 +190,18 @@ void publish_robot_states(tf::TransformBroadcaster &br,
 
     transform.setOrigin( tf::Vector3(body_x, body_y, body_z) );
 
-    q.setRPY(body_roll , body_pitch , body_yaw);
+    tf::Quaternion q_world_roll;   q_world_roll.setRPY(body_roll, 0.0, 0.0); 
+    tf::Quaternion q_world_pitch;  q_world_pitch.setRPY(0.0, body_pitch, 0.0); 
+    tf::Quaternion q_world_yaw;    q_world_yaw.setRPY(0.0, 0.0, body_yaw); 
+
+    q_world_roll.normalize();     q_world_pitch.normalize();     q_world_yaw.normalize();
+
+    // Extrinsict Rotation about Space-fixed x-y-z axes by R-P-Y angles respectively.
+    // equivalently, we use an instrinsic rotation about body frames z-y`-x`` 
+    // Convention of Drake as seen in math::rol_pitch_yaw_not_using_quaternions
+    q = q_world_yaw*q_world_pitch*q_world_roll;
+
+    //q.setRPY(body_roll , body_pitch , body_yaw);
     transform.setRotation(q);
     
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "my_origin", "val_ik_robot/pelvis"));
