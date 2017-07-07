@@ -24,9 +24,10 @@
 #include "val_ik_msgs/JointPositionConstraint.h"
 #include "val_ik_msgs/RobotJointStates.h"
 
-
 // Include ROS Service
 #include "val_ik/DrakeIKVal.h"
+
+#include <tf/transform_broadcaster.h>
 
 using Eigen::Vector2d;
 using Eigen::Vector3d;
@@ -701,8 +702,8 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     }*/
 
     ROS_INFO("Printing q_sol:");
-    for (size_t i = 0; i < q_sol.size(); i++){
-        std::cout << "    " << "i:" << i << " value:" << q_sol[i] << std::endl;  
+    for (size_t i = 0; i < q_sol.size(); i++)
+{        std::cout << "    " << "i:" << i << " value:" << q_sol[i] << std::endl;  
     }
 
 

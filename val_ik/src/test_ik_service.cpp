@@ -16,6 +16,8 @@
 // Include ROS Service
 #include "val_ik/DrakeIKVal.h"
 
+#include <tf/transform_broadcaster.h>
+
 //true if Ctrl-C is pressed
 bool g_caught_sigint=false;
 
@@ -172,6 +174,29 @@ void print_input_joint_names(){
 
 }
 
+void publish_robot_states(tf::TransformBroadcaster &br, 
+                          const sensor_msgs::JointState &floating_joint_state_response,
+                          const sensor_msgs::JointState &body_joint_state_response,
+                          const ros::Publisher      &joint_state_pub){
+    tf::Transform transform;
+    tf::Quaternion q;
+    float body_x = floating_joint_state_response.position[0]; 
+    float body_y = floating_joint_state_response.position[1];
+    float body_z = floating_joint_state_response.position[2];    
+
+    float body_roll = floating_joint_state_response.position[3]; 
+    float body_pitch = floating_joint_state_response.position[4];
+    float body_yaw = floating_joint_state_response.position[5]; 
+
+    transform.setOrigin( tf::Vector3(body_x, body_y, body_z) );
+
+    q.setRPY(body_roll , body_pitch , body_yaw);
+    transform.setRotation(q);
+    
+    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "my_origin", "val_ik_robot/pelvis"));
+    joint_state_pub.publish(body_joint_state_response);
+}
+
 ros::ServiceClient  client;
 ros::Publisher      joint_state_pub;
 
@@ -216,11 +241,19 @@ int main(int argc, char** argv){
     ik_srv.request.desired_joint_positions = desired_joint_positions;    
 
 
+
+    // Initializing Transform Broacaster br
+    tf::TransformBroadcaster br;
+
+
+
+
     // Preparing response field
     sensor_msgs::JointState floating_joint_state_response;
     sensor_msgs::JointState body_joint_state_response;
 
-    std::vector<sensor_msgs::JointState>  joint_state_res_vec;
+    std::vector<sensor_msgs::JointState>  floating_joint_state_res_vec;
+    std::vector<sensor_msgs::JointState>  body_joint_state_res_vec;
 
     // register ctrl-c
     signal(SIGINT, sig_handler);    
@@ -275,9 +308,20 @@ int main(int argc, char** argv){
             joint_header.seq += 1;
             joint_header.stamp = ros::Time::now();
             body_joint_state_response.header = joint_header;
-            joint_state_res_vec.push_back(body_joint_state_response);
 
-            joint_state_pub.publish(body_joint_state_response);
+            floating_joint_state_response.header = joint_header;
+
+            floating_joint_state_res_vec.push_back(floating_joint_state_response);
+            body_joint_state_res_vec.push_back(body_joint_state_response);
+
+
+            //joint_state_pub.publish(body_joint_state_response);
+
+
+
+            publish_robot_states(br, floating_joint_state_response, body_joint_state_response, joint_state_pub);
+
+
 
         }
         else{
@@ -293,11 +337,10 @@ int main(int argc, char** argv){
         }
 
     }
-    int num_stored = joint_state_res_vec.size();
+    int num_stored = body_joint_state_res_vec.size();
     int counter = 0;    
     while (!g_caught_sigint && ros::ok()){
-
-        joint_state_pub.publish(joint_state_res_vec[counter]);  
+        publish_robot_states(br, floating_joint_state_res_vec[counter], body_joint_state_res_vec[counter], joint_state_pub);
 
         counter += 1;
         counter = counter % num_stored;
