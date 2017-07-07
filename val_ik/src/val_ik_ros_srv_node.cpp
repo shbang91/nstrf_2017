@@ -32,6 +32,30 @@ using Eigen::Vector4d;
 using Eigen::VectorXd;
 using Eigen::Matrix3Xd;
 
+namespace drake{
+    void send_lcm(const RigidBodyTreed* tree, VectorXd q_sol){
+      VectorX<double> x = VectorX<double>::Zero(tree->get_num_positions() +
+                                                tree->get_num_velocities());
+      x.head(q_sol.size()) = q_sol;
+      systems::BasicVector<double> q_draw(x);        
+        lcm::DrakeLcm lcm;
+        std::vector<uint8_t> message_bytes;
+
+        lcmt_viewer_load_robot load_msg =
+        multibody::CreateLoadRobotMessage<double>(*tree);
+        const int length = load_msg.getEncodedSize();
+        message_bytes.resize(length);
+        load_msg.encode(message_bytes.data(), 0, length);
+        lcm.Publish("DRAKE_VIEWER_LOAD_ROBOT", message_bytes.data(),
+        message_bytes.size());
+
+        systems::ViewerDrawTranslator posture_drawer(*tree);
+        posture_drawer.Serialize(0, q_draw, &message_bytes);
+        lcm.Publish("DRAKE_VIEWER_DRAW", message_bytes.data(),
+        message_bytes.size());
+    }
+}
+
 using namespace drake;
 
 sensor_msgs::JointState joint_state_msg;
@@ -146,12 +170,12 @@ namespace valkyrie_test{
         -0.71,                // 36 leftAnklePitch
         0.0;                  // 37 leftAnkleRoll
 
-    std::cout << "reach_start size:" << reach_start.size() << std::endl;
+/*    std::cout << "reach_start size:" << reach_start.size() << std::endl;
 
     // Debug input
     for (size_t i = 0; i < reach_start.size(); i++){
         std::cout << reach_start[i] << std::endl;
-    }
+    }*/
 
     KinematicsCache<double> cache = tree->doKinematics(reach_start);
 
@@ -381,6 +405,7 @@ namespace valkyrie_test{
       joint_state_msg.position.push_back(joint_pos);
     }
 
+
     //joint_state_pub.publish(joint_state_msg);
   }
 } //namespace valkyrie
@@ -392,7 +417,6 @@ void init_IK_global_vars(){
       GetDrakePath() + "/examples/Valkyrie/urdf/urdf/"
           "valkyrie_A_sim_drake_one_neck_dof_wide_ankle_rom.urdf",
       multibody::joints::kRollPitchYaw, tree.get());
-
 
 }
 
@@ -406,6 +430,17 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     std::cout << "drake_body_joint_names size: " << req.drake_body_joint_names.size() << std::endl;
     std::cout << "init_drake_body_joint_pos size: " << req.init_drake_body_joint_pos.size() << std::endl;  
 
+    // Store Body Names which has a requested world position constraint
+    std::vector<std::string> request_constrained_body_positions;
+    // Create map of body name to index
+    std::map<std::string, int> position_constrained_body_to_index;
+    for (size_t i = 0; i < req.desired_body_positions.size(); i++){
+        std::string constrained_body_name; 
+        constrained_body_name = req.desired_body_positions[i].body_name;
+        request_constrained_body_positions.push_back(constrained_body_name);
+        position_constrained_body_to_index[constrained_body_name] = i;
+    }
+
     // Initialize generalized coordinate positions
     size_t num_floating_joints = req.init_drake_floating_joint_pos.size();
     size_t num_body_joints = req.init_drake_body_joint_pos.size();  
@@ -415,16 +450,15 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
             reach_start[i] = req.init_drake_floating_joint_pos[i];
         }else{
             size_t j = i - num_floating_joints ;
-            std::cout << "i:" << i << " j:" << j << std::endl;
             reach_start[i] = req.init_drake_body_joint_pos[j];
         }
     }
 
     // Debug input
-    /*std::cout << "reach_start size:" << reach_start.size() << std::endl;   
+    std::cout << "reach_start size:" << reach_start.size() << std::endl;   
     for (size_t i = 0; i < reach_start.size(); i++){
         std::cout << reach_start[i] << std::endl;
-    }*/
+    }
 
 
     double inf = std::numeric_limits<double>::infinity();
@@ -449,7 +483,7 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     const Vector3d origin(0, 0, 0);
 
     int l_foot = tree->FindBodyIndex("leftFoot");
-    Vector4d lfoot_quat(1, 0, 0, 0);
+    Vector4d lfoot_quat(1, 0, 0, 0);                // This should be changed to the current foot position
     auto lfoot_pos0 = tree->transformPoints(cache, origin, l_foot, 0);
     Vector3d lfoot_pos_lb = lfoot_pos0;
     // Position and quaternion constraints are relaxed to make the problem
@@ -482,8 +516,8 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     FindJointAndInsert(tree.get(), "torsoPitch", &torso_idx);
     FindJointAndInsert(tree.get(), "torsoRoll", &torso_idx);
     Vector3d torso_nominal = Vector3d::Zero();
-  //  Vector3d torso_half_range(15.0 / 180 * M_PI, 25.0 / 180 * M_PI, inf);
-    Vector3d torso_half_range(1.0 / 180 * M_PI, 1.0 / 180 * M_PI, 1.0 / 180 * M_PI);  
+    Vector3d torso_half_range(11.0 / 180 * M_PI, 15.0 / 180 * M_PI, 3.0 / 180 * M_PI);
+//    Vector3d torso_half_range(1.0 / 180 * M_PI, 1.0 / 180 * M_PI, 1.0 / 180 * M_PI);  
     Vector3d torso_lb = torso_nominal - torso_half_range;
     Vector3d torso_ub = torso_nominal + torso_half_range;
     torso_lb(1) = -5.0 / 180 * M_PI;
@@ -543,25 +577,45 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
     // Position and quaternion constraints are relaxed to make the problem
     // solvable by IPOPT.
-    Vector3d rh_palm_des_pos(0.1, 0.2, 0.3);
-  //  Vector3d rh_palm_des_pos(0.0, 0.0, 0.2);  
+    Vector3d rh_palm_des_offset(0.0, 0.0, 0.0);  
+
+    if(std::find(request_constrained_body_positions.begin(), 
+                 request_constrained_body_positions.end(), "rightPalm") != request_constrained_body_positions.end()) {
+        ROS_INFO("rightPalm Position Request");
+        geometry_msgs::Point world_point;
+        int index = position_constrained_body_to_index["rightPalm"];
+        world_point = req.desired_body_positions[index].world_position;
+        ROS_INFO("x,y,z");
+        std::cout << world_point.x << " " << world_point.y << " " << world_point.z << " " << std::endl;
+
+        Vector3d rpalm_desired_world_pos( world_point.x,  world_point.y,  world_point.z);
+
+        rh_palm_des_offset = rpalm_desired_world_pos;
+        if (!req.desired_body_positions[index].offset_from_current){
+            rh_palm_des_offset = rpalm_desired_world_pos - rh_palm0;
+        }
+
+        std::cout << rh_palm_des_offset[0] << " " << rh_palm_des_offset[1] << " " << rh_palm_des_offset[2] << " " << std::endl;        
+    }
+
+
     Vector3d pos_end;
-    pos_end = rh_palm0 + rh_palm_des_pos;
+    pos_end = rh_palm0 + rh_palm_des_offset;
+
+    ROS_INFO("Pos end:");
+    std::cout << pos_end[0] << " " << pos_end[1] << " " << pos_end[2] << " " << std::endl;        
 
     const double pos_tol = 0.01;
     const Vector3d pos_lb = pos_end - Vector3d::Constant(pos_tol);
     const Vector3d pos_ub = pos_end + Vector3d::Constant(pos_tol);
 
-    WorldPositionConstraint kc_rh_palm_pos(tree.get(), rh_palm, rh_palm_origin, pos_lb,
-                                         pos_ub, tspan);
+    WorldPositionConstraint kc_rh_palm_pos(tree.get(), rh_palm, rh_palm_origin, pos_lb, pos_ub, tspan);
 
 
     int pelvis = tree->FindBodyIndex("pelvis");
     Vector4d pelvis_quat(1, 0, 0, 0);
   //  double tol = 0.5 / 180 * M_PI;
     WorldQuatConstraint kc_pelvis_quat(tree.get(), pelvis, pelvis_quat, tol, tspan);
-
-
 
     // 8 Quasistatic constraint
     QuasiStaticConstraint kc_quasi(tree.get(), tspan);
@@ -626,15 +680,24 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
       joint_state_msg.position.push_back(joint_pos);
     }
 
-/*    // Debug Joint Inputs
+    // Debug Joint Inputs
     // Return Same Body Joint Positions
-    for (size_t i = 0; i < num_body_joints; i++){
+/*    for (size_t i = 0; i < num_body_joints; i++){
         joint_state_msg.name.push_back(req.drake_body_joint_names[i]);
         joint_state_msg.position.push_back(req.init_drake_body_joint_pos[i]);        
     }*/
 
     res.robot_joint_states = joint_state_msg;
     ROS_INFO("    Request ended successfully. returning true");
+
+
+//    drake::send_lcm(tree.get(), q_sol);
+
+
+
+
+//    joint_state_pub.publish(joint_state_msg);
+
     return true;
 }
 
@@ -658,7 +721,7 @@ int main(int argc, char **argv)
   // register ctrl-c
   signal(SIGINT, sig_handler);
 
-  double ros_rate = 3.0;
+  double ros_rate = 30.0;
   ros::Rate r(ros_rate);
 
   ROS_INFO("val_ik/val_ik_service is ready");
@@ -666,7 +729,7 @@ int main(int argc, char **argv)
   // Main loop:
   while (!g_caught_sigint && ros::ok()){
     ros::spinOnce();
-    //r.sleep();
+    r.sleep();
   }
 
   return 0;

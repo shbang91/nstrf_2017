@@ -1,2 +1,3 @@
 string body_name
-geometry_msgs/Quaternion world_quaternion
+bool offset_from_current # if true it will be an offset to current body position
+geometry_msgs/Quaternion quaternion

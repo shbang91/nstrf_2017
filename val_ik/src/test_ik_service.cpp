@@ -3,6 +3,7 @@
 #include <signal.h>
 
 // Include ROS message types
+#include "std_msgs/Header.h"
 #include "std_msgs/String.h"
 #include "geometry_msgs/Point.h"
 #include "geometry_msgs/Quaternion.h"
@@ -125,8 +126,33 @@ void define_IK_init_positions_test(std::vector<float>   &init_drake_floating_joi
 
 }
 
+void update_body_joint_pos(std::vector<float>   &init_drake_body_joint_pos,
+                           sensor_msgs::JointState joint_update){
+
+    for (size_t i = 0; i < init_drake_body_joint_pos.size(); i++){
+        init_drake_body_joint_pos[i] = joint_update.position[i];
+
+    }
+
+}
+
+void define_desired_hand_pos(std::vector<val_ik_msgs::BodyPositionConstraint> &desired_body_positions, 
+                             float x, float y, float z, bool offset_from_current){
+    val_ik_msgs::BodyPositionConstraint body_constraint;
+
+    body_constraint.body_name = "rightPalm";    
+    body_constraint.offset_from_current = offset_from_current;
+    body_constraint.world_position.x = x;
+    body_constraint.world_position.y = y;
+    body_constraint.world_position.z = z;
+
+
+    desired_body_positions.push_back(body_constraint);
+}
+
 ros::ServiceClient  client;
 ros::Publisher      joint_state_pub;
+
 int main(int argc, char** argv){
     // Initialize ROS
     ros::init(argc, argv, "test_val_ik_service_call");
@@ -138,7 +164,7 @@ int main(int argc, char** argv){
     val_ik::DrakeIKVal ik_srv;
 
     // Declare Joint State Pub
-    joint_state_pub  = nh.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 0 );  
+    joint_state_pub  = nh.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 100 );  
 
 
     // Prepare Client Message
@@ -154,6 +180,8 @@ int main(int argc, char** argv){
     init_IK_joint_names(drake_floating_joint_names, drake_body_joint_names);
     init_IK_positions(drake_floating_joint_names, drake_body_joint_names, init_drake_floating_joint_pos, init_drake_body_joint_pos);
     define_IK_init_positions_test(init_drake_floating_joint_pos, init_drake_body_joint_pos);
+    //define_desired_hand_pos(desired_body_positions, 0.4, -0.2, 1.0, false);
+    define_desired_hand_pos(desired_body_positions, 0.0, 0.0, 0.0, true);    
 
     ik_srv.request.drake_floating_joint_names = drake_floating_joint_names;
     ik_srv.request.drake_body_joint_names = drake_body_joint_names;    
@@ -169,30 +197,77 @@ int main(int argc, char** argv){
     // Preparing response field
     sensor_msgs::JointState joint_state_response;
 
+    std::vector<sensor_msgs::JointState>  joint_state_res_vec;
+
     // register ctrl-c
     signal(SIGINT, sig_handler);    
-
+    ros::Rate r(20);
     bool callOnce = false;
+    float t = 0;
+    float x_prev = 0.0;
+
+    std_msgs::Header joint_header;
+    joint_header.seq = 0;
+    joint_header.stamp = ros::Time::now();
+
+
     while (!g_caught_sigint && ros::ok()){
+        float x_now =  std::fabs(0.5*std::sin(t));
+        float dx = x_now - x_prev;
+        x_prev = x_now;
+        std::cout << t << std::endl;
+        std::cout << "x_now" << x_now <<  std::endl;
+        std::cout << "dx" << dx <<  std::endl;          
+
+        std::vector<val_ik_msgs::BodyPositionConstraint>         dx_desired_body_positions;
+        define_desired_hand_pos(dx_desired_body_positions, dx, dx, dx, true);    
+
+
+        ik_srv.request.desired_body_positions = dx_desired_body_positions;
+
         // Begin Service Call
-        if (!callOnce){
-            if (client.call(ik_srv)){
-                ROS_INFO("Call Successful");
-                joint_state_response = ik_srv.response.robot_joint_states;
-                std::cout << ik_srv.response.robot_joint_states.name.size() << std::endl;
-                std::cout << joint_state_response.name.size() << std::endl;
-                callOnce = true;
-            }
-            else{
-               ROS_ERROR("Failed to call service val_ik/val_ik_service");
-            }
-        }
-        if (callOnce){
+
+        if (client.call(ik_srv)){
+            ROS_INFO("Call Successful");
+            joint_state_response = ik_srv.response.robot_joint_states;
+            std::cout << ik_srv.response.robot_joint_states.name.size() << std::endl;
+            std::cout << joint_state_response.name.size() << std::endl;
+
+            update_body_joint_pos(init_drake_body_joint_pos, joint_state_response);
+            ik_srv.request.init_drake_body_joint_pos = init_drake_body_joint_pos;
+
+            joint_header.seq += 1;
+            joint_header.stamp = ros::Time::now();
+            joint_state_response.header = joint_header;
+            joint_state_res_vec.push_back(joint_state_response);
+
             joint_state_pub.publish(joint_state_response);
+
         }
+        else{
+           ROS_ERROR("Failed to call service val_ik/val_ik_service");
+        }
+
+
         ros::spinOnce();
+        t = t + 0.1;
+        r.sleep();
+        if (t > 2.0){
+            break;
+        }
+
     }
-    
+    int num_stored = joint_state_res_vec.size();
+    int counter = 0;    
+    while (!g_caught_sigint && ros::ok()){
+
+        joint_state_pub.publish(joint_state_res_vec[counter]);  
+
+        counter += 1;
+        counter = counter % num_stored;
+        ros::spinOnce();
+        r.sleep();
+    }    
     return 0;
 }
     

@@ -1,7 +1,7 @@
 <launch>
   <!-- Nice Reference at: http://answers.gazebosim.org/question/9403/multi-robot-controller-manager-for-different-robot_descripion/ -->
 
-    <arg name="gui" default="True" />  
+    <arg name="gui" default="False" />  
 
     <group ns="val_ik_robot">
       <param name="robot_description" textfile="$(find val_viz)/robot_urdf/valkyrie_sim_gazebo_sync_red.urdf" />        

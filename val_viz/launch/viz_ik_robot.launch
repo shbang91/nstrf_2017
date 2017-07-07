@@ -1,6 +1,6 @@
 <launch>
 
-    <arg name="gui" default="True" />
+    <arg name="gui" default="False" />
     <param name="use_gui" value="$(arg gui)"/>
 
     <!-- Load Robot -->
