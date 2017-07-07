@@ -31,3 +31,8 @@ Run the visualizer as before, then:
 $rosrun val_ik val_ik
 ````
 
+# Test the IK Trajectory:
+````
+roslaunch val_ik test_simple_ik_traj.launch
+````
+![alt text](https://raw.githubusercontent.com/stevenjj/nstrf_2017/master/val_ik/val_ik_trajectory_overlay_sample.gif)
