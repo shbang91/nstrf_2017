@@ -1,0 +1,2 @@
+sensor_msgs/JointState floating_joint_states
+sensor_msgs/JointState body_joint_states

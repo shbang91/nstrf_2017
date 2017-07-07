@@ -22,6 +22,8 @@
 #include "val_ik_msgs/BodyPositionConstraint.h"
 #include "val_ik_msgs/BodyQuaternionConstraint.h"
 #include "val_ik_msgs/JointPositionConstraint.h"
+#include "val_ik_msgs/RobotJointStates.h"
+
 
 // Include ROS Service
 #include "val_ik/DrakeIKVal.h"
@@ -670,24 +672,43 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     // Return IK Solution:
 
     // Prepare Joint State Message Response
-    sensor_msgs::JointState joint_state_msg;
+    sensor_msgs::JointState floating_joint_state_msg;
+    for(size_t i = 0; i < req.drake_floating_joint_names.size(); i++ ){
+      std::string joint_name;
+      joint_name = req.drake_floating_joint_names[i];
+      double joint_pos = q_sol[i];   
+      floating_joint_state_msg.name.push_back(joint_name);
+      floating_joint_state_msg.position.push_back(joint_pos);
+    }
+
+
+    // Prepare Joint State Message Response
+    sensor_msgs::JointState body_joint_state_msg;
     for(size_t i = 0; i < req.drake_body_joint_names.size(); i++ ){
       std::string joint_name;
       joint_name = req.drake_body_joint_names[i];
       int joint_id = GetJointPositionVectorIndices(tree.get(), joint_name)[0];
       double joint_pos = q_sol[joint_id];   
-      joint_state_msg.name.push_back(joint_name);
-      joint_state_msg.position.push_back(joint_pos);
+      body_joint_state_msg.name.push_back(joint_name);
+      body_joint_state_msg.position.push_back(joint_pos);
     }
 
     // Debug Joint Inputs
     // Return Same Body Joint Positions
 /*    for (size_t i = 0; i < num_body_joints; i++){
-        joint_state_msg.name.push_back(req.drake_body_joint_names[i]);
-        joint_state_msg.position.push_back(req.init_drake_body_joint_pos[i]);        
+        body_joint_state_msg.name.push_back(req.drake_body_joint_names[i]);
+        body_joint_state_msg.position.push_back(req.init_drake_body_joint_pos[i]);        
     }*/
 
-    res.robot_joint_states = joint_state_msg;
+    ROS_INFO("Printing q_sol:");
+    for (size_t i = 0; i < q_sol.size(); i++){
+        std::cout << "    " << "i:" << i << " value:" << q_sol[i] << std::endl;  
+    }
+
+
+    res.robot_joint_states.floating_joint_states = floating_joint_state_msg;    
+    res.robot_joint_states.body_joint_states = body_joint_state_msg;
+
     ROS_INFO("    Request ended successfully. returning true");
 
 
@@ -696,7 +717,7 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
 
 
-//    joint_state_pub.publish(joint_state_msg);
+//    joint_state_pub.publish(body_joint_state_msg);
 
     return true;
 }

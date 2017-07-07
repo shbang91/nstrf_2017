@@ -11,6 +11,7 @@
 #include "val_ik_msgs/BodyPositionConstraint.h"
 #include "val_ik_msgs/BodyQuaternionConstraint.h"
 #include "val_ik_msgs/JointPositionConstraint.h"
+#include "val_ik_msgs/RobotJointStates.h"
 
 // Include ROS Service
 #include "val_ik/DrakeIKVal.h"
@@ -29,12 +30,12 @@ void sig_handler(int sig)
 
 
 void init_IK_joint_names(std::vector<std::string> &drake_floating_joint_names, std::vector<std::string>  &drake_body_joint_names){
-    drake_floating_joint_names.push_back("x");  
-    drake_floating_joint_names.push_back("y"); 
-    drake_floating_joint_names.push_back("z");
-    drake_floating_joint_names.push_back("r"); 
-    drake_floating_joint_names.push_back("p"); 
-    drake_floating_joint_names.push_back("y");
+    drake_floating_joint_names.push_back("base_x");  
+    drake_floating_joint_names.push_back("base_y"); 
+    drake_floating_joint_names.push_back("base_z");
+    drake_floating_joint_names.push_back("base_roll"); 
+    drake_floating_joint_names.push_back("base_pitch"); 
+    drake_floating_joint_names.push_back("base_yaw");
 
     drake_body_joint_names.push_back("torsoYaw");
     drake_body_joint_names.push_back("torsoPitch");
@@ -126,11 +127,21 @@ void define_IK_init_positions_test(std::vector<float>   &init_drake_floating_joi
 
 }
 
+void update_floating_joint_pos(std::vector<float>   &init_drake_floating_joint_pos,
+                               sensor_msgs::JointState &floating_joint_update){
+
+    for (size_t i = 0; i < init_drake_floating_joint_pos.size(); i++){
+        init_drake_floating_joint_pos[i] = floating_joint_update.position[i];
+
+    }
+
+}
+
 void update_body_joint_pos(std::vector<float>   &init_drake_body_joint_pos,
-                           sensor_msgs::JointState joint_update){
+                           sensor_msgs::JointState &body_joint_update){
 
     for (size_t i = 0; i < init_drake_body_joint_pos.size(); i++){
-        init_drake_body_joint_pos[i] = joint_update.position[i];
+        init_drake_body_joint_pos[i] = body_joint_update.position[i];
 
     }
 
@@ -148,6 +159,17 @@ void define_desired_hand_pos(std::vector<val_ik_msgs::BodyPositionConstraint> &d
 
 
     desired_body_positions.push_back(body_constraint);
+}
+
+void print_input_joint_names(){
+    std::vector<std::string>                                 drake_floating_joint_names;
+    std::vector<std::string>                                 drake_body_joint_names;
+    std::vector<float>                                       init_drake_body_joint_pos;
+    std::vector<float>                                       init_drake_floating_joint_pos;
+    std::vector<val_ik_msgs::BodyPositionConstraint>         desired_body_positions;
+    std::vector<val_ik_msgs::BodyQuaternionConstraint>       desired_quaternion_positions;
+    std::vector<val_ik_msgs::JointPositionConstraint>        desired_joint_positions;
+
 }
 
 ros::ServiceClient  client;
@@ -195,13 +217,14 @@ int main(int argc, char** argv){
 
 
     // Preparing response field
-    sensor_msgs::JointState joint_state_response;
+    sensor_msgs::JointState floating_joint_state_response;
+    sensor_msgs::JointState body_joint_state_response;
 
     std::vector<sensor_msgs::JointState>  joint_state_res_vec;
 
     // register ctrl-c
     signal(SIGINT, sig_handler);    
-    ros::Rate r(20);
+    ros::Rate r(5);
     bool callOnce = false;
     float t = 0;
     float x_prev = 0.0;
@@ -210,9 +233,10 @@ int main(int argc, char** argv){
     joint_header.seq = 0;
     joint_header.stamp = ros::Time::now();
 
-
+    float start_x = 0.0567334; float start_y = -0.423633; float start_z = 0.781989; 
+    float desired_x = start_x;     float desired_y = start_y;     float desired_z = start_z;
     while (!g_caught_sigint && ros::ok()){
-        float x_now =  std::fabs(0.5*std::sin(t));
+        float x_now =  std::fabs(0.3*std::sin(t));
         float dx = x_now - x_prev;
         x_prev = x_now;
         std::cout << t << std::endl;
@@ -220,28 +244,40 @@ int main(int argc, char** argv){
         std::cout << "dx" << dx <<  std::endl;          
 
         std::vector<val_ik_msgs::BodyPositionConstraint>         dx_desired_body_positions;
-        define_desired_hand_pos(dx_desired_body_positions, dx, dx, dx, true);    
+        
 
+        desired_x += dx;
+        desired_y += dx;
+        desired_z += dx;                
 
+        define_desired_hand_pos(dx_desired_body_positions, desired_x, desired_y, desired_z, false);    
         ik_srv.request.desired_body_positions = dx_desired_body_positions;
 
         // Begin Service Call
-
         if (client.call(ik_srv)){
             ROS_INFO("Call Successful");
-            joint_state_response = ik_srv.response.robot_joint_states;
-            std::cout << ik_srv.response.robot_joint_states.name.size() << std::endl;
-            std::cout << joint_state_response.name.size() << std::endl;
+            floating_joint_state_response = ik_srv.response.robot_joint_states.floating_joint_states;
+            body_joint_state_response = ik_srv.response.robot_joint_states.body_joint_states;
 
-            update_body_joint_pos(init_drake_body_joint_pos, joint_state_response);
-            ik_srv.request.init_drake_body_joint_pos = init_drake_body_joint_pos;
+            std::cout << "In Floating Joints Names Size:" <<  ik_srv.response.robot_joint_states.floating_joint_states.name.size() << std::endl;
+            std::cout << "Out Floating Joints Names Size:" << floating_joint_state_response.name.size() << std::endl;            
+
+            std::cout << "In Body Joints Names Size:" <<  ik_srv.response.robot_joint_states.body_joint_states.name.size() << std::endl;
+            std::cout << "Out Body Joints Names Size:" << body_joint_state_response.name.size() << std::endl;
+
+            update_floating_joint_pos(init_drake_floating_joint_pos, floating_joint_state_response);
+            update_body_joint_pos(init_drake_body_joint_pos,     body_joint_state_response);
+
+
+            ik_srv.request.init_drake_floating_joint_pos = init_drake_floating_joint_pos;
+            ik_srv.request.init_drake_body_joint_pos = init_drake_body_joint_pos;            
 
             joint_header.seq += 1;
             joint_header.stamp = ros::Time::now();
-            joint_state_response.header = joint_header;
-            joint_state_res_vec.push_back(joint_state_response);
+            body_joint_state_response.header = joint_header;
+            joint_state_res_vec.push_back(body_joint_state_response);
 
-            joint_state_pub.publish(joint_state_response);
+            joint_state_pub.publish(body_joint_state_response);
 
         }
         else{
@@ -250,9 +286,9 @@ int main(int argc, char** argv){
 
 
         ros::spinOnce();
-        t = t + 0.1;
+        t = t + 0.2;
         r.sleep();
-        if (t > 2.0){
+        if (t > 6.0){
             break;
         }
 

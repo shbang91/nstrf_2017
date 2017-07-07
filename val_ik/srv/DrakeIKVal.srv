@@ -6,4 +6,4 @@ val_ik_msgs/BodyPositionConstraint[] desired_body_positions
 val_ik_msgs/BodyQuaternionConstraint[] desired_quaternion_positions
 val_ik_msgs/JointPositionConstraint[] desired_joint_positions
 --- 
-sensor_msgs/JointState robot_joint_states
+val_ik_msgs/RobotJointStates robot_joint_states
