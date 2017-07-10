@@ -8,7 +8,7 @@
       <param name="use_gui" value="$(arg gui)"/>
 
       <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-          <rosparam param="source_list">[/robot1/joint_states]</rosparam> 
+          <rosparam param="source_list">[/val_ik_robot/joint_states]</rosparam> 
       </node>
 
       <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
@@ -22,7 +22,7 @@
       <param name="use_gui" value="$(arg gui)"/>
 
       <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-            <rosparam param="source_list">[/robot2/joint_states]</rosparam>
+            <rosparam param="source_list">[/val_robot/joint_states]</rosparam>
       </node> 
       <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
         <param name="tf_prefix" type="string" value="val_robot" />  
@@ -30,10 +30,10 @@
 
     </group>
 
-    <node name="val_ik" pkg="val_ik" type="val_ik_ros_srv_node" output="screen"/>     
-    <node name="test_val_ik_srv" pkg="val_ik" type="test_ik_service" output="screen"/>         
+    <node name="val_ik" pkg="val_ik" type="val_ik_service" output="screen"/>     
+    <node name="se3_traj" pkg="val_ik" type="se3_traj" output="screen"/>         
 
-    <node name="rviz_ik" pkg="rviz" type="rviz" args="-d $(find val_ik)/launch/ik_traj_test.rviz" required="true" /> 
+    <node name="rviz_ik" pkg="rviz" type="rviz" args="-d $(find val_ik)/launch/test/ik_traj_test.rviz" required="true" /> 
 
 
 

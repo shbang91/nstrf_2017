@@ -1,0 +1,36 @@
+FootstepDataListRosMessage.msg
+	FootstepDataRosMessage.msg
+		# Specifies the position of the footstep. It is expressed in world frame.
+		geometry_msgs/Vector3 location
+
+		# Specifies the orientation of the footstep. It is expressed in world frame.
+		geometry_msgs/Quaternion orientation
+
+ArmTrajectoryRosMessage.msg
+	#List of trajectory points per joint. The expected joint ordering is from the closest joint to the
+	# chest to the closest joint to the hand.
+	ihmc_msgs/OneDoFJointTrajectoryRosMessage[] joint_trajectory_messages
+		# Right Shoulder Pitch
+		# Right Shoulder Roll
+		# Right Shoulder Yaw
+		# Elbow Pitch
+		# Forearm Yaw
+
+
+HandTrajectoryRosMessage.msg
+	# List of trajectory points (in taskpsace) to go through while executing the trajectory. All the
+	# information contained in these trajectory points needs to be expressed in world frame.
+	ihmc_msgs/SE3TrajectoryPointRosMessage[] taskspace_trajectory_points
+
+		# Wrist Roll
+		# Wrist Pitch
+
+HandDesiredConfigurationRosMessage.msg # Different for the real robot hand.
+	uint8 hand_desired_configuration 
+
+ChestTrajectoryRosMessage.msg
+	SO3 Trajectory Point ROS msg
+
+PelvisHeightTrajectoryRosMessage.msg 
+PelvisOrientationTrajectoryRosMessage.msg 	
+PelvisTrajectoryRosMessage.msg 
