@@ -1,3 +1,6 @@
+More details at:
+https://github.com/ihmcrobotics/ihmc_ros_core/tree/develop/ihmc_msgs/msg
+
 FootstepDataListRosMessage.msg
 	FootstepDataRosMessage.msg
 		# Specifies the position of the footstep. It is expressed in world frame.
@@ -18,7 +21,7 @@ ArmTrajectoryRosMessage.msg
 
 
 HandTrajectoryRosMessage.msg
-	# List of trajectory points (in taskpsace) to go through while executing the trajectory. All the
+	# List of trajectory points (in taskspace) to go through while executing the trajectory. All the
 	# information contained in these trajectory points needs to be expressed in world frame.
 	ihmc_msgs/SE3TrajectoryPointRosMessage[] taskspace_trajectory_points
 
@@ -34,3 +37,50 @@ ChestTrajectoryRosMessage.msg
 PelvisHeightTrajectoryRosMessage.msg 
 PelvisOrientationTrajectoryRosMessage.msg 	
 PelvisTrajectoryRosMessage.msg 
+
+
+Robot Pose / Pelvis Pose: (nav_msgs/Odometry)
+/ihmc_ros/valkyrie/output/robot_pose
+
+or viewable via TF frames from  world to pelvis
+
+Pelvis: 
+	Max height: 1.05
+	Min height: 0.9	
+
+
+Example Left Arm Trajectory Message:
+rostopic pub /ihmc_ros/valkyrie/control/arm_trajectory ihmc_msgs/ArmTrajectoryRosMessage "robot_side: 0
+joint_trajectory_messages:
+- trajectory_points:
+  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.2, position: 0.0, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}  
+  unique_id: 0
+execution_mode: 0
+previous_message_id: 0
+unique_id: 1"
+
+Example Left Hand SE(3) Trajectory:
+rostopic pub /ihmc_ros/valkyrie/controhand_trajectory ihmc_msgs/HandTrajectoryRosMessage "robot_side: 0
+base_for_control: 0
+taskspace_trajectory_points:
+- time: 0.0                                                
+  position: {x: 0.5, y: 0.128, z: 1.1}
+  orientation: {x: -0.032, y: -0.0959, z: 0.888, w: -0.440}
+  linear_velocity: {x: 0.0, y: 0.0, z: 0.0}
+  angular_velocity: {x: 0.0, y: 0.0, z: 0.0}
+  unique_id: 0
+execution_mode: 0                                          
+previous_message_id: 0
+unique_id: 1"
