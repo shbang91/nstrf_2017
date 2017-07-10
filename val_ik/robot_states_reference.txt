@@ -1,0 +1,40 @@
+# For reference, the following lists the joint positions, their ID index (if available) and the joint name.
+Starting sample IK config Robot States and their positions
+        0.0              // 0 base_x
+        0.0,             // 1 base_y
+        1.025,           // 2 base_z
+        0.0,             // 3 base_roll
+        0.0,             // 4 base_pitch
+        0.0,             // 5 base_yaw
+        0.0,             // 6 torsoYaw
+        0.0,             // 7 torsoPitch
+        0.0,             // 8 torsoRoll
+        0.0,             // 9 lowerNeckPitch
+        // 0.0,                  // 10 neckYaw
+        // 0.0,                  // 11 upperNeckPitch
+        0.30019663134302466,  // 12 rightShoulderPitch
+        1.25,                 // 13 rightShoulderRoll
+        0.0,                  // 14 rightShoulderYaw
+        0.7853981633974483,   // 15 rightElbowPitch
+        1.571,                // 16 rightForearmYaw
+        0.0,                  // 17 rightWristRoll
+        0.0,                  // 18 rightWristPItch
+        0.30019663134302466,  // 19 leftShoulderPitch
+        -1.25,                // 20 leftShoulderRoll
+        0.0,                  // 21 leftShoulderYaw
+        -0.7853981633974483,  // 22 leftElbowPitch
+        1.571,                // 23 leftForearmYaw
+        0.0,                  // 24 leftWristRoll
+        0.0,                  // 25 LeftWristPitch
+        0.0,                  // 26 rightHipYaw
+        0.0,                  // 27 rightHipRoll
+        -0.49,                // 28 rightHipPitch
+        1.205,                // 29 rightKneePitch
+        -0.71,                // 30 rightAnklePitch
+        0.0,                  // 31 rightAnkleRoll
+        0.0,                  // 32 leftHipYaw
+        0.0,                  // 33 leftHipRoll
+        -0.49,                // 34 leftHipPitch
+        1.205,                // 35 leftKneePitch
+        -0.71,                // 36 leftAnklePitch
+        0.0;                  // 37 leftAnkleRoll

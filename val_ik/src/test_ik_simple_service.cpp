@@ -227,8 +227,7 @@ int main(int argc, char** argv){
     ROS_INFO("Service is ready");
 
     // Declare Joint State Pub
-    ros::Publisher ik_joint_state_pub  = nh.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 100 );  
-    ros::Publisher robot_joint_state_pub  = nh.advertise<sensor_msgs::JointState>( "/robot2/joint_states", 100 );      
+    ros::Publisher ik_joint_state_pub  = nh.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 100 );       
 
 
     // Prepare Client Message
@@ -243,9 +242,7 @@ int main(int argc, char** argv){
     // Initialize IK Joint Names
     init_IK_joint_names(drake_floating_joint_names, drake_body_joint_names);
     init_IK_positions(drake_floating_joint_names, drake_body_joint_names, init_drake_floating_joint_pos, init_drake_body_joint_pos);
-    define_IK_init_positions_test(init_drake_floating_joint_pos, init_drake_body_joint_pos);
-    //define_desired_hand_pos(desired_body_positions, 0.4, -0.2, 1.0, false);
-    define_desired_hand_pos(desired_body_positions, 0.0, 0.0, 0.0, true);    
+    define_IK_init_positions_test(init_drake_floating_joint_pos, init_drake_body_joint_pos);   
 
     ik_srv.request.drake_floating_joint_names = drake_floating_joint_names;
     ik_srv.request.drake_body_joint_names = drake_body_joint_names;    
@@ -265,117 +262,43 @@ int main(int argc, char** argv){
     sensor_msgs::JointState floating_joint_state_response;
     sensor_msgs::JointState body_joint_state_response;
 
-    std::vector<sensor_msgs::JointState>  floating_joint_state_res_vec;
-    std::vector<sensor_msgs::JointState>  body_joint_state_res_vec;
-
     // register ctrl-c
     signal(SIGINT, sig_handler);    
     ros::Rate r(5);
     bool callOnce = false;
-    float t = 0;
-    float x_prev = 0.0;
 
     std_msgs::Header joint_header;
     joint_header.seq = 0;
     joint_header.stamp = ros::Time::now();
 
-    float start_x = 0.0567334; float start_y = -0.423633; float start_z = 0.781989; 
-    float desired_x = start_x;     float desired_y = start_y;     float desired_z = start_z;
-
-    // Preparing response field
-    sensor_msgs::JointState initial_floating_joint_state_response;
-    sensor_msgs::JointState initial_body_joint_state_response;
     bool firstCall = false;
 
     while (!g_caught_sigint && ros::ok()){
-        float x_now =  std::fabs(0.3*std::sin(t));
-        float dx = x_now - x_prev;
-        x_prev = x_now;
-        std::cout << t << std::endl;
-        std::cout << "x_now" << x_now <<  std::endl;
-        std::cout << "dx" << dx <<  std::endl;          
-
-        std::vector<val_ik_msgs::BodyPositionConstraint>         dx_desired_body_positions;
-
-        desired_x += dx;
-        desired_y += dx;
-        desired_z += dx;                
-
-        define_desired_hand_pos(dx_desired_body_positions, desired_x, desired_y, desired_z, false);    
-        ik_srv.request.desired_body_positions = dx_desired_body_positions;
-
         // Begin Service Call
-        if (client.call(ik_srv)){
-            ROS_INFO("Call Successful");
-            floating_joint_state_response = ik_srv.response.robot_joint_states.floating_joint_states;
-            body_joint_state_response = ik_srv.response.robot_joint_states.body_joint_states;
-
-            std::cout << "In Floating Joints Names Size:" <<  ik_srv.response.robot_joint_states.floating_joint_states.name.size() << std::endl;
-            std::cout << "Out Floating Joints Names Size:" << floating_joint_state_response.name.size() << std::endl;            
-
-            std::cout << "In Body Joints Names Size:" <<  ik_srv.response.robot_joint_states.body_joint_states.name.size() << std::endl;
-            std::cout << "Out Body Joints Names Size:" << body_joint_state_response.name.size() << std::endl;
-
-            update_floating_joint_pos(init_drake_floating_joint_pos, floating_joint_state_response);
-            update_body_joint_pos(init_drake_body_joint_pos,     body_joint_state_response);
-
-
-            ik_srv.request.init_drake_floating_joint_pos = init_drake_floating_joint_pos;
-            ik_srv.request.init_drake_body_joint_pos = init_drake_body_joint_pos;            
-
-            joint_header.seq += 1;
-            joint_header.stamp = ros::Time::now();
-
-            initial_floating_joint_state_response.header = joint_header;
-            initial_body_joint_state_response.header = joint_header;
-
-            body_joint_state_response.header = joint_header;
-            floating_joint_state_response.header = joint_header;
-
-            floating_joint_state_res_vec.push_back(floating_joint_state_response);
-            body_joint_state_res_vec.push_back(body_joint_state_response);
-
-
-
-            if (!firstCall){
-                initial_floating_joint_state_response = ik_srv.response.robot_joint_states.floating_joint_states;
-                initial_body_joint_state_response =  ik_srv.response.robot_joint_states.body_joint_states;
+        if (!firstCall){
+            if (client.call(ik_srv)){
+                ROS_INFO("First IK call successful");
+                floating_joint_state_response = ik_srv.response.robot_joint_states.floating_joint_states;
+                body_joint_state_response = ik_srv.response.robot_joint_states.body_joint_states;
                 firstCall = true;
+                ROS_INFO("Will now publish IK solution...");
+            }
+            else{
+               ROS_ERROR("Failed to call service val_ik/val_ik_service");
             }
 
+        }else{
+            joint_header.seq += 1;
+            joint_header.stamp = ros::Time::now();
+            floating_joint_state_response.header = joint_header;
+            body_joint_state_response.header = joint_header;            
             publish_robot_states(br, floating_joint_state_response, body_joint_state_response, ik_joint_state_pub, "val_ik_robot/pelvis");
-
-
-
-        }
-        else{
-           ROS_ERROR("Failed to call service val_ik/val_ik_service");
-        }
-
-        if (firstCall){
-            publish_robot_states(br, initial_floating_joint_state_response, initial_body_joint_state_response, robot_joint_state_pub, "val_robot/pelvis");           
         }
 
         ros::spinOnce();
-        t = t + 0.2;
         r.sleep();
-        if (t > 3.1){
-            break;
-        }
-
     }
-    int num_stored = body_joint_state_res_vec.size();
-    int counter = 0;    
-    while (!g_caught_sigint && ros::ok()){
-        publish_robot_states(br, initial_floating_joint_state_response, initial_body_joint_state_response, robot_joint_state_pub, "val_robot/pelvis");           
-        publish_robot_states(br, floating_joint_state_res_vec[counter], body_joint_state_res_vec[counter], ik_joint_state_pub,  "val_ik_robot/pelvis");
-        counter += 1;
-        counter = counter % num_stored;
 
-
-        ros::spinOnce();
-        r.sleep();
-    }    
     return 0;
 }
     

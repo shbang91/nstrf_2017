@@ -119,3 +119,10 @@ add_dependencies(val_ik_ros_srv_node ${catkin_EXPORTED_TARGETS})
 add_executable(test_ik_service src/test_ik_service.cpp)
 target_link_libraries(test_ik_service ${catkin_LIBRARIES})
 add_dependencies(test_ik_service ${catkin_EXPORTED_TARGETS})
+
+add_executable(test_ik_simple_service src/test_ik_simple_service.cpp)
+target_link_libraries(test_ik_simple_service ${catkin_LIBRARIES})
+add_dependencies(test_ik_simple_service ${catkin_EXPORTED_TARGETS})
+
+
+
