@@ -11,11 +11,13 @@ find_package(catkin REQUIRED COMPONENTS
   message_filters
   sensor_msgs
   nav_msgs
+  geometry_msgs
   visualization_msgs
   val_ik_msgs
   openpose_ros_msgs
   srcsim
   val_ik
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -75,11 +77,13 @@ catkin_package(
 	  message_filters
 	  sensor_msgs
 	  nav_msgs
+	  geometry_msgs
 	  visualization_msgs
 	  val_ik_msgs
 	  openpose_ros_msgs
 	  srcsim
 	  val_ik
+	  tf
 )
 
 ###########
