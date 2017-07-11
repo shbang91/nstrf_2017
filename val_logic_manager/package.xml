@@ -72,13 +72,21 @@
   <run_depend>openpose_ros_msgs</run_depend>            
 
   <build_depend>val_ik</build_depend>
-  <run_depend>val_ik</run_depend>              
+  <run_depend>val_ik</run_depend>        
+
+  <build_depend>val_viz</build_depend>
+  <run_depend>val_viz</run_depend>                 
 
   <build_depend>srcsim</build_depend>
   <run_depend>srcsim</run_depend>                
 
   <build_depend>tf</build_depend>
   <run_depend>tf</run_depend>                  
+
+  <build_depend>interactive_markers</build_depend>
+  <run_depend>interactive_markers</run_depend>                    
+
+
  
   <!-- The export tag contains other, unspecified, tags -->
   <export>

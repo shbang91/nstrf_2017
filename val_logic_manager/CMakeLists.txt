@@ -17,7 +17,9 @@ find_package(catkin REQUIRED COMPONENTS
   openpose_ros_msgs
   srcsim
   val_ik
+  val_viz
   tf
+  interactive_markers
 )
 
 ## System dependencies are found with CMake's conventions
@@ -83,7 +85,9 @@ catkin_package(
 	  openpose_ros_msgs
 	  srcsim
 	  val_ik
+	  val_viz
 	  tf
+	  interactive_markers
 )
 
 ###########
@@ -95,6 +99,12 @@ include_directories(
 )
 
 
-add_executable(logic_main src/logic_main.cpp src/logic_callbacks.cpp src/logic_manager.cpp)
+add_executable(logic_main src/logic_main.cpp src/logic_callbacks.cpp src/logic_manager.cpp src/robot_state.cpp)
 target_link_libraries(logic_main ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_dependencies(logic_main ${catkin_EXPORTED_TARGETS})
+
+add_executable(interactive_marker src/interactive_marker.cpp)
+target_link_libraries(interactive_marker ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_dependencies(interactive_marker ${catkin_EXPORTED_TARGETS})
+
+
