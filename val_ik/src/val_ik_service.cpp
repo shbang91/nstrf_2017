@@ -223,7 +223,7 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     FindJointAndInsert(tree.get(), "torsoPitch", &torso_idx);
     FindJointAndInsert(tree.get(), "torsoRoll", &torso_idx);
     Vector3d torso_nominal = Vector3d::Zero();
-    Vector3d torso_half_range(11.0 / 180 * M_PI, 15.0 / 180 * M_PI, 3.0 / 180 * M_PI);
+    Vector3d torso_half_range(11.0 / 180 * M_PI, 15.0 / 180 * M_PI, 1.0 / 180 * M_PI);
 //    Vector3d torso_half_range(1.0 / 180 * M_PI, 1.0 / 180 * M_PI, 1.0 / 180 * M_PI);  
     Vector3d torso_lb = torso_nominal - torso_half_range;
     Vector3d torso_ub = torso_nominal + torso_half_range;
@@ -274,11 +274,11 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
     // 2 Left foot position and orientation constraint, position and orientation
     // constraints are imposed on frames/bodies
-    const Vector3d rh_palm_origin(0, 0, 0);
+    const Vector3d world_origin(0, 0, 0);
 
     int rh_palm = tree->FindBodyIndex("rightPalm");
     Vector4d rh_palm_quat(0.707, 0, 0, 0.707);
-    auto rh_palm0 = tree->transformPoints(cache, rh_palm_origin, rh_palm, 0);
+    auto rh_palm0 = tree->transformPoints(cache, world_origin, rh_palm, 0);
 
     std::cout << "rh_palm0:" << rh_palm0[0] << " " << rh_palm0[1] << " " << rh_palm0[2] << " " << std::endl;
 
@@ -320,13 +320,24 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     const Vector3d pos_lb = pos_end - Vector3d::Constant(pos_tol);
     const Vector3d pos_ub = pos_end + Vector3d::Constant(pos_tol);
 
-    WorldPositionConstraint kc_rh_palm_pos(tree.get(), rh_palm, rh_palm_origin, pos_lb, pos_ub, tspan);
+    WorldPositionConstraint kc_rh_palm_pos(tree.get(), rh_palm, world_origin, pos_lb, pos_ub, tspan);
 
 
     int pelvis = tree->FindBodyIndex("pelvis");
+//    auto pelvis0 = tree->transformPoints(cache, world_origin, pelvis0, 0);  
+    Vector3d pelvis_pos_end(0,0, 1.025);
+//    pelvis_pos_end = pelvis0;      
+    Vector3d pelvis_pos_lb = pelvis_pos_end - Vector3d::Constant(pos_tol);
+    Vector3d pelvis_pos_ub = pelvis_pos_end + Vector3d::Constant(pos_tol);    
+
+    pelvis_pos_lb(2) = 1.05;
+    pelvis_pos_lb(2) = 0.9;    
+
     Vector4d pelvis_quat(1, 0, 0, 0);
   //  double tol = 0.5 / 180 * M_PI;
     WorldQuatConstraint kc_pelvis_quat(tree.get(), pelvis, pelvis_quat, tol, tspan);
+
+    WorldPositionConstraint kc_pelvis_pos(tree.get(), pelvis, world_origin, pelvis_pos_lb, pelvis_pos_ub, tspan);
 
     // 8 Quasistatic constraint
     QuasiStaticConstraint kc_quasi(tree.get(), tspan);
@@ -358,7 +369,9 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
     constraint_array.push_back(&kc_rh_palm_pos);
   //  constraint_array.push_back(&kc_rh_palm_quat);  
+    constraint_array.push_back(&kc_pelvis_pos);
     constraint_array.push_back(&kc_pelvis_quat);
+
     
 
     IKoptions ikoptions(tree.get());

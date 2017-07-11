@@ -297,9 +297,13 @@ int main(int argc, char** argv){
 
         std::vector<val_ik_msgs::BodyPositionConstraint>         dx_desired_body_positions;
 
-        desired_x += dx;
+/*        desired_x += dx;
         desired_y += dx;
-        desired_z += dx;                
+        desired_z = desired_z + 1.5*dx;             
+*/
+        desired_x = start_x + 0.3;
+        desired_y = start_y + 0.45;
+        desired_z = start_z + 0.1;                        
 
         define_desired_hand_pos(dx_desired_body_positions, desired_x, desired_y, desired_z, false);    
         ik_srv.request.desired_body_positions = dx_desired_body_positions;
@@ -341,6 +345,7 @@ int main(int argc, char** argv){
                 initial_floating_joint_state_response = ik_srv.response.robot_joint_states.floating_joint_states;
                 initial_body_joint_state_response =  ik_srv.response.robot_joint_states.body_joint_states;
                 firstCall = true;
+                break;
             }
 
             publish_robot_states(br, floating_joint_state_response, body_joint_state_response, ik_joint_state_pub, "val_ik_robot/pelvis");

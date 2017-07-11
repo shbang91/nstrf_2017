@@ -1,4 +1,4 @@
 float32[] robot_states 
-string body_name
+string[] body_names
 ---
-geoemtry_msgs/Pose body_world_pose
+geoemtry_msgs/Pose[] body_world_poses
