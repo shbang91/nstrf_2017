@@ -18,6 +18,7 @@
 #include "std_msgs/String.h"
 #include "geometry_msgs/Point.h"
 #include "geometry_msgs/Quaternion.h"
+#include "geometry_msgs/Pose.h"
 #include "sensor_msgs/JointState.h"
 #include "val_ik_msgs/BodyPositionConstraint.h"
 #include "val_ik_msgs/BodyQuaternionConstraint.h"
@@ -26,6 +27,7 @@
 
 // Include ROS Service
 #include "val_ik/DrakeIKVal.h"
+#include "val_ik/DrakeFKBodyPose.h"
 
 #include <tf/transform_broadcaster.h>
 
@@ -120,6 +122,31 @@ void init_IK_global_vars(){
       GetDrakePath() + "/examples/Valkyrie/urdf/urdf/"
           "valkyrie_A_sim_drake_one_neck_dof_wide_ankle_rom.urdf",
       multibody::joints::kRollPitchYaw, tree.get());
+
+}
+
+bool FKServiceCallback(val_ik::DrakeFKBodyPose::Request& req, val_ik::DrakeFKBodyPose::Response& res){
+    std::vector<geometry_msgs::Pose>  body_poses;
+
+    // define reach_start
+    //KinematicsCache<double> cache = tree->doKinematics(reach_start);
+
+    for(size_t i = 0; i < req.body_names.size(); i++){
+        int body_index = tree->FindBodyIndex(req.body_names[i]);
+       // auto body_pose = tree->relativeTransform(cache, 0, body_index);
+        // Get Position and Quaternion
+          //  const auto& body_xyz = body_pose.translation();
+         //   Vector4d body_quat = drake::math::rotmat2quat(body_pose.linear());        
+
+        // Populate msg
+        geometry_msgs::Pose this_body_pose;
+        //this_body_pose.position.x = ;
+        // this_body_pose.orientation.x =;
+        body_poses.push_back(this_body_pose);
+        //
+    }
+
+    return true;
 
 }
 
@@ -448,6 +475,7 @@ int main(int argc, char **argv)
 
   //joint_state_pub = node.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 0 );
   val_ik_srv = node.advertiseService("val_ik/val_ik_service", ikServiceCallback);
+  val_ik_srv = node.advertiseService("val_ik/val_fk_service", FKServiceCallback);  
 
   // Initialize Service Global Variables
   init_IK_global_vars();

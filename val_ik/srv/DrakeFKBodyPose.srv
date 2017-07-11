@@ -1,4 +1,4 @@
 float32[] robot_states 
 string[] body_names # list of body names to get poses
 ---
-geoemtry_msgs/Pose[] body_world_poses
+geometry_msgs/Pose[] body_world_poses

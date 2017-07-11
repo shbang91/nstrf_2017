@@ -18,7 +18,7 @@ public:
     
 	void getRPY(double &pelvis_roll, double &pelvis_pitch, double &pelvis_yaw);
 	void getXYZ(double &pelvis_x, double &pelvis_y, double &pelvis_z);			
-	void publish_viz(ros::Publisher &state_publisher,  tf::TransformBroadcaster &br);	
+	void publish_viz(ros::Publisher &state_publisher, tf::TransformBroadcaster &br);	
 
 	RobotState();
 	~RobotState();

@@ -32,12 +32,14 @@ void RobotState::publish_viz(ros::Publisher &state_publisher,  tf::TransformBroa
     tf::Quaternion q;
     double pelvis_roll; double pelvis_pitch; double pelvis_yaw;
     getRPY(pelvis_roll, pelvis_pitch, pelvis_yaw);     
+
+    // Find Quaternion Equivalent of each fixed-axis rotation 
     tf::Quaternion q_world_roll;   q_world_roll.setRPY(pelvis_roll, 0.0, 0.0); 
     tf::Quaternion q_world_pitch;  q_world_pitch.setRPY(0.0, pelvis_pitch, 0.0); 
     tf::Quaternion q_world_yaw;    q_world_yaw.setRPY(0.0, 0.0, pelvis_yaw); 
+    
+    // Find Quaternion Equivalent of RPY
     q.setRPY(pelvis_roll , pelvis_pitch , pelvis_yaw);
-
-
 
     transform.setOrigin( tf::Vector3(pelvis_x, pelvis_y, pelvis_z) );
     transform.setRotation(q);
