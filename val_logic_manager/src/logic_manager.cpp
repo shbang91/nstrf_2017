@@ -84,7 +84,7 @@ void LogicManager::publish_ik_final_state_viz(){
 }
 
 void LogicManager::publish_ik_init_state_viz(){
-    //ik_init_robot_state.publish_viz(val_ik_initpose_robot_joint_states_pub, tf_br);    
+    ik_init_robot_state.publish_viz(val_ik_initpose_robot_joint_states_pub, br);    
 }
 
 
@@ -94,6 +94,14 @@ void LogicManager::update_current_robot_state(){
             current_robot_state.joint_state = global_joint_state_msg;
             current_robot_state.robot_pose = global_odom_msg; 
         state_mutex.unlock();
+
+        // Test
+        ik_init_robot_state.joint_state = current_robot_state.joint_state;
+        ik_init_robot_state.robot_pose = current_robot_state.robot_pose;
+        publish_ik_init_state_viz();
+        // Test
+
+
         ROS_INFO("State Update Received");
         ROS_INFO("JointState Size = %zu", global_joint_state_msg.position.size());
         global_state_update_received = false;
@@ -104,4 +112,5 @@ void LogicManager::loop(){
     update_current_robot_state();
     sample_object_marker.header.stamp = ros::Time::now();
     marker_pub.publish(sample_object_marker);
+
 }

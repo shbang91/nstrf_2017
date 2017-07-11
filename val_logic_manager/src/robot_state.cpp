@@ -21,21 +21,25 @@ void RobotState::getXYZ(double &pelvis_x, double &pelvis_y, double &pelvis_z){
 
 void RobotState::publish_viz(ros::Publisher &state_publisher,  tf::TransformBroadcaster &br){
     tf::Transform transform;
-    tf::Quaternion q;
+/*	tf::Quaternion q(robot_pose.pose.pose.orientation.x, robot_pose.pose.pose.orientation.y,	
+				     robot_pose.pose.pose.orientation.z, robot_pose.pose.pose.orientation.w);
+    transform.setRotation(q);
+*/
 
     double pelvis_x; double pelvis_y; double pelvis_z;
-    double pelvis_roll; double pelvis_pitch; double pelvis_yaw;
-
     getXYZ(pelvis_x, pelvis_y, pelvis_z);
-    getRPY(pelvis_roll, pelvis_pitch, pelvis_yaw);    
-  
-    transform.setOrigin( tf::Vector3(pelvis_x, pelvis_y, pelvis_z) );
 
+    tf::Quaternion q;
+    double pelvis_roll; double pelvis_pitch; double pelvis_yaw;
+    getRPY(pelvis_roll, pelvis_pitch, pelvis_yaw);     
     tf::Quaternion q_world_roll;   q_world_roll.setRPY(pelvis_roll, 0.0, 0.0); 
     tf::Quaternion q_world_pitch;  q_world_pitch.setRPY(0.0, pelvis_pitch, 0.0); 
     tf::Quaternion q_world_yaw;    q_world_yaw.setRPY(0.0, 0.0, pelvis_yaw); 
-
     q.setRPY(pelvis_roll , pelvis_pitch , pelvis_yaw);
+
+
+
+    transform.setOrigin( tf::Vector3(pelvis_x, pelvis_y, pelvis_z) );
     transform.setRotation(q);
 
     std::string frame_id;

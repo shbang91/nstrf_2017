@@ -35,6 +35,7 @@ public:
 
 	visualization_msgs::Marker			sample_object_marker;
 
+	tf::TransformBroadcaster 			br;
 
 	void init_sample_object_marker(); //initialize sample_marker
 	void update_current_robot_state();

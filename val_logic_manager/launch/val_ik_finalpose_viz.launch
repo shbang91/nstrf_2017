@@ -1,5 +1,6 @@
 <launch>
     <arg name="gui" default="False" />  
+
     <group ns="val_ik_finalpose_robot">
       <param name="robot_description" textfile="$(find val_viz)/robot_urdf/valkyrie_sim_gazebo_sync_red.urdf" />        
       <param name="use_gui" value="$(arg gui)"/>
