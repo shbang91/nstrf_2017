@@ -1,0 +1,42 @@
+rostopic pub /ihmc_ros/valkyrie/control/arm_trajectory ihmc_msgs/ArmTrajectoryRosMessage "robot_side: 0
+joint_trajectory_messages:
+- trajectory_points:
+  - {time: 0.0, position: -0.1, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: -0.2, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: -0.1, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: -0.6, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: -0.1, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}  
+  unique_id: 0
+execution_mode: 0
+previous_message_id: 0
+unique_id: 1"
+
+
+rostopic pub /ihmc_ros/valkyrie/control/arm_ajectory ihmc_msgs/ArmTrajectoryRosMessage "robot_side: 0
+joint_trajectory_messages:
+- trajectory_points:
+  - {time: 0.0, position: -0.1, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: -0.4, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: -0.2, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: -0.6, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: -0.1, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}  
+  unique_id: 0
+execution_mode: 0
+previous_message_id: 0
+unique_id: 1"

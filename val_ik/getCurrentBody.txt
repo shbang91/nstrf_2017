@@ -1,0 +1,28 @@
+Get Robot current joint positions Easy.
+Get Robot current floating joints Maybe.
+
+
+Forward kinematics 
+get current world positions
+get current world orientations/quaternions
+
+int l_foot = tree->FindBodyIndex("leftFoot");
+body_index = l_foot;
+auto body_pose = r.relativeTransform(cache, 0, body_index);
+const auto& body_xyz = body_pose.translation();
+Vector4d body_quat = drake::math::rotmat2quat(body_pose.linear());
+
+
+int r_foot = tree->FindBodyIndex("rightFoot");
+body_index = r_foot;
+auto body_pose = r.relativeTransform(cache, 0, body_index);
+const auto& body_xyz = body_pose.translation();
+Vector4d body_quat = drake::math::rotmat2quat(body_pose.linear());
+
+
+int r_foot = tree->FindBodyIndex("pelvis");
+body_index = r_foot;
+auto body_pose = r.relativeTransform(cache, 0, body_index);
+const auto& body_xyz = body_pose.translation();
+Vector4d body_quat = drake::math::rotmat2quat(body_pose.linear());
+
