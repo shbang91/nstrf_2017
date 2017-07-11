@@ -1,4 +1,7 @@
 #include "logic_main.h"
+// Declare Global Objects
+LogicManager logic_manager;
+boost::mutex state_mutex;
 
 int main(int argc, char** argv){
     // Initialize ROS

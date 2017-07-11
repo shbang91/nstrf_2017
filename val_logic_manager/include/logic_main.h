@@ -10,18 +10,20 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
+
 class LogicManager{
 public:
 	sensor_msgs::JointState 	current_joint_state;
 	nav_msgs::Odometry 			current_robot_pose;	
-	int							integer_test;
 
 	LogicManager();
 	~LogicManager();	
 };
 
-// Declare Global Variables
+// Declare Existence of Global Variables
 extern LogicManager logic_manager;
+extern boost::mutex state_mutex;
+
 
 typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::JointState, nav_msgs::Odometry> MySyncPolicy;
 // Declare Global Funcs
