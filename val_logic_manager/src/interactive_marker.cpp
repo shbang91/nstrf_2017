@@ -191,11 +191,12 @@ void saveMarker( InteractiveMarker int_marker )
 ////////////////////////////////////////////////////////////////////////////////////
 
 // %Tag(6DOF)%
-void make6DofMarker( bool fixed, unsigned int interaction_mode, const tf::Vector3& position, bool show_6dof )
+void make6DofMarker( bool fixed, unsigned int interaction_mode, const tf::Vector3& position, tf::Quaternion quat_start, bool show_6dof )
 {
   InteractiveMarker int_marker;
   int_marker.header.frame_id = "world";
   tf::pointTFToMsg(position, int_marker.pose.position);
+  tf::quaternionTFToMsg   (quat_start, int_marker.pose.orientation); 
   int_marker.scale = 0.25;
 
   int_marker.name = "simple_6dof";
@@ -549,8 +550,10 @@ int main(int argc, char** argv)
   makeRandomDofMarker( position );
   position = tf::Vector3(-3, 0, 0);
   make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::ROTATE_3D, position, false );*/
-  position = tf::Vector3( 0.5, 0, 1.2);
-  make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE_3D, position, true );
+
+  position = tf::Vector3( 0.3695, -0.147, 0.938);
+  tf::Quaternion q_start(-0.0308, 0.096, 0.883, 0.458);
+  make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE_3D, position, q_start, true );
 /*  position = tf::Vector3( 3, 0, 0);
   make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::MOVE_3D, position, false );
   position = tf::Vector3(-3,-3, 0);
@@ -575,3 +578,11 @@ int main(int argc, char** argv)
   server.reset();
 }
 // %EndTag(main)%
+
+
+
+/*tf::Transform transform;
+transform.setOrigin( tf::Vector3(pelvis_x, pelvis_y, pelvis_z) );
+transform.setRotation(q);
+br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", frame_id));
+*/
