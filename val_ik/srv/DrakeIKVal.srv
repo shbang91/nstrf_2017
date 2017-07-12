@@ -2,6 +2,8 @@ string[] drake_floating_joint_names
 string[] drake_body_joint_names
 float32[] init_drake_body_joint_pos
 float32[] init_drake_floating_joint_pos
+string[]  drake_robot_state_names
+float32[] init_drake_robot_states_value
 val_ik_msgs/BodyPositionConstraint[] desired_body_positions
 val_ik_msgs/BodyQuaternionConstraint[] desired_quaternion_positions
 val_ik_msgs/JointPositionConstraint[] desired_joint_positions

@@ -175,16 +175,26 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
         position_constrained_body_to_index[constrained_body_name] = i;
     }
 
-    // Initialize generalized coordinate positions
-    size_t num_floating_joints = req.init_drake_floating_joint_pos.size();
-    size_t num_body_joints = req.init_drake_body_joint_pos.size();  
+
     VectorXd reach_start(tree->get_num_positions());
-    for (size_t i = 0; i < ( num_floating_joints + num_body_joints); i++){
-        if (i < num_floating_joints){
-            reach_start[i] = req.init_drake_floating_joint_pos[i];
-        }else{
-            size_t j = i - num_floating_joints ;
-            reach_start[i] = req.init_drake_body_joint_pos[j];
+    if (req.init_drake_robot_states_value.size() > 0){
+        
+        for (size_t i = 0; i < ( req.init_drake_robot_states_value.size() ); i++){
+            reach_start[i] = req.init_drake_robot_states_value[i];
+        }
+
+    }else{
+        // Initialize generalized coordinate positions
+        size_t num_floating_joints = req.init_drake_floating_joint_pos.size();
+        size_t num_body_joints = req.init_drake_body_joint_pos.size();  
+
+        for (size_t i = 0; i < ( num_floating_joints + num_body_joints); i++){
+            if (i < num_floating_joints){
+                reach_start[i] = req.init_drake_floating_joint_pos[i];
+            }else{
+                size_t j = i - num_floating_joints ;
+                reach_start[i] = req.init_drake_body_joint_pos[j];
+            }
         }
     }
 

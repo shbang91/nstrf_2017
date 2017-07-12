@@ -32,14 +32,17 @@
 #include "val_ik/DrakeIKVal.h"
 
 
-class Val_IK_Manager{
+class Val_IK_Bridge{
 public:
-	geometry_msgs::Pose 				left_foot_pose;
-	geometry_msgs::Pose 				right_foot_pose;
+	geometry_msgs::Pose 				initial_left_foot_pose;
+	geometry_msgs::Pose 				initial_right_foot_pose;
 	geometry_msgs::Pose 				initial_pelvis_pose;
 
 	RobotState 							ik_init_robot_state;
 	RobotState 							ik_final_robot_state;	
+	void calc_single_hand_IK(geometry_msgs::Pose des_hand_pose);	
+	void set_init_IK_state(RobotState start_state);
+	void set_final_IK_state(RobotState end_state);	
 
 };
 
@@ -55,6 +58,8 @@ public:
 	ros::Subscriber 					operator_command_sub;	
 
 	ros::ServiceClient  				ik_client;
+
+	Val_IK_Bridge 						ik_manager;
 
 	RobotState 							current_robot_state;	
 	RobotState 							ik_init_robot_state;	
