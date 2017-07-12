@@ -14,7 +14,13 @@ int main(int argc, char** argv){
 
     // Declare Service Call clients
     // IK Client
-    logic_manager.ik_client = logic_manager.nh.serviceClient<val_ik::DrakeIKVal>("val_ik/val_ik_service");
+    logic_manager.ik_client        = logic_manager.nh.serviceClient<val_ik::DrakeIKVal>("val_ik/val_ik_service");
+    logic_manager.single_ik_client = logic_manager.nh.serviceClient<val_ik::DrakeOneHandSingleIk>("val_ik/val_single_ik_service");
+
+    ROS_INFO("Waiting for package val_ik services ");
+    ros::service::waitForService("val_ik/val_ik_service", -1);
+    ros::service::waitForService("val_ik/val_single_ik_service", -1);    
+    ROS_INFO("Services are ready");
 
     // Declare Subscribers
     logic_manager.interactive_marker_sub = logic_manager.nh.subscribe<visualization_msgs::InteractiveMarkerInit>("/basic_controls/update_full", 1, 

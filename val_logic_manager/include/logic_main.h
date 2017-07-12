@@ -27,10 +27,11 @@
 #include "val_ik_msgs/BodyQuaternionConstraint.h"
 #include "val_ik_msgs/JointPositionConstraint.h"
 #include "val_ik_msgs/RobotJointStates.h"
+#include "val_ik_msgs/RobotState.h"
 
 // Include ROS Service
 #include "val_ik/DrakeIKVal.h"
-
+#include "val_ik/DrakeOneHandSingleIk.h"
 
 class Val_IK_Bridge{
 public:
@@ -58,6 +59,7 @@ public:
 	ros::Subscriber 					operator_command_sub;	
 
 	ros::ServiceClient  				ik_client;
+	ros::ServiceClient  				single_ik_client;	
 
 	Val_IK_Bridge 						ik_manager;
 
