@@ -34,4 +34,6 @@ public:
 	void get_pelvis_RPY(val_ik_msgs::RobotState &robot_state, double &pelvis_roll, double &pelvis_pitch, double &pelvis_yaw);
 
 	bool OneHandSingleIk_callback(val_ik::DrakeOneHandSingleIk::Request& req, val_ik::DrakeOneHandSingleIk::Response& res);	
+	void convert_ik_srv_res_to_robot_state(val_ik::DrakeIKVal &ik_srv, val_ik_msgs::RobotState &robot_state_msg);
+
 };

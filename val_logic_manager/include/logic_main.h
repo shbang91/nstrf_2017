@@ -78,7 +78,7 @@ public:
 
 //	void publish_robot_state_viz(); // the current robot state
 //	void publish_ik_traj_state_viz(); // the IK trajectory
-//	void publish_ik_final_state_viz(); // the final IK pose
+	void publish_ik_final_state_viz(); // the final IK pose
 
 
 	void sendWBC(); // Send WBC to IHMC controller	

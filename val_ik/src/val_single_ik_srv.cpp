@@ -90,23 +90,60 @@ void Single_IK_srv::define_desired_hand_pos(val_ik::DrakeOneHandSingleIk::Reques
 bool Single_IK_srv::OneHandSingleIk_callback(val_ik::DrakeOneHandSingleIk::Request& req, val_ik::DrakeOneHandSingleIk::Response& res){
 	val_ik::DrakeIKVal ik_srv;
 	init_drake_states(req.robot_state, ik_srv);
-	//define_desired_hand_pos(req, ik_srv);
+	define_desired_hand_pos(req, ik_srv);
 
-	
     // Begin Service Call
     if (val_ik_client.call(ik_srv)){
         ROS_INFO("val_ik/val_ik_service Call Successful");
-        //ik_srv.response.robot_joint_states.floating_joint_states;
-        //ik_srv.response.robot_joint_states.body_joint_states;
+        // Returning Message
+        val_ik_msgs::RobotState robot_state_msg_res;
+        convert_ik_srv_res_to_robot_state(ik_srv, robot_state_msg_res);
+        res.robot_state = robot_state_msg_res;
     }
     else{
        ROS_ERROR("Failed to call service val_ik/val_ik_service");
+       return false;
     }
     
 
     ROS_INFO("Single IK Call Successful");
 	return true;
 }
+
+void Single_IK_srv::convert_ik_srv_res_to_robot_state(val_ik::DrakeIKVal &ik_srv, val_ik_msgs::RobotState &robot_state_msg){
+    tf::Quaternion q;
+    float body_x = ik_srv.response.robot_joint_states.floating_joint_states.position[0]; 
+    float body_y = ik_srv.response.robot_joint_states.floating_joint_states.position[1];
+    float body_z = ik_srv.response.robot_joint_states.floating_joint_states.position[2];    
+
+    float body_roll = ik_srv.response.robot_joint_states.floating_joint_states.position[3]; 
+    float body_pitch = ik_srv.response.robot_joint_states.floating_joint_states.position[4];
+    float body_yaw = ik_srv.response.robot_joint_states.floating_joint_states.position[5]; 
+
+    // Rotation from fixed axis
+    tf::Quaternion q_world_roll;   q_world_roll.setRPY(body_roll, 0.0, 0.0); 
+    tf::Quaternion q_world_pitch;  q_world_pitch.setRPY(0.0, body_pitch, 0.0); 
+    tf::Quaternion q_world_yaw;    q_world_yaw.setRPY(0.0, 0.0, body_yaw); 
+
+    // Normalize Quaternions
+    q_world_roll.normalize();     q_world_pitch.normalize();     q_world_yaw.normalize();
+
+    // Extrinsict Rotation about Space-fixed x-y-z axes by R-P-Y angles respectively.
+    // equivalently, we use an instrinsic rotation about body frames z-y`-x`` 
+    // Convention of Drake as seen in math::rol_pitch_yaw_not_using_quaternions
+    // q = q_world_yaw*q_world_pitch*q_world_roll;
+    q.setRPY(body_roll , body_pitch , body_yaw);
+
+    // Prepare robot_pose
+    geometry_msgs::Pose robot_pose;
+    robot_pose.position.x = body_x;     robot_pose.position.y = body_y;     robot_pose.position.z = body_z;
+	tf::quaternionTFToMsg 	(q, robot_pose.orientation); 		
+
+	// Set Message
+    robot_state_msg.robot_pose = robot_pose;
+    robot_state_msg.body_joint_states = ik_srv.response.robot_joint_states.body_joint_states;
+}
+
 
 int main(int argc, char** argv){
     ros::init(argc, argv, "val_ik_single_ik_server_node");

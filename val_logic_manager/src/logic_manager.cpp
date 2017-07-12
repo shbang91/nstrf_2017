@@ -12,6 +12,9 @@ void LogicManager::publish_ik_init_state_viz(){
     ik_init_robot_state.publish_viz(val_ik_initpose_robot_joint_states_pub, br);    
 }
 
+void LogicManager::publish_ik_final_state_viz(){
+    ik_final_robot_state.publish_viz(val_ik_finalpose_robot_joint_states_pub, br);    
+}
 
 void LogicManager::update_current_robot_state(){
     if (global_state_update_received){
@@ -48,19 +51,9 @@ void LogicManager::loop(){
 
 /*
 void calcIK(geometry_msgs::Pose des_hand_pose, int robot_side)
+    prepare initial IK pose
 
-    // set initial IK position from current Robot Position
-    
-    // Prepare msg for IK service
-        // call Forward Kinematics to get current left and right foot positions 
-
-    // Store left and right foot positions
-    
-    // prepare IK msg constraints
-
-    // set initial IK constraints
-    // constrain foot positions
-    // constrain robot_side hand position and orientation
+    ros service call singleIK
 
 
 

@@ -406,7 +406,7 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
     constraint_array.push_back(&kc_rh_palm_pos);
   //  constraint_array.push_back(&kc_rh_palm_quat);  
-    constraint_array.push_back(&kc_pelvis_pos);
+  //  constraint_array.push_back(&kc_pelvis_pos);
     constraint_array.push_back(&kc_pelvis_quat);
 
     
@@ -431,10 +431,18 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     // Return IK Solution:
 
     // Prepare Joint State Message Response
+
     sensor_msgs::JointState floating_joint_state_msg;
-    for(size_t i = 0; i < req.drake_floating_joint_names.size(); i++ ){
+    size_t NUM_FLOATING_JOINTS = 6;
+    for(size_t i = 0; i < NUM_FLOATING_JOINTS; i++ ){
       std::string joint_name;
-      joint_name = req.drake_floating_joint_names[i];
+
+      if (req.drake_robot_state_names.size() > 0){
+        joint_name = req.drake_robot_state_names[i];
+      }else{
+        joint_name = req.drake_floating_joint_names[i];
+      }
+
       double joint_pos = q_sol[i];   
       floating_joint_state_msg.name.push_back(joint_name);
       floating_joint_state_msg.position.push_back(joint_pos);
@@ -443,9 +451,14 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
     // Prepare Joint State Message Response
     sensor_msgs::JointState body_joint_state_msg;
-    for(size_t i = 0; i < req.drake_body_joint_names.size(); i++ ){
+    for(size_t i = NUM_FLOATING_JOINTS; i < reach_start.size(); i++ ){
       std::string joint_name;
-      joint_name = req.drake_body_joint_names[i];
+      if (req.drake_robot_state_names.size() > 0){
+          joint_name = req.drake_robot_state_names[i];
+      }else{
+          joint_name = req.drake_body_joint_names[i-NUM_FLOATING_JOINTS];
+      }
+    
       int joint_id = GetJointPositionVectorIndices(tree.get(), joint_name)[0];
       double joint_pos = q_sol[joint_id];   
       body_joint_state_msg.name.push_back(joint_name);
