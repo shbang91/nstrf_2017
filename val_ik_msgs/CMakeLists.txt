@@ -19,6 +19,7 @@ add_message_files(
   BodyQuaternionConstraint.msg
   JointPositionConstraint.msg
   RobotJointStates.msg
+  RobotState.msg
 )
 
 ## Generate services in the 'srv' folder

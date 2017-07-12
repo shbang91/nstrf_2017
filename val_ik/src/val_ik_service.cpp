@@ -475,7 +475,7 @@ int main(int argc, char **argv)
 
   //joint_state_pub = node.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 0 );
   val_ik_srv = node.advertiseService("val_ik/val_ik_service", ikServiceCallback);
-  val_ik_srv = node.advertiseService("val_ik/val_fk_service", FKServiceCallback);  
+  //val_fk_srv = node.advertiseService("val_ik/val_fk_service", FKServiceCallback);  
 
   // Initialize Service Global Variables
   init_IK_global_vars();

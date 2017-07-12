@@ -25,6 +25,8 @@ add_service_files(
   FILES
   DrakeFKBodyPose.srv
   DrakeIKVal.srv
+  DrakeOneHandSingleIk.srv
+  DrakeTwoHandsSingleIk.srv
 )
 
 generate_messages(
@@ -54,6 +56,7 @@ catkin_package(
 )
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
   ${DRAKE_CATKIN_WS}/install/include
@@ -145,5 +148,8 @@ add_executable(test_ik_simple_service src/test/test_ik_simple_service.cpp)
 target_link_libraries(test_ik_simple_service ${catkin_LIBRARIES})
 add_dependencies(test_ik_simple_service ${catkin_EXPORTED_TARGETS})
 
+add_executable(val_single_ik_srv src/val_single_ik_srv.cpp src/global_vars.cpp)
+target_link_libraries(val_single_ik_srv ${catkin_LIBRARIES})
+add_dependencies(val_single_ik_srv ${catkin_EXPORTED_TARGETS})
 
 

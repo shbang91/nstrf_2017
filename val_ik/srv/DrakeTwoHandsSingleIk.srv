@@ -1,0 +1,5 @@
+val_ik_msgs/RobotState robot_state
+geometry_msgs/Pose 	   des_right_hand_pose
+geometry_msgs/Pose 	   des_left_hand_pose
+--- 
+val_ik_msgs/RobotState robot_state
