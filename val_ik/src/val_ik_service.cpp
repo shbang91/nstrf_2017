@@ -34,6 +34,15 @@
 
 #include <tf/transform_broadcaster.h>
 
+
+// Solution Info Results (from Drake's inverse_kinematics_backend.cc file)
+#define SOLUTION_FOUND 1
+#define INVALID_INPUT 91
+#define INFEASIBLE_CONSTRAINTS 13
+#define UNBOUNDED 21
+#define SUB_OPTIMAL 100 // The definition is actually Unknown Error but for IPOPT, it seems to be a sub optimal solution
+#define ITERATION_LIMIT 3
+
 using Eigen::Vector2d;
 using Eigen::Vector3d;
 using Eigen::Vector4d;
@@ -459,70 +468,94 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     VectorXd q_nom = reach_start;
     int info;
     std::vector<std::string> infeasible_constraint;
-    std::cout << "start IK" << std::endl;
+    //std::cout << "start IK" << std::endl;
     inverseKin(tree.get(), q_nom, q_nom, constraint_array.size(),
                constraint_array.data(), ikoptions, &q_sol, &info,
                &infeasible_constraint);
 
-    std::cout << "done!" << std::endl;
-    std::cout << "Solver result:" << info << std::endl;    
+    //std::cout << "done!" << std::endl;
+    //std::cout << "Solver result:" << info << std::endl;    
 
 
-    // ------------- End Solve -------------------
-    // After solving
-    Vector3d com = tree->centerOfMass(cache);
+    if (info == SOLUTION_FOUND){
+        std::cout << "SOLUTION_FOUND" << std::endl ;
+    }else if (info == INVALID_INPUT){
+        std::cout << "INVALID_INPUT" << std::endl ;
+        return false;    
+    }else if (info == INFEASIBLE_CONSTRAINTS){
+        ROS_ERROR("INFEASIBLE_CONSTRAINTS");
+        std::cout << "INFEASIBLE_CONSTRAINTS" << std::endl ;
+        return false;    
+    }else if (info == UNBOUNDED){
+        std::cout << "UNBOUNDED" << std::endl ;
+        return false;    
+    }else if (info == ITERATION_LIMIT){
+        ROS_ERROR("IK ITERATION_LIMIT!");
+        std::cout << "ITERATION_LIMIT" << std::endl ;
+        return false;    
+    }else if (info == SUB_OPTIMAL){
+        std::cout << "SUB_OPTIMAL" << std::endl ;
+    }    
+
+    if (info == SUB_OPTIMAL){ 
+        std::cout << "    Checking IK constraint SAT" << std::endl;
 
 
+        // Set Ankle ROM  constraints
 
-    // Set Ankle ROM  constraints
+        // Get Initial Foot Left and Right Contact Points
+        // Initialize x-y points for convex hull calculation
+        Eigen::Matrix2Xd foot_xy_contact_points(2, leftFootContactPts.cols() + rightFootContactPts.cols());
 
-    // Get Initial Foot Left and Right Contact Points
-    // Initialize x-y points for convex hull calculation
-    Eigen::Matrix2Xd foot_xy_contact_points(2, leftFootContactPts.cols() + rightFootContactPts.cols());
+//        std::cout << "    Left Foot Contact Points" << std::endl;
+        for (size_t i = 0; i < leftFootContactPts.cols(); i ++){
+//            std::cout << "        Point:" ;
+            foot_xy_contact_points(0, i) = leftFootContactPts(0,i);
+            foot_xy_contact_points(1, i) = leftFootContactPts(1,i);
 
-    std::cout << "    Left Foot Contact Points" << std::endl;
-    for (size_t i = 0; i < leftFootContactPts.cols(); i ++){
-        std::cout << "        Point:" ;
-        foot_xy_contact_points(0, i) = leftFootContactPts(0,i);
-        foot_xy_contact_points(1, i) = leftFootContactPts(1,i);
+            for (size_t j = 0; j < leftFootContactPts.rows(); j++){
+//                std::cout <<  leftFootContactPts(j,i) << ", ";               
+            }
+//            std::cout << std::endl;
+        } 
 
-        for (size_t j = 0; j < leftFootContactPts.rows(); j++){
-            std::cout <<  leftFootContactPts(j,i) << ", ";               
+//        std::cout << "    Right Foot Contact Points" << std::endl;
+        for (size_t i = 0; i < rightFootContactPts.cols(); i ++){
+//            std::cout << "        Point:" ;
+            foot_xy_contact_points(0, i) = rightFootContactPts(0,i);
+            foot_xy_contact_points(1, i) = rightFootContactPts(1,i);
+
+            for (size_t j = 0; j < rightFootContactPts.rows(); j++){
+//                std::cout <<  rightFootContactPts(j,i) << ", ";               
+            }
+//            std::cout << std::endl;
+        }       
+
+
+        KinematicsCache<double> sol_cache = tree->doKinematics(q_sol);
+        // Calculate Convex Hull of left and right foot contact points
+        // Get COM position
+        // Vector3d com = tree->centerOfMass(cache);
+        // std::cout << "    Pre COM Position:" << com[0] << "," << com[1] << "," << com[2] << std::endl;
+        Vector3d com_sol = tree->centerOfMass(sol_cache);
+        // std::cout << "    Post COM Position:" << com_sol[0] << "," << com_sol[1] << "," << com_sol[2] << std::endl;
+        Vector2d xy_com_sol(com_sol[0], com_sol[1]);
+        // Check COM is inside Convex Hull
+       
+        bool com_inConvexHull = inConvexHull(foot_xy_contact_points, xy_com_sol);
+        std::cout << "        COM Inside ConvexHull: " << com_inConvexHull << std::endl;
+        if (com_inConvexHull == 0){
+            ROS_ERROR("IK Sol results in COM outside of convex hull!");
+            std::cout << "        IK Sol results in COM outside of convex hull!" << std::endl;
+            return false;
         }
-        std::cout << std::endl;
-    } 
 
-    std::cout << "    Right Foot Contact Points" << std::endl;
-    for (size_t i = 0; i < rightFootContactPts.cols(); i ++){
-        std::cout << "        Point:" ;
-        foot_xy_contact_points(0, i) = rightFootContactPts(0,i);
-        foot_xy_contact_points(1, i) = rightFootContactPts(1,i);
-
-        for (size_t j = 0; j < rightFootContactPts.rows(); j++){
-            std::cout <<  rightFootContactPts(j,i) << ", ";               
-        }
-        std::cout << std::endl;
-    }       
-
-
-    KinematicsCache<double> sol_cache = tree->doKinematics(q_sol);
-    // Calculate Convex Hull of left and right foot contact points
-    // Get COM position
-    std::cout << "    Pre COM Position:" << com[0] << "," << com[1] << "," << com[2] << std::endl;
-
-    Vector3d com_sol = tree->centerOfMass(sol_cache);
-    std::cout << "    Post COM Position:" << com_sol[0] << "," << com_sol[1] << "," << com_sol[2] << std::endl;
-
-    Vector2d xy_com_sol(com_sol[0], com_sol[1]);
-    // Check COM is inside Convex Hull
-    std::cout << "COM Inside ConvexHull: " << inConvexHull(foot_xy_contact_points, xy_com_sol) << std::endl;
-
-    // Check Foot Position Constraint
-    Vector3d rfoot_pos_sol = tree->transformPoints(sol_cache, origin, r_foot, 0);
-    std::cout << "    RightFootPos before:" << rfoot_pos0[0] << "," << rfoot_pos0[1] << "," << rfoot_pos0[2] << std::endl;
-    std::cout << "    RightFootPos after:" << rfoot_pos_sol[0] << "," << rfoot_pos_sol[1] << "," << rfoot_pos_sol[2] << std::endl;
-    // Check Ankle Constraint
-
+        // Check Foot Position Constraint
+        Vector3d rfoot_pos_sol = tree->transformPoints(sol_cache, origin, r_foot, 0);
+//        std::cout << "    RightFootPos before:" << rfoot_pos0[0] << "," << rfoot_pos0[1] << "," << rfoot_pos0[2] << std::endl;
+//        std::cout << "    RightFootPos after:" << rfoot_pos_sol[0] << "," << rfoot_pos_sol[1] << "," << rfoot_pos_sol[2] << std::endl;
+        // Check Ankle Constraint
+    }
 
 
 
@@ -580,7 +613,7 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     res.robot_joint_states.floating_joint_states = floating_joint_state_msg;    
     res.robot_joint_states.body_joint_states = body_joint_state_msg;
 
-    ROS_INFO("    Request ended successfully. returning true");
+//    ROS_INFO("    Request ended successfully. returning true");
 
 
 //    drake::send_lcm(tree.get(), q_sol);
