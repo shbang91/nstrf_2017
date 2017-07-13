@@ -6,54 +6,58 @@ void  LogicManager::interactive_callback(const visualization_msgs::InteractiveMa
 	visualization_msgs::InteractiveMarkerInit im_msg;
 	im_msg = (*msg);
 
-	geometry_msgs::Pose 	   marker_pose;
-	marker_pose = msg->markers[0].pose;
+	if (msg->markers.size() > 0){
 
-	std::cout << "marker quat: " <<
-			 msg->markers[0].pose.orientation.x << " " <<
-			 msg->markers[0].pose.orientation.y << " " <<
-			 msg->markers[0].pose.orientation.z << " " <<
-			 msg->markers[0].pose.orientation.w << std::endl;
+		geometry_msgs::Pose 	   marker_pose;
+		marker_pose = msg->markers[0].pose;
 
-	tf::Transform transform;
-	tf::Quaternion q(msg->markers[0].pose.orientation.x, msg->markers[0].pose.orientation.y, msg->markers[0].pose.orientation.z, msg->markers[0].pose.orientation.w );
-	transform.setOrigin( tf::Vector3(msg->markers[0].pose.position.x, msg->markers[0].pose.position.y, msg->markers[0].pose.position.z) );
-	transform.setRotation(q);
-	br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "basic_controls/im_frame"));
-	
+		std::cout << "marker quat: " <<
+				 msg->markers[0].pose.orientation.x << " " <<
+				 msg->markers[0].pose.orientation.y << " " <<
+				 msg->markers[0].pose.orientation.z << " " <<
+				 msg->markers[0].pose.orientation.w << std::endl;
 
-	if	(global_first_state_update_received){
-		// geometry_msgs::Pose marker_pose;
-		// getIKSol(marker_pose);
-		val_ik::DrakeOneHandSingleIk single_ik_srv;
+		tf::Transform transform;
+		tf::Quaternion q(msg->markers[0].pose.orientation.x, msg->markers[0].pose.orientation.y, msg->markers[0].pose.orientation.z, msg->markers[0].pose.orientation.w );
+		transform.setOrigin( tf::Vector3(msg->markers[0].pose.position.x, msg->markers[0].pose.position.y, msg->markers[0].pose.position.z) );
+		transform.setRotation(q);
+		br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "basic_controls/im_frame"));
+		
 
-		// Prepare initial IK robot state
-	    ik_init_robot_state.joint_state = current_robot_state.joint_state;
-	    ik_init_robot_state.robot_pose = current_robot_state.robot_pose;
+		if	(global_first_state_update_received and ik_init_robot_state.valid_fields){
+			// geometry_msgs::Pose marker_pose;
+			// getIKSol(marker_pose);
+			val_ik::DrakeOneHandSingleIk single_ik_srv;
 
-
-	    // Prepare Robot State msg
-	    val_ik_msgs::RobotState robot_state_msg;
-	    geometry_msgs::Pose robot_pose;
-	    // Convert odometry message to geometry_msgs::Pose
-	    robot_pose = ik_init_robot_state.robot_pose.pose.pose; // This is because robot_pose is a nav_msgs::Odometry
-	    robot_state_msg.robot_pose = robot_pose;
-		robot_state_msg.body_joint_states = ik_init_robot_state.joint_state;    
+			// Prepare initial IK robot state
+		    ik_init_robot_state.joint_state = current_robot_state.joint_state;
+		    ik_init_robot_state.robot_pose = current_robot_state.robot_pose;
 
 
-		single_ik_srv.request.robot_state = robot_state_msg;
-		single_ik_srv.request.des_hand_pose = marker_pose;
+		    // Prepare Robot State msg
+		    val_ik_msgs::RobotState robot_state_msg;
+		    geometry_msgs::Pose robot_pose;
+		    // Convert odometry message to geometry_msgs::Pose
+		    robot_pose = ik_init_robot_state.robot_pose.pose.pose; // This is because robot_pose is a nav_msgs::Odometry
+		    robot_state_msg.robot_pose = robot_pose;
+			robot_state_msg.body_joint_states = ik_init_robot_state.joint_state;    
 
-		if (single_ik_client.call(single_ik_srv)){
-	        ROS_INFO("Single IK Call Successful");
-	        // Store to final IK position
-	        ik_final_robot_state.robot_pose.pose.pose = single_ik_srv.response.robot_state.robot_pose;
-	        ik_final_robot_state.joint_state = single_ik_srv.response.robot_state.body_joint_states;	
-	        publish_ik_final_state_viz();
-	    }
-	    else{
-	       ROS_ERROR("Failed to call Single IK service");
-	    }
+
+			single_ik_srv.request.robot_state = robot_state_msg;
+			single_ik_srv.request.des_hand_pose = marker_pose;
+
+			if (single_ik_client.call(single_ik_srv)){
+		        ROS_INFO("Single IK Call Successful");
+		        // Store to final IK position
+		        ik_final_robot_state.robot_pose.pose.pose = single_ik_srv.response.robot_state.robot_pose;
+		        ik_final_robot_state.joint_state = single_ik_srv.response.robot_state.body_joint_states;
+		        ik_final_robot_state.valid_fields = true;	
+		        publish_ik_final_state_viz();
+		    }
+		    else{
+		       ROS_ERROR("Failed to call Single IK service");
+		    }
+		}
 	}
 
 

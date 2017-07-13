@@ -15,6 +15,7 @@ public:
 	std::string 						robot_namespace;
  	sensor_msgs::JointState 			joint_state;
 	nav_msgs::Odometry 					robot_pose;
+	bool								valid_fields;
     
 	void getRPY(double &pelvis_roll, double &pelvis_pitch, double &pelvis_yaw);
 	void getXYZ(double &pelvis_x, double &pelvis_y, double &pelvis_z);			

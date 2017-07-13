@@ -1,5 +1,7 @@
 #include "robot_state.h"
-RobotState::RobotState(){}
+RobotState::RobotState(){
+    valid_fields = false;
+}
 RobotState::~RobotState(){}
 
 void RobotState::getRPY(double &pelvis_roll, double &pelvis_pitch, double &pelvis_yaw){

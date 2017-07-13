@@ -509,8 +509,6 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 //    constraint_array.push_back(&kc_pelvis_pos);
     constraint_array.push_back(&kc_pelvis_quat);
 
-    
-
     IKoptions ikoptions(tree.get());
     VectorXd q_sol(tree->get_num_positions());
     VectorXd q_nom = reach_start;
@@ -522,9 +520,6 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
                &infeasible_constraint);
 
     //std::cout << "done!" << std::endl;
-    //std::cout << "Solver result:" << info << std::endl;    
-
-
     if (info == SOLUTION_FOUND){
         ROS_INFO("  SOLUTION_FOUND");
     }else if (info == INVALID_INPUT){

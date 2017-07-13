@@ -24,6 +24,7 @@ void LogicManager::update_current_robot_state(){
         // Test
         ik_init_robot_state.joint_state = current_robot_state.joint_state;
         ik_init_robot_state.robot_pose = current_robot_state.robot_pose;
+        ik_init_robot_state.valid_fields = true;
         publish_ik_init_state_viz();
         // Test
 
