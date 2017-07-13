@@ -580,9 +580,3 @@ int main(int argc, char** argv)
 // %EndTag(main)%
 
 
-
-/*tf::Transform transform;
-transform.setOrigin( tf::Vector3(pelvis_x, pelvis_y, pelvis_z) );
-transform.setRotation(q);
-br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", frame_id));
-*/

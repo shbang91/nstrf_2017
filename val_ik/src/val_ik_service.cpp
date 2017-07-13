@@ -154,7 +154,7 @@ bool FKServiceCallback(val_ik::DrakeFKBodyPose::Request& req, val_ik::DrakeFKBod
 bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Response& res){
     ROS_INFO("ikServiceCallback: processing ik request");
 
-    std::cout << "world:" << tree->get_body(0).get_name() << std::endl;
+/*    std::cout << "world:" << tree->get_body(0).get_name() << std::endl;
     std::cout << "root_body:" << tree->get_body(1).get_name() << std::endl;
     std::cout << "root_joint:" <<  tree->get_body(1).getJoint().get_name() << std::endl;    
 
@@ -162,10 +162,12 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     std::cout << "init_drake_floating_joint_pos size: " << req.init_drake_floating_joint_pos.size() << std::endl;
 
     std::cout << "drake_body_joint_names size: " << req.drake_body_joint_names.size() << std::endl;
-    std::cout << "init_drake_body_joint_pos size: " << req.init_drake_body_joint_pos.size() << std::endl;  
+    std::cout << "init_drake_body_joint_pos size: " << req.init_drake_body_joint_pos.size() << std::endl;*/  
 
     // Store Body Names which has a requested world position constraint
     std::vector<std::string> request_constrained_body_positions;
+    std::vector<std::string> request_constrained_quat_positions;
+
     // Create map of body name to index
     std::map<std::string, int> position_constrained_body_to_index;
     for (size_t i = 0; i < req.desired_body_positions.size(); i++){
@@ -173,6 +175,15 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
         constrained_body_name = req.desired_body_positions[i].body_name;
         request_constrained_body_positions.push_back(constrained_body_name);
         position_constrained_body_to_index[constrained_body_name] = i;
+    }
+
+    // Create map of quat constrained body name to index
+    std::map<std::string, int> quaternion_constrained_body_to_index;
+    for (size_t i = 0; i < req.desired_quaternion_positions.size(); i++){
+        std::string constrained_body_name; 
+        constrained_body_name = req.desired_quaternion_positions[i].body_name;
+        request_constrained_quat_positions.push_back(constrained_body_name);
+        quaternion_constrained_body_to_index[constrained_body_name] = i;
     }
 
 
@@ -199,10 +210,10 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     }
 
     // Debug input
-    std::cout << "reach_start size:" << reach_start.size() << std::endl;   
-    for (size_t i = 0; i < reach_start.size(); i++){
-        std::cout << reach_start[i] << std::endl;
-    }
+    //std::cout << "reach_start size:" << reach_start.size() << std::endl;   
+    // for (size_t i = 0; i < reach_start.size(); i++){
+    //    std::cout << reach_start[i] << std::endl;
+    //}
 
 
     double inf = std::numeric_limits<double>::infinity();
@@ -313,15 +324,32 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     // constraints are imposed on frames/bodies
     const Vector3d world_origin(0, 0, 0);
 
+
+
+
     int rh_palm = tree->FindBodyIndex("rightPalm");
     Vector4d rh_palm_quat(0.707, 0, 0, 0.707);
+
+    if(std::find(request_constrained_quat_positions.begin(), 
+                 request_constrained_quat_positions.end(), "rightPalm") != request_constrained_quat_positions.end()) {
+        //ROS_INFO("rightPalm Quaternion Request");
+        geometry_msgs::Quaternion rh_quat;
+        int index = quaternion_constrained_body_to_index["rightPalm"];
+        rh_quat = req.desired_quaternion_positions[index].quaternion;
+
+        rh_palm_quat[0] = rh_quat.w; 
+        rh_palm_quat[1] = rh_quat.x;
+        rh_palm_quat[2] = rh_quat.y;
+        rh_palm_quat[3] = rh_quat.z;                
+    }
+
+
     auto rh_palm0 = tree->transformPoints(cache, world_origin, rh_palm, 0);
 
-    std::cout << "rh_palm0:" << rh_palm0[0] << " " << rh_palm0[1] << " " << rh_palm0[2] << " " << std::endl;
-
-
-  //  double tol = 0.5 / 180 * M_PI;
+    //std::cout << "rh_palm0:" << rh_palm0[0] << " " << rh_palm0[1] << " " << rh_palm0[2] << " " << std::endl;
     WorldQuatConstraint kc_rh_palm_quat(tree.get(), rh_palm, rh_palm_quat, tol, tspan);
+
+
 
     // Position and quaternion constraints are relaxed to make the problem
     // solvable by IPOPT.
@@ -329,12 +357,12 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
     if(std::find(request_constrained_body_positions.begin(), 
                  request_constrained_body_positions.end(), "rightPalm") != request_constrained_body_positions.end()) {
-        ROS_INFO("rightPalm Position Request");
+        //ROS_INFO("rightPalm Position Request");
         geometry_msgs::Point world_point;
         int index = position_constrained_body_to_index["rightPalm"];
         world_point = req.desired_body_positions[index].world_position;
-        ROS_INFO("x,y,z");
-        std::cout << world_point.x << " " << world_point.y << " " << world_point.z << " " << std::endl;
+        //ROS_INFO("x,y,z");
+        //std::cout << world_point.x << " " << world_point.y << " " << world_point.z << " " << std::endl;
 
         Vector3d rpalm_desired_world_pos( world_point.x,  world_point.y,  world_point.z);
 
@@ -343,17 +371,17 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
             rh_palm_des_offset = rpalm_desired_world_pos - rh_palm0;
         }
 
-        std::cout << rh_palm_des_offset[0] << " " << rh_palm_des_offset[1] << " " << rh_palm_des_offset[2] << " " << std::endl;        
+        //std::cout << rh_palm_des_offset[0] << " " << rh_palm_des_offset[1] << " " << rh_palm_des_offset[2] << " " << std::endl;        
     }
 
 
     Vector3d pos_end;
     pos_end = rh_palm0 + rh_palm_des_offset;
 
-    ROS_INFO("Pos end:");
-    std::cout << pos_end[0] << " " << pos_end[1] << " " << pos_end[2] << " " << std::endl;        
+//    ROS_INFO("Pos end:");
+ //   std::cout << pos_end[0] << " " << pos_end[1] << " " << pos_end[2] << " " << std::endl;        
 
-    const double pos_tol = 0.01;
+    const double pos_tol = 0.001;
     const Vector3d pos_lb = pos_end - Vector3d::Constant(pos_tol);
     const Vector3d pos_ub = pos_end + Vector3d::Constant(pos_tol);
 
@@ -361,11 +389,14 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
 
     int pelvis = tree->FindBodyIndex("pelvis");
-//    auto pelvis0 = tree->transformPoints(cache, world_origin, pelvis0, 0);  
-    Vector3d pelvis_pos_end(0,0, 1.025);
+    auto pelvis0 = tree->transformPoints(cache, world_origin, pelvis, 0);  
+    Vector3d pelvis_pos_lb = pelvis0 - Vector3d::Constant(pos_tol);
+    Vector3d pelvis_pos_ub = pelvis0 + Vector3d::Constant(pos_tol);    
+
+//    Vector3d pelvis_pos_end(0,0, 1.025);
 //    pelvis_pos_end = pelvis0;      
-    Vector3d pelvis_pos_lb = pelvis_pos_end - Vector3d::Constant(pos_tol);
-    Vector3d pelvis_pos_ub = pelvis_pos_end + Vector3d::Constant(pos_tol);    
+//    Vector3d pelvis_pos_lb = pelvis_pos_end - Vector3d::Constant(pos_tol);
+ //   Vector3d pelvis_pos_ub = pelvis_pos_end + Vector3d::Constant(pos_tol);    
 
     pelvis_pos_lb(2) = 1.05;
     pelvis_pos_lb(2) = 0.9;    
@@ -405,8 +436,17 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     constraint_array.push_back(&kc_quasi);
 
     constraint_array.push_back(&kc_rh_palm_pos);
-  //  constraint_array.push_back(&kc_rh_palm_quat);  
-  //  constraint_array.push_back(&kc_pelvis_pos);
+
+    // Add right palm quaternion constraint if it exists
+    if(std::find(request_constrained_quat_positions.begin(), 
+                 request_constrained_quat_positions.end(), "rightPalm") != request_constrained_quat_positions.end()) {
+    
+        constraint_array.push_back(&kc_rh_palm_quat);  
+    
+    }
+
+
+//    constraint_array.push_back(&kc_pelvis_pos);
     constraint_array.push_back(&kc_pelvis_quat);
 
     
@@ -422,9 +462,48 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
                &infeasible_constraint);
 
     std::cout << "done!" << std::endl;
+    std::cout << "Solver result:" << info << std::endl;    
 
     // After solving
     Vector3d com = tree->centerOfMass(cache);
+
+
+    // Set Ankle ROM  constraints
+
+    // Get Initial Foot Left and Right Contact Points
+    std::cout << "    Left Foot Contact Points" << std::endl;
+    for (size_t i = 0; i < leftFootContactPts.cols(); i ++){
+        std::cout << "        Point:" ;
+        for (size_t j = 0; j < leftFootContactPts.rows(); j++){
+            std::cout <<  leftFootContactPts(j,i) << ", ";               
+        }
+        std::cout << std::endl;
+    } 
+
+    std::cout << "    Right Foot Contact Points" << std::endl;
+    for (size_t i = 0; i < rightFootContactPts.cols(); i ++){
+        std::cout << "        Point:" ;
+        for (size_t j = 0; j < rightFootContactPts.rows(); j++){
+            std::cout <<  rightFootContactPts(j,i) << ", ";               
+        }
+        std::cout << std::endl;
+    }       
+
+    KinematicsCache<double> sol_cache = tree->doKinematics(q_sol);
+    // Calculate Convex Hull of left and right foot contact points
+    // Get COM position
+    std::cout << "    Pre COM Position:" << com[0] << "," << com[1] << "," << com[2] << std::endl;
+
+    Vector3d com_sol = tree->centerOfMass(sol_cache);
+    std::cout << "    Post COM Position:" << com_sol[0] << "," << com_sol[1] << "," << com_sol[2] << std::endl;
+
+    // Check COM is inside Convex Hull
+    // Check Foot Position Constraint
+    Vector3d rfoot_pos_sol = tree->transformPoints(sol_cache, origin, r_foot, 0);
+    std::cout << "    RightFootPos before:" << rfoot_pos0[0] << "," << rfoot_pos0[1] << "," << rfoot_pos0[2] << std::endl;
+    std::cout << "    RightFootPos after:" << rfoot_pos_sol[0] << "," << rfoot_pos_sol[1] << "," << rfoot_pos_sol[2] << std::endl;
+    // Check Ankle Constraint
+
 
 
 
@@ -472,11 +551,12 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
         body_joint_state_msg.position.push_back(req.init_drake_body_joint_pos[i]);        
     }*/
 
+/*
     ROS_INFO("Printing q_sol:");
-    for (size_t i = 0; i < q_sol.size(); i++)
-{        std::cout << "    " << "i:" << i << " value:" << q_sol[i] << std::endl;  
+    for (size_t i = 0; i < q_sol.size(); i++){
+        std::cout << "    " << "i:" << i << " value:" << q_sol[i] << std::endl;  
     }
-
+*/
 
     res.robot_joint_states.floating_joint_states = floating_joint_state_msg;    
     res.robot_joint_states.body_joint_states = body_joint_state_msg;

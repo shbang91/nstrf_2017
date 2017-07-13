@@ -76,6 +76,7 @@ void Single_IK_srv::init_drake_states(val_ik_msgs::RobotState &robot_state, val_
 
 void Single_IK_srv::define_desired_hand_pos(val_ik::DrakeOneHandSingleIk::Request& req, val_ik::DrakeIKVal &ik_srv){
     val_ik_msgs::BodyPositionConstraint body_constraint;
+    val_ik_msgs::BodyQuaternionConstraint body_quat_constraint;    
 
     body_constraint.body_name = "rightPalm";    
     body_constraint.offset_from_current = false;
@@ -83,7 +84,12 @@ void Single_IK_srv::define_desired_hand_pos(val_ik::DrakeOneHandSingleIk::Reques
     body_constraint.world_position.y = req.des_hand_pose.position.y;
     body_constraint.world_position.z = req.des_hand_pose.position.z;
 
+	body_quat_constraint.body_name = "rightPalm";    
+    body_quat_constraint.offset_from_current = false;
+    body_quat_constraint.quaternion = req.des_hand_pose.orientation;
+
     ik_srv.request.desired_body_positions.push_back(body_constraint);
+    ik_srv.request.desired_quaternion_positions.push_back(body_quat_constraint);
 }
 
 

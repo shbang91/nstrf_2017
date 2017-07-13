@@ -9,6 +9,12 @@ void  LogicManager::interactive_callback(const visualization_msgs::InteractiveMa
 	geometry_msgs::Pose 	   marker_pose;
 	marker_pose = msg->markers[0].pose;
 
+	std::cout << "marker quat: " <<
+			 msg->markers[0].pose.orientation.x << " " <<
+			 msg->markers[0].pose.orientation.y << " " <<
+			 msg->markers[0].pose.orientation.z << " " <<
+			 msg->markers[0].pose.orientation.w << std::endl;
+
 	tf::Transform transform;
 	tf::Quaternion q(msg->markers[0].pose.orientation.x, msg->markers[0].pose.orientation.y, msg->markers[0].pose.orientation.z, msg->markers[0].pose.orientation.w );
 	transform.setOrigin( tf::Vector3(msg->markers[0].pose.position.x, msg->markers[0].pose.position.y, msg->markers[0].pose.position.z) );
