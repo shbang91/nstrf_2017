@@ -478,27 +478,25 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
 
     if (info == SOLUTION_FOUND){
-        std::cout << "SOLUTION_FOUND" << std::endl ;
+        ROS_INFO("SOLUTION_FOUND");
     }else if (info == INVALID_INPUT){
-        std::cout << "INVALID_INPUT" << std::endl ;
+        ROS_ERROR("INVALID_INPUT");
         return false;    
     }else if (info == INFEASIBLE_CONSTRAINTS){
         ROS_ERROR("INFEASIBLE_CONSTRAINTS");
-        std::cout << "INFEASIBLE_CONSTRAINTS" << std::endl ;
         return false;    
     }else if (info == UNBOUNDED){
-        std::cout << "UNBOUNDED" << std::endl ;
+        ROS_ERROR("UNBOUNDED");
         return false;    
     }else if (info == ITERATION_LIMIT){
-        ROS_ERROR("IK ITERATION_LIMIT!");
-        std::cout << "ITERATION_LIMIT" << std::endl ;
+        ROS_ERROR("IK ITERATION_LIMIT REACHED");
         return false;    
     }else if (info == SUB_OPTIMAL){
-        std::cout << "SUB_OPTIMAL" << std::endl ;
+        ROS_INFO("SUB_OPTIMAL");        
     }    
 
     if (info == SUB_OPTIMAL){ 
-        std::cout << "    Checking IK constraint SAT" << std::endl;
+        ROS_INFO("    Checking IK constraint SAT");
 
 
         // Set Ankle ROM  constraints
@@ -543,17 +541,36 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
         // Check COM is inside Convex Hull
        
         bool com_inConvexHull = inConvexHull(foot_xy_contact_points, xy_com_sol);
-        std::cout << "        COM Inside ConvexHull: " << com_inConvexHull << std::endl;
         if (com_inConvexHull == 0){
-            ROS_ERROR("IK Sol results in COM outside of convex hull!");
-            std::cout << "        IK Sol results in COM outside of convex hull!" << std::endl;
+            ROS_WARN("IK Sol results in COM outside of convex hull!");
             return false;
         }
 
         // Check Foot Position Constraint
+        Vector3d lfoot_pos_sol = tree->transformPoints(sol_cache, origin, l_foot, 0);        
         Vector3d rfoot_pos_sol = tree->transformPoints(sol_cache, origin, r_foot, 0);
+        Vector3d lfoot_dist(0,0,0);
+        Vector3d rfoot_dist(0,0,0);
+        double tol_foot_pos = 0.001;
+        lfoot_dist = lfoot_pos_sol - lfoot_pos0;
+        rfoot_dist = rfoot_pos_sol - rfoot_pos0;
+        std::cout << "lfoot_dist:" << lfoot_dist.norm() << std::endl;
+        std::cout << "rfoot_dist:" << rfoot_dist.norm() << std::endl;
+
+        if (lfoot_dist.norm() > tol_foot_pos){
+            ROS_WARN("Post IK Sol left foot position is not satisfied");
+            return false;
+        }        
+
+        if (rfoot_dist.norm() > tol_foot_pos){
+            ROS_WARN("Post IK Sol right foot position is not satisfied");
+            return false;
+        }
+
 //        std::cout << "    RightFootPos before:" << rfoot_pos0[0] << "," << rfoot_pos0[1] << "," << rfoot_pos0[2] << std::endl;
 //        std::cout << "    RightFootPos after:" << rfoot_pos_sol[0] << "," << rfoot_pos_sol[1] << "," << rfoot_pos_sol[2] << std::endl;
+
+
         // Check Ankle Constraint
     }
 
