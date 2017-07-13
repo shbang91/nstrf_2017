@@ -23,6 +23,7 @@
 #include "geometry_msgs/Quaternion.h"
 #include "geometry_msgs/Pose.h"
 #include "sensor_msgs/JointState.h"
+#include "visualization_msgs/Marker.h"
 #include "val_ik_msgs/BodyPositionConstraint.h"
 #include "val_ik_msgs/BodyQuaternionConstraint.h"
 #include "val_ik_msgs/JointPositionConstraint.h"
@@ -76,7 +77,9 @@ namespace drake{
 using namespace drake;
 
 sensor_msgs::JointState joint_state_msg;
+ros::Publisher          com_marker_pub;
 ros::Publisher          joint_state_pub;
+
 ros::ServiceServer      val_ik_srv;
 
 //true if Ctrl-C is pressed
@@ -136,6 +139,51 @@ void init_IK_global_vars(){
       multibody::joints::kRollPitchYaw, tree.get());
 
 }
+
+
+void publish_com_pos(double com_x, double com_y){
+     visualization_msgs::Marker marker;
+    // Set the frame ID and timestamp.  See the TF tutorials for information on these.
+    marker.header.frame_id = "/world";
+    //marker.header.stamp = ros::Time::now();
+
+    // Set the namespace and id for this marker.  This serves to create a unique ID
+    // Any marker sent with the same namespace and id will overwrite the old one
+    marker.ns = "ik_final_COM";
+    marker.id = 0;
+
+    // Set the marker type.  Initially this is CUBE, and cycles between that and SPHERE, ARROW, and CYLINDER
+    marker.type = visualization_msgs::Marker::SPHERE;
+
+    // Set the marker action.  Options are ADD, DELETE, and new in ROS Indigo: 3 (DELETEALL)
+    marker.action = visualization_msgs::Marker::ADD;
+
+    // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
+    marker.pose.position.x = com_x;
+    marker.pose.position.y = com_y;
+    marker.pose.position.z = 0.0;
+    marker.pose.orientation.x = 0.0;
+    marker.pose.orientation.y = 0.0;
+    marker.pose.orientation.z = 0.0;
+    marker.pose.orientation.w = 1.0;
+
+    // Set the scale of the marker -- 1x1x1 here means 1m on a side
+    marker.scale.x = 0.1;
+    marker.scale.y = 0.1;
+    marker.scale.z = 0.1;
+
+    // Set the color -- be sure to set alpha to something non-zero!
+    marker.color.r = 0.0f;
+    marker.color.g = 0.0f;
+    marker.color.b = 1.0f;
+    marker.color.a = 1.0;
+
+    marker.lifetime = ros::Duration();
+
+    com_marker_pub.publish(marker);
+
+}
+
 
 bool FKServiceCallback(val_ik::DrakeFKBodyPose::Request& req, val_ik::DrakeFKBodyPose::Response& res){
     std::vector<geometry_msgs::Pose>  body_poses;
@@ -478,71 +526,47 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
 
     if (info == SOLUTION_FOUND){
-        ROS_INFO("SOLUTION_FOUND");
+        ROS_INFO("  SOLUTION_FOUND");
     }else if (info == INVALID_INPUT){
-        ROS_ERROR("INVALID_INPUT");
+        ROS_ERROR("  INVALID_INPUT");
         return false;    
     }else if (info == INFEASIBLE_CONSTRAINTS){
-        ROS_ERROR("INFEASIBLE_CONSTRAINTS");
+        ROS_ERROR("  INFEASIBLE_CONSTRAINTS");
         return false;    
     }else if (info == UNBOUNDED){
-        ROS_ERROR("UNBOUNDED");
+        ROS_ERROR("  UNBOUNDED");
         return false;    
     }else if (info == ITERATION_LIMIT){
-        ROS_ERROR("IK ITERATION_LIMIT REACHED");
+        ROS_ERROR("  IK ITERATION_LIMIT REACHED");
         return false;    
     }else if (info == SUB_OPTIMAL){
-        ROS_INFO("SUB_OPTIMAL");        
+        ROS_WARN("  SUB_OPTIMAL");        
     }    
 
-    if (info == SUB_OPTIMAL){ 
-        ROS_INFO("    Checking IK constraint SAT");
+    KinematicsCache<double> sol_cache = tree->doKinematics(q_sol);
+    // Get COM position
+    Vector3d com_sol = tree->centerOfMass(sol_cache);
+    Vector2d xy_com_sol(com_sol[0], com_sol[1]);
+    publish_com_pos(com_sol[0], com_sol[1]);       
 
-
-        // Set Ankle ROM  constraints
-
+    if (info != SOLUTION_FOUND){ 
+        // Calculate Convex Hull of left and right foot contact points
         // Get Initial Foot Left and Right Contact Points
         // Initialize x-y points for convex hull calculation
         Eigen::Matrix2Xd foot_xy_contact_points(2, leftFootContactPts.cols() + rightFootContactPts.cols());
 
-//        std::cout << "    Left Foot Contact Points" << std::endl;
         for (size_t i = 0; i < leftFootContactPts.cols(); i ++){
-//            std::cout << "        Point:" ;
             foot_xy_contact_points(0, i) = leftFootContactPts(0,i);
             foot_xy_contact_points(1, i) = leftFootContactPts(1,i);
-
-            for (size_t j = 0; j < leftFootContactPts.rows(); j++){
-//                std::cout <<  leftFootContactPts(j,i) << ", ";               
-            }
-//            std::cout << std::endl;
         } 
-
-//        std::cout << "    Right Foot Contact Points" << std::endl;
         for (size_t i = 0; i < rightFootContactPts.cols(); i ++){
-//            std::cout << "        Point:" ;
             foot_xy_contact_points(0, i) = rightFootContactPts(0,i);
             foot_xy_contact_points(1, i) = rightFootContactPts(1,i);
-
-            for (size_t j = 0; j < rightFootContactPts.rows(); j++){
-//                std::cout <<  rightFootContactPts(j,i) << ", ";               
-            }
-//            std::cout << std::endl;
         }       
-
-
-        KinematicsCache<double> sol_cache = tree->doKinematics(q_sol);
-        // Calculate Convex Hull of left and right foot contact points
-        // Get COM position
-        // Vector3d com = tree->centerOfMass(cache);
-        // std::cout << "    Pre COM Position:" << com[0] << "," << com[1] << "," << com[2] << std::endl;
-        Vector3d com_sol = tree->centerOfMass(sol_cache);
-        // std::cout << "    Post COM Position:" << com_sol[0] << "," << com_sol[1] << "," << com_sol[2] << std::endl;
-        Vector2d xy_com_sol(com_sol[0], com_sol[1]);
         // Check COM is inside Convex Hull
-       
         bool com_inConvexHull = inConvexHull(foot_xy_contact_points, xy_com_sol);
         if (com_inConvexHull == 0){
-            ROS_WARN("IK Sol results in COM outside of convex hull!");
+            ROS_ERROR("    IK Sol results in COM outside of convex hull!");
             return false;
         }
 
@@ -554,27 +578,18 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
         double tol_foot_pos = 0.001;
         lfoot_dist = lfoot_pos_sol - lfoot_pos0;
         rfoot_dist = rfoot_pos_sol - rfoot_pos0;
-        std::cout << "lfoot_dist:" << lfoot_dist.norm() << std::endl;
-        std::cout << "rfoot_dist:" << rfoot_dist.norm() << std::endl;
 
         if (lfoot_dist.norm() > tol_foot_pos){
-            ROS_WARN("Post IK Sol left foot position is not satisfied");
+            ROS_ERROR("    Post IK Sol left foot position is not satisfied");
             return false;
         }        
 
         if (rfoot_dist.norm() > tol_foot_pos){
-            ROS_WARN("Post IK Sol right foot position is not satisfied");
+            ROS_ERROR("    Post IK Sol right foot position is not satisfied");
             return false;
         }
 
-//        std::cout << "    RightFootPos before:" << rfoot_pos0[0] << "," << rfoot_pos0[1] << "," << rfoot_pos0[2] << std::endl;
-//        std::cout << "    RightFootPos after:" << rfoot_pos_sol[0] << "," << rfoot_pos_sol[1] << "," << rfoot_pos_sol[2] << std::endl;
-
-
-        // Check Ankle Constraint
     }
-
-
 
     // Return IK Solution:
 
@@ -640,6 +655,8 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 }
 
 
+
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "val_ik");
@@ -647,6 +664,8 @@ int main(int argc, char **argv)
 
   //joint_state_pub = node.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 0 );
   val_ik_srv = node.advertiseService("val_ik/val_ik_service", ikServiceCallback);
+
+  com_marker_pub = node.advertise<visualization_msgs::Marker>("val_ik/last_ik_COM_xy", 0);
   //val_fk_srv = node.advertiseService("val_ik/val_fk_service", FKServiceCallback);  
 
   // Initialize Service Global Variables
