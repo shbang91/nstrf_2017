@@ -61,6 +61,7 @@ include_directories(
   ${Eigen_INCLUDE_DIRS}
   ${DRAKE_CATKIN_WS}/install/include
   ${DRAKE_CATKIN_WS}/install/include/lcmtypes
+  ${DRAKE_CATKIN_WS}/install/include/util  
 
 )
 
@@ -80,7 +81,7 @@ FIND_LIBRARY(drakeRigidBodyConstraint_LIB drakeRigidBodyConstraint ${DRAKE_CATKI
 
 
 
-add_executable(val_ik_service src/val_ik_service.cpp)
+add_executable(val_ik_service src/val_ik_service.cpp src/convexHull.cpp)
 target_link_libraries(val_ik_service ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
                          ${DRAKEIK_LIB}
                          ${DRAKELCM_LIB} 

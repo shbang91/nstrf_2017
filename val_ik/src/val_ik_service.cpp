@@ -14,6 +14,9 @@
 #include "drake/multibody/rigid_body_plant/viewer_draw_translator.h"
 #include "drake/multibody/rigid_body_tree.h"
 
+//#include "drake/util/convexHull.h"
+#include "val_ik/convexHull.h"
+
 // Include ROS message types
 #include "std_msgs/String.h"
 #include "geometry_msgs/Point.h"
@@ -464,16 +467,25 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     std::cout << "done!" << std::endl;
     std::cout << "Solver result:" << info << std::endl;    
 
+
+    // ------------- End Solve -------------------
     // After solving
     Vector3d com = tree->centerOfMass(cache);
+
 
 
     // Set Ankle ROM  constraints
 
     // Get Initial Foot Left and Right Contact Points
+    // Initialize x-y points for convex hull calculation
+    Eigen::Matrix2Xd foot_xy_contact_points(2, leftFootContactPts.cols() + rightFootContactPts.cols());
+
     std::cout << "    Left Foot Contact Points" << std::endl;
     for (size_t i = 0; i < leftFootContactPts.cols(); i ++){
         std::cout << "        Point:" ;
+        foot_xy_contact_points(0, i) = leftFootContactPts(0,i);
+        foot_xy_contact_points(1, i) = leftFootContactPts(1,i);
+
         for (size_t j = 0; j < leftFootContactPts.rows(); j++){
             std::cout <<  leftFootContactPts(j,i) << ", ";               
         }
@@ -483,11 +495,15 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     std::cout << "    Right Foot Contact Points" << std::endl;
     for (size_t i = 0; i < rightFootContactPts.cols(); i ++){
         std::cout << "        Point:" ;
+        foot_xy_contact_points(0, i) = rightFootContactPts(0,i);
+        foot_xy_contact_points(1, i) = rightFootContactPts(1,i);
+
         for (size_t j = 0; j < rightFootContactPts.rows(); j++){
             std::cout <<  rightFootContactPts(j,i) << ", ";               
         }
         std::cout << std::endl;
     }       
+
 
     KinematicsCache<double> sol_cache = tree->doKinematics(q_sol);
     // Calculate Convex Hull of left and right foot contact points
@@ -497,7 +513,10 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     Vector3d com_sol = tree->centerOfMass(sol_cache);
     std::cout << "    Post COM Position:" << com_sol[0] << "," << com_sol[1] << "," << com_sol[2] << std::endl;
 
+    Vector2d xy_com_sol(com_sol[0], com_sol[1]);
     // Check COM is inside Convex Hull
+    std::cout << "COM Inside ConvexHull: " << inConvexHull(foot_xy_contact_points, xy_com_sol) << std::endl;
+
     // Check Foot Position Constraint
     Vector3d rfoot_pos_sol = tree->transformPoints(sol_cache, origin, r_foot, 0);
     std::cout << "    RightFootPos before:" << rfoot_pos0[0] << "," << rfoot_pos0[1] << "," << rfoot_pos0[2] << std::endl;
