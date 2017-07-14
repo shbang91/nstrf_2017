@@ -53,7 +53,8 @@ public:
 
 	ros::ServiceClient  				ik_client;
 	ros::ServiceClient  				single_ik_client;	
-
+	ros::ServiceClient 					fk_client;
+	
 	IK_IHMC_Bridge 						ik_manager;
 
 	RobotState 							current_robot_state;	

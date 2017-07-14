@@ -81,6 +81,7 @@ ros::Publisher          com_marker_pub;
 ros::Publisher          joint_state_pub;
 
 ros::ServiceServer      val_ik_srv;
+ros::ServiceServer      val_fk_srv;
 
 //true if Ctrl-C is pressed
 bool g_caught_sigint=false;
@@ -211,8 +212,8 @@ bool FKServiceCallback(val_ik::DrakeFKBodyPose::Request& req, val_ik::DrakeFKBod
 }
 
 
-bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Response& res){
-    ROS_INFO("ikServiceCallback: processing ik request");
+bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Response& res){
+    ROS_INFO("IKServiceCallback: processing ik request");
 
 /*    std::cout << "world:" << tree->get_body(0).get_name() << std::endl;
     std::cout << "root_body:" << tree->get_body(1).get_name() << std::endl;
@@ -640,7 +641,7 @@ bool ikServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     res.robot_joint_states.floating_joint_states = floating_joint_state_msg;    
     res.robot_joint_states.body_joint_states = body_joint_state_msg;
 
-//    ROS_INFO("    Request ended successfully. returning true");
+    ROS_INFO("IK service request ended successfully.");
 
 
 //    drake::send_lcm(tree.get(), q_sol);
@@ -657,12 +658,6 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "val_ik");
   ros::NodeHandle       node;
 
-  //joint_state_pub = node.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 0 );
-  val_ik_srv = node.advertiseService("val_ik/val_ik_service", ikServiceCallback);
-
-  com_marker_pub = node.advertise<visualization_msgs::Marker>("val_ik/last_ik_COM_xy", 0);
-  //val_fk_srv = node.advertiseService("val_ik/val_fk_service", FKServiceCallback);  
-
   // Initialize Service Global Variables
   init_IK_global_vars();
 
@@ -672,7 +667,15 @@ int main(int argc, char **argv)
   double ros_rate = 30.0;
   ros::Rate r(ros_rate);
 
+  //joint_state_pub = node.advertise<sensor_msgs::JointState>( "/robot1/joint_states", 0 );
+  com_marker_pub = node.advertise<visualization_msgs::Marker>("val_ik/last_ik_COM_xy", 0);
+
+  val_ik_srv = node.advertiseService("val_ik/val_ik_service", IKServiceCallback);
   ROS_INFO("val_ik/val_ik_service is ready");
+  val_fk_srv = node.advertiseService("val_ik/val_fk_service", FKServiceCallback);  
+  ROS_INFO("val_ik/val_fk_service is ready");
+
+
   ROS_INFO("    Waiting for service calls");
   // Main loop:
   while (!g_caught_sigint && ros::ok()){

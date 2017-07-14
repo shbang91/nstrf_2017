@@ -48,6 +48,7 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 
 	    // Begin Right Arm Trajectory Message ----------------------------------------------------------------------------------------------
 	    ihmc_msgs::ArmTrajectoryRosMessage rarm_traj_msg;
+	    std::cout << "Preparing Right Arm Trajectory Message" << std::endl;
 		// Right Arm: Add initial and final points
 		for (size_t i = 0; i < rarm_joint_names.size(); i++){
 			// Begin right arm joint;
@@ -65,8 +66,8 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			int ew_joint_index = std::distance(ik_final_robot_state.joint_state.name.begin(), it);		
 			double joint_end_value   = ik_final_robot_state.joint_state.position[ew_joint_index];
 
-			std::cout << "SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl; 
-			std::cout << "EW Found joint " << ik_final_robot_state.joint_state.name[ew_joint_index]  << " val: " << joint_end_value << std::endl; 			
+			std::cout << "  SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl; 
+			std::cout << "  EW Found joint " << ik_final_robot_state.joint_state.name[ew_joint_index]  << " val: " << joint_end_value << std::endl; 			
 
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_start_val_msg;
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_end_val_msg; 
@@ -94,10 +95,10 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 
 		}
 
-
+	    std::cout << "Preparing Left Arm Trajectory Message" << std::endl;
 	    // Begin Left Arm Trajectory Message ----------------------------------------------------------------------------------------------
 	    ihmc_msgs::ArmTrajectoryRosMessage larm_traj_msg;
-		// Right Arm: Add initial and final points
+		// Left Arm: Add initial and final points
 		for (size_t i = 0; i < larm_joint_names.size(); i++){
 			// Begin right arm joint;
 	        ihmc_msgs::OneDoFJointTrajectoryRosMessage larm_joint;
@@ -109,14 +110,16 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			double joint_start_value = ik_init_robot_state.joint_state.position[sw_joint_index];
 
 
-			// Find Joint Index of Leftt Arm Joints for ending waypoint
+			// Find Joint Index of Left Arm Joints for ending waypoint
 			it = std::find (ik_final_robot_state.joint_state.name.begin(), ik_final_robot_state.joint_state.name.end(), larm_joint_names.at(i));
 			int ew_joint_index = std::distance(ik_final_robot_state.joint_state.name.begin(), it);		
 			double joint_end_value   = ik_final_robot_state.joint_state.position[ew_joint_index];
 
+			std::cout << "  SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl; 
+			std::cout << "  EW Found joint " << ik_final_robot_state.joint_state.name[ew_joint_index]  << " val: " << joint_end_value << std::endl; 			
+
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_start_val_msg;
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_end_val_msg; 
-
 
 		
             joint_start_val_msg.time = 0.0;    
@@ -140,10 +143,19 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			larm_traj_msg.unique_id = traj_unique_id;
 		}		
 
+		// Copy Trajectory to Whole Body Message
 		wbc_traj_msg.right_arm_trajectory_message = rarm_traj_msg;		
 		wbc_traj_msg.left_arm_trajectory_message = larm_traj_msg;
-		wbc_traj_msg.unique_id = traj_unique_id;
 
+		// Prepare Chest Trajectory Message
+	    ihmc_msgs::ChestTrajectoryRosMessage chest_trajectory_msg;
+        //    ihmc_msgs::SO3TrajectoryPointRosMessage     start_SO3_chest_traj;
+        //    ihmc_msgs::SO3TrajectoryPointRosMessage     end_SO3_chest_traj;  
+
+
+
+
+		wbc_traj_msg.unique_id = traj_unique_id;
 		wbc_traj_msg.right_foot_trajectory_message.robot_side = 1;
 		wbc_traj_msg.right_hand_trajectory_message.robot_side = 1;
 
