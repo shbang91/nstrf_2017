@@ -38,18 +38,11 @@ bool IK_IHMC_Bridge::FK_bodies(	ros::ServiceClient &fk_client,	RobotState &robot
 
 	if (fk_client.call(fk_srv)){
         ROS_INFO("    FK Call Successful");
-
+		body_poses = fk_srv.response.body_world_poses;
     }
     else{
        ROS_WARN("    Failed to call val_fk_service");
     }
-
-
-/*	val_ik_msgs/RobotState robot_state
-string[] body_names # list of body names to get poses
----
-geometry_msgs/Pose[] body_world_poses*/
-
 }
 
 

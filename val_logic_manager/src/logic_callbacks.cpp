@@ -79,7 +79,20 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
 		std::vector<geometry_msgs::Pose> body_poses;
 
 		body_queries.push_back("torso");
-		ik_manager.FK_bodies(fk_client,	ik_init_robot_state, body_queries, body_poses);
+		body_queries.push_back("rightPalm");				
+		ik_manager.FK_bodies(fk_client,	ik_init_robot_state, body_queries, body_poses);       
+
+ 		for (size_t i = 0; i < body_poses.size(); i ++ ){
+ 			std::cout << "Body:" << body_queries[i] << std::endl;
+        	std::cout << "    pos x:" << body_poses[i].position.x << std::endl;
+        	std::cout << "    pos y:" << body_poses[i].position.y << std::endl;
+        	std::cout << "    pos z:" << body_poses[i].position.z << std::endl;
+        	std::cout << "    quat x:" << body_poses[i].orientation.x << std::endl;
+        	std::cout << "    quat y:" << body_poses[i].orientation.y << std::endl;
+        	std::cout << "    quat z:" << body_poses[i].orientation.z << std::endl;
+        	std::cout << "    quat w:" << body_poses[i].orientation.w << std::endl;        	        	        	
+        }
+
 	}
 	else{
 		ROS_WARN("Unknown Operator Command");

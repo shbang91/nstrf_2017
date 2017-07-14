@@ -272,10 +272,10 @@ bool FKServiceCallback(val_ik::DrakeFKBodyPose::Request& req, val_ik::DrakeFKBod
         this_body_pose.position.y = body_xyz[1];
         this_body_pose.position.z = body_xyz[2];
         // Orientation
-/*        this_body_pose.orientation.w = body_quat[0];
+        this_body_pose.orientation.w = body_quat[0];
         this_body_pose.orientation.x = body_quat[1];        
         this_body_pose.orientation.y = body_quat[2];
-        this_body_pose.orientation.z = body_quat[3];        */
+        this_body_pose.orientation.z = body_quat[3];        
 
         response_body_poses.push_back(this_body_pose);
         //
