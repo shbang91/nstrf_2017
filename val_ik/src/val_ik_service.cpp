@@ -15,8 +15,11 @@
 #include "drake/multibody/rigid_body_tree.h"
 
 //#include "drake/util/convexHull.h"
-#include "val_ik/convexHull.h"
+
 #include "val_ik/global_vars.h"
+
+#include "my_drake/rotmat2quat.h"
+#include "my_drake/convexHull.h"
 
 // Include ROS message types
 #include "std_msgs/String.h"
@@ -204,7 +207,7 @@ void publish_com_pos(double com_x, double com_y){
 
 bool FKServiceCallback(val_ik::DrakeFKBodyPose::Request& req, val_ik::DrakeFKBodyPose::Response& res){
     // define reach_start
-    /*
+    
     VectorXd fk_q_start(tree->get_num_positions());
 
     // Fill in fk_q_start joint state values from robot_state  
@@ -244,19 +247,24 @@ bool FKServiceCallback(val_ik::DrakeFKBodyPose::Request& req, val_ik::DrakeFKBod
     fk_q_start[5] = pelvis_yaw_val;
 
     // Do Kinematics
-    KinematicsCache<double> cache = tree->doKinematics(fk_q_start);
-
+    
+    KinematicsCache<double> fk_cache = tree->doKinematics(fk_q_start);
+    
     //Prepare Message
-    std::vector<geometry_msgs::Pose>  body_poses;
+    std::vector<geometry_msgs::Pose> response_body_poses;
+
 
     // Get FK body poses
     for(size_t i = 0; i < req.body_names.size(); i++){
+        std::cout << "    Requested:" << req.body_names[i] << std::endl;
         int body_index = tree->FindBodyIndex(req.body_names[i]);
-        auto body_pose = tree->relativeTransform(cache, 0, body_index);
+        auto body_pose = tree->relativeTransform(fk_cache, 0, body_index);
+    
         // Get Position and Quaternion
         const auto& body_xyz = body_pose.translation();
-        Vector4d body_quat = drake::math::rotmat2quat(body_pose.linear());        
-
+        Vector4d body_quat = my_drake::math::rotmat2quat(body_pose.linear());        
+    
+    
         // Populate msg
         geometry_msgs::Pose this_body_pose;
         // Position:
@@ -264,17 +272,18 @@ bool FKServiceCallback(val_ik::DrakeFKBodyPose::Request& req, val_ik::DrakeFKBod
         this_body_pose.position.y = body_xyz[1];
         this_body_pose.position.z = body_xyz[2];
         // Orientation
-        this_body_pose.orientation.w = body_quat[0];
+/*        this_body_pose.orientation.w = body_quat[0];
         this_body_pose.orientation.x = body_quat[1];        
         this_body_pose.orientation.y = body_quat[2];
-        this_body_pose.orientation.z = body_quat[3];        
+        this_body_pose.orientation.z = body_quat[3];        */
 
-        body_poses.push_back(this_body_pose);
+        response_body_poses.push_back(this_body_pose);
         //
     }
-    res.body_world_poses = body_poses;
-*/
+    res.body_world_poses = response_body_poses;
+
     ROS_INFO("FK called");
+    
     return true;
 
 }
@@ -618,28 +627,29 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
         // Initialize x-y points for convex hull calculation
         Eigen::Matrix2Xd foot_xy_contact_points(2, leftFootContactPts.cols() + rightFootContactPts.cols());
 
-        std::cout << "Left Foot" << std::endl;
+        //std::cout << "Left Foot" << std::endl;
         for (size_t i = 0; i < leftFootContactPts.cols(); i ++){           
-            std::cout << "    Contact Point: " ;
+  /*          std::cout << "    Contact Point: " ;
             for(size_t j = 0; j < leftFootContactPts.rows(); j++){
                 std::cout << leftFootContactPts(j,i) << " ";
             }
-            std::cout << std::endl;            
+            
+            std::cout << std::endl;*/            
             foot_xy_contact_points(0, i) = leftFootContactPts(0,i);
             foot_xy_contact_points(1, i) = leftFootContactPts(1,i);
-            std::cout << "        xy: " << foot_xy_contact_points(0, i) << " " << foot_xy_contact_points(1, i) << std::endl;
+            //std::cout << "        xy: " << foot_xy_contact_points(0, i) << " " << foot_xy_contact_points(1, i) << std::endl;
 
         } 
-        std::cout << "Right Foot" << std::endl;        
+        //std::cout << "Right Foot" << std::endl;        
         for (size_t i = 0; i < rightFootContactPts.cols(); i ++){
-            std::cout << "    Contact Point: " ;
+/*            std::cout << "    Contact Point: " ;
             for(size_t j = 0; j < rightFootContactPts.rows(); j++){
                 std::cout << rightFootContactPts(j,i) << " ";
             }
-            std::cout << std::endl;
+            std::cout << std::endl;*/
             foot_xy_contact_points(0, i + leftFootContactPts.cols()) = rightFootContactPts(0,i);
             foot_xy_contact_points(1, i + leftFootContactPts.cols()) = rightFootContactPts(1,i);
-            std::cout << "        xy: " << foot_xy_contact_points(0, i) << " " << foot_xy_contact_points(1, i) << std::endl;            
+            //std::cout << "        xy: " << foot_xy_contact_points(0, i) << " " << foot_xy_contact_points(1, i) << std::endl;            
         }       
         // Check COM is inside Convex Hull
         bool com_inConvexHull = inConvexHull(foot_xy_contact_points, xy_com_sol);

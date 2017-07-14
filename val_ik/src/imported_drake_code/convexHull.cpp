@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
-#include "val_ik/convexHull.h"
+#include "my_drake/convexHull.h"
 
 using Eigen::Dynamic;
 using Eigen::Matrix;

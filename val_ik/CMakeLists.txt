@@ -61,8 +61,6 @@ include_directories(
   ${Eigen_INCLUDE_DIRS}
   ${DRAKE_CATKIN_WS}/install/include
   ${DRAKE_CATKIN_WS}/install/include/lcmtypes
-  ${DRAKE_CATKIN_WS}/install/include/util  
-
 )
 
 FIND_LIBRARY(DRAKECOMMON_LIB drakeCommon ${DRAKE_CATKIN_WS}/install/lib)
@@ -71,6 +69,7 @@ FIND_LIBRARY(DRAKELCM_LIB drakeLcm ${DRAKE_CATKIN_WS}/install/lib)
 FIND_LIBRARY(DRAKEMULTIBODYPARSERS_LIB drakeMultibodyParsers ${DRAKE_CATKIN_WS}/install/lib)
 FIND_LIBRARY(DRAKERBM_LIB drakeRBM ${DRAKE_CATKIN_WS}/install/lib)
 FIND_LIBRARY(DRAKERIGIDBODYPLANT_LIB drakeRigidBodyPlant ${DRAKE_CATKIN_WS}/install/lib)
+
 
 FIND_LIBRARY(drakeLcmSystem_LIB drakeLcmSystem ${DRAKE_CATKIN_WS}/install/lib)
 FIND_LIBRARY(drake_lcmtypes_LIB drake_lcmtypes ${DRAKE_CATKIN_WS}/install/lib)
@@ -81,7 +80,7 @@ FIND_LIBRARY(drakeRigidBodyConstraint_LIB drakeRigidBodyConstraint ${DRAKE_CATKI
 
 
 
-add_executable(val_ik_service src/val_ik_service.cpp src/convexHull.cpp src/global_vars.cpp)
+add_executable(val_ik_service src/val_ik_service.cpp src/imported_drake_code/convexHull.cpp src/global_vars.cpp src/imported_drake_code/rotmat2quat.cpp)
 target_link_libraries(val_ik_service ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
                          ${DRAKEIK_LIB}
                          ${DRAKELCM_LIB} 
