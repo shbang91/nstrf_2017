@@ -80,7 +80,7 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
 
 		body_queries.push_back("torso");
 		body_queries.push_back("rightPalm");				
-		ik_manager.FK_bodies(fk_client,	ik_init_robot_state, body_queries, body_poses);       
+		ik_manager.FK_bodies(ik_init_robot_state, body_queries, body_poses);       
 
  		for (size_t i = 0; i < body_poses.size(); i ++ ){
  			std::cout << "Body:" << body_queries[i] << std::endl;

@@ -24,7 +24,7 @@ void IK_IHMC_Bridge::set_final_IK_state(RobotState &end_state){
 }
 
 
-bool IK_IHMC_Bridge::FK_bodies(	ros::ServiceClient &fk_client,	RobotState &robot_state,
+bool IK_IHMC_Bridge::FK_bodies( RobotState &robot_state,
 		  					    std::vector<std::string> &body_queries, std::vector<geometry_msgs::Pose> &body_poses){
 	val_ik::DrakeFKBodyPose fk_srv;
 	val_ik_msgs::RobotState init_robot_state;
@@ -39,9 +39,11 @@ bool IK_IHMC_Bridge::FK_bodies(	ros::ServiceClient &fk_client,	RobotState &robot
 	if (fk_client.call(fk_srv)){
         ROS_INFO("    FK Call Successful");
 		body_poses = fk_srv.response.body_world_poses;
+		return true;
     }
     else{
        ROS_WARN("    Failed to call val_fk_service");
+       return false;
     }
 }
 
@@ -87,7 +89,9 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			int ew_joint_index = std::distance(ik_final_robot_state.joint_state.name.begin(), it);		
 			double joint_end_value   = ik_final_robot_state.joint_state.position[ew_joint_index];
 
+			std::cout << "  ik_init_size: " << ik_init_robot_state.joint_state.name.size() << std::endl;
 			std::cout << "  SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl; 
+			std::cout << "  ik_final_size: " << ik_final_robot_state.joint_state.name.size() << std::endl;
 			std::cout << "  EW Found joint " << ik_final_robot_state.joint_state.name[ew_joint_index]  << " val: " << joint_end_value << std::endl; 			
 
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_start_val_msg;
@@ -136,7 +140,10 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			int ew_joint_index = std::distance(ik_final_robot_state.joint_state.name.begin(), it);		
 			double joint_end_value   = ik_final_robot_state.joint_state.position[ew_joint_index];
 
-			std::cout << "  SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl; 
+			std::cout << "  SW index: " << sw_joint_index << std::endl;
+			std::cout << "  SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl;
+
+			std::cout << "  EW index: " << ew_joint_index << std::endl;
 			std::cout << "  EW Found joint " << ik_final_robot_state.joint_state.name[ew_joint_index]  << " val: " << joint_end_value << std::endl; 			
 
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_start_val_msg;
@@ -164,17 +171,89 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			larm_traj_msg.unique_id = traj_unique_id;
 		}		
 
-		// Copy Trajectory to Whole Body Message
+		// Copy Arm trajectories to Whole Body Message
 		wbc_traj_msg.right_arm_trajectory_message = rarm_traj_msg;		
 		wbc_traj_msg.left_arm_trajectory_message = larm_traj_msg;
 
+		std::cout << "Hello world!" << std::endl;
+
+		// GET FK for both initial and final states.
+		std::vector<std::string> body_queries;
+		body_queries.push_back("torso"); body_queries.push_back("pelvis");	
+
+		std::vector<geometry_msgs::Pose> initial_body_poses;
+		if(FK_bodies(ik_init_robot_state, body_queries, initial_body_poses) == false ){
+			return false;
+		}
+
+		std::vector<geometry_msgs::Pose> final_body_poses;
+		if(FK_bodies(ik_final_robot_state, body_queries, final_body_poses) == false ){
+			return false;
+		}
+
+    	geometry_msgs::Vector3 angular_velocity; 
+    	angular_velocity.x = 0.0;
+		angular_velocity.y = 0.0;
+		angular_velocity.z = 0.0;
+
 		// Prepare Chest Trajectory Message
 	    ihmc_msgs::ChestTrajectoryRosMessage chest_trajectory_msg;
-        //    ihmc_msgs::SO3TrajectoryPointRosMessage     start_SO3_chest_traj;
-        //    ihmc_msgs::SO3TrajectoryPointRosMessage     end_SO3_chest_traj;  
+        	ihmc_msgs::SO3TrajectoryPointRosMessage     start_SO3_chest_traj;       	
+        	start_SO3_chest_traj.time = 0.0; // Start Time is 0
+        	start_SO3_chest_traj.orientation = initial_body_poses[0].orientation;
+        	start_SO3_chest_traj.angular_velocity = angular_velocity;
+        	start_SO3_chest_traj.unique_id = traj_unique_id;
+
+        	ihmc_msgs::SO3TrajectoryPointRosMessage     end_SO3_chest_traj;  
+        	end_SO3_chest_traj.time = traj_time; // End Time is specified
+        	end_SO3_chest_traj.orientation = final_body_poses[0].orientation;
+        	end_SO3_chest_traj.angular_velocity = angular_velocity;
+        	end_SO3_chest_traj.unique_id = traj_unique_id;
+
+        chest_trajectory_msg.execution_mode = 0;
+        chest_trajectory_msg.previous_message_id = 0;
+        chest_trajectory_msg.unique_id = traj_unique_id;
+        chest_trajectory_msg.taskspace_trajectory_points.push_back(start_SO3_chest_traj);
+        chest_trajectory_msg.taskspace_trajectory_points.push_back(end_SO3_chest_traj);
 
 
 
+    	geometry_msgs::Vector3 linear_velocity; 
+    	angular_velocity.x = 0.0;
+		angular_velocity.y = 0.0;
+		angular_velocity.z = 0.0;
+        // Prepare Pelvis SE(3) Trajectory Message
+        ihmc_msgs::PelvisTrajectoryRosMessage	pelvis_trajectory_message;
+        	ihmc_msgs::SE3TrajectoryPointRosMessage 	start_SE3_pelvis_traj;
+        	start_SE3_pelvis_traj.time = 0.0;
+        	start_SE3_pelvis_traj.position.x = initial_body_poses[1].position.x;
+        	start_SE3_pelvis_traj.position.y = initial_body_poses[1].position.y;
+        	start_SE3_pelvis_traj.position.z = initial_body_poses[1].position.z;        	        	
+        	start_SE3_pelvis_traj.orientation = initial_body_poses[1].orientation;
+        	start_SE3_pelvis_traj.linear_velocity = linear_velocity;
+        	start_SE3_pelvis_traj.angular_velocity = angular_velocity;  
+        	start_SE3_pelvis_traj.unique_id = traj_unique_id;      	
+
+        	ihmc_msgs::SE3TrajectoryPointRosMessage 	end_SE3_pelvis_traj;
+        	end_SE3_pelvis_traj.time = traj_time;
+        	end_SE3_pelvis_traj.position.x = final_body_poses[1].position.x;
+        	end_SE3_pelvis_traj.position.y = final_body_poses[1].position.y;
+        	end_SE3_pelvis_traj.position.z = final_body_poses[1].position.z;        	        	
+        	end_SE3_pelvis_traj.orientation = final_body_poses[1].orientation;
+        	end_SE3_pelvis_traj.linear_velocity = linear_velocity;
+        	end_SE3_pelvis_traj.angular_velocity = angular_velocity;  
+        	end_SE3_pelvis_traj.unique_id = traj_unique_id;
+
+        pelvis_trajectory_message.execution_mode = 0;
+        pelvis_trajectory_message.previous_message_id = 0;
+        pelvis_trajectory_message.unique_id = traj_unique_id;
+        pelvis_trajectory_message.taskspace_trajectory_points.push_back(start_SE3_pelvis_traj);
+        pelvis_trajectory_message.taskspace_trajectory_points.push_back(end_SE3_pelvis_traj);        
+
+
+        // Copy Chest and Pelvis Trajectories
+        wbc_traj_msg.chest_trajectory_message = chest_trajectory_msg;
+        wbc_traj_msg.pelvis_trajectory_message = pelvis_trajectory_message;        
 
 		wbc_traj_msg.unique_id = traj_unique_id;
 		wbc_traj_msg.right_foot_trajectory_message.robot_side = 1;

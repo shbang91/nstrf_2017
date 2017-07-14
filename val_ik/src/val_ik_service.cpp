@@ -536,8 +536,8 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 //    Vector3d pelvis_pos_lb = pelvis_pos_end - Vector3d::Constant(pos_tol);
  //   Vector3d pelvis_pos_ub = pelvis_pos_end + Vector3d::Constant(pos_tol);    
 
-    pelvis_pos_lb(2) = 1.05;
-    pelvis_pos_lb(2) = 0.9;    
+//    pelvis_pos_lb(2) = 1.05;
+//    pelvis_pos_lb(2) = 0.9;    
 
     Vector4d pelvis_quat(1, 0, 0, 0);
   //  double tol = 0.5 / 180 * M_PI;
