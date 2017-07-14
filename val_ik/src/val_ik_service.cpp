@@ -16,6 +16,7 @@
 
 //#include "drake/util/convexHull.h"
 #include "val_ik/convexHull.h"
+#include "val_ik/global_vars.h"
 
 // Include ROS message types
 #include "std_msgs/String.h"
@@ -28,6 +29,7 @@
 #include "val_ik_msgs/BodyQuaternionConstraint.h"
 #include "val_ik_msgs/JointPositionConstraint.h"
 #include "val_ik_msgs/RobotJointStates.h"
+#include "val_ik_msgs/RobotState.h"
 
 // Include ROS Service
 #include "val_ik/DrakeIKVal.h"
@@ -142,6 +144,20 @@ void init_IK_global_vars(){
 }
 
 
+
+void get_pelvis_RPY(val_ik_msgs::RobotState &robot_state, double &pelvis_roll, double &pelvis_pitch, double &pelvis_yaw){
+    // Set Matrix from Quaternion Information
+    tf::Quaternion q(robot_state.robot_pose.orientation.x, robot_state.robot_pose.orientation.y,    
+                     robot_state.robot_pose.orientation.z, robot_state.robot_pose.orientation.w);
+    tf::Matrix3x3  rotMatrix;
+    rotMatrix.setRotation(q);
+    // Get Roll Pitch Yaw:
+    rotMatrix.getRPY(pelvis_roll, pelvis_pitch, pelvis_yaw);
+}
+
+
+
+
 void publish_com_pos(double com_x, double com_y){
      visualization_msgs::Marker marker;
     // Set the frame ID and timestamp.  See the TF tutorials for information on these.
@@ -187,25 +203,75 @@ void publish_com_pos(double com_x, double com_y){
 
 
 bool FKServiceCallback(val_ik::DrakeFKBodyPose::Request& req, val_ik::DrakeFKBodyPose::Response& res){
+    // define reach_start
+    VectorXd fk_q_start(tree->get_num_positions());
+
+    // Fill in fk_q_start joint state values from robot_state  
+    for(size_t i = 0; i < req.robot_state.body_joint_states.name.size(); i++){
+        std::string joint_name; 
+        joint_name = req.robot_state.body_joint_states.name[i];
+        float joint_value = req.robot_state.body_joint_states.position[i];
+
+        std::map<std::string, int>::const_iterator iter = val_ik_global::drake_state_name_to_state_index.find(joint_name);
+        if(iter != val_ik_global::drake_state_name_to_state_index.end()){
+            // Item in the map. The value will be accessible as `iter->second`.
+            std::cout << "  Found robot state " << joint_name << " in the map" << std::endl;            
+            int state_index = val_ik_global::drake_state_name_to_state_index.at(joint_name);
+
+            fk_q_start[state_index] = joint_value;
+        }else{
+            std::cout << "  Did not find robot state " << joint_name << " in the map" << std::endl;         
+        }
+    }
+
+
+    // Fill in floating joints:
+
+    // Fill in Pelvis X,Y,Z
+    fk_q_start[0] = req.robot_state.robot_pose.position.x;
+    fk_q_start[1] = req.robot_state.robot_pose.position.y;
+    fk_q_start[2] = req.robot_state.robot_pose.position.z;        
+
+
+    // Fill in Pelvis Roll Pitch Yaw
+    double pelvis_roll_val; double pelvis_pitch_val; double pelvis_yaw_val;
+    get_pelvis_RPY(req.robot_state, pelvis_roll_val, pelvis_pitch_val, pelvis_yaw_val);
+
+    // Set ik_srv roll pitch yaw
+    fk_q_start[3] = pelvis_roll_val;
+    fk_q_start[4] = pelvis_pitch_val;
+    fk_q_start[5] = pelvis_yaw_val;
+
+    // Do Kinematics
+    KinematicsCache<double> cache = tree->doKinematics(fk_q_start);
+
+    //Prepare Message
     std::vector<geometry_msgs::Pose>  body_poses;
 
-    // define reach_start
-    //KinematicsCache<double> cache = tree->doKinematics(reach_start);
-
+    // Get FK body poses
     for(size_t i = 0; i < req.body_names.size(); i++){
         int body_index = tree->FindBodyIndex(req.body_names[i]);
-       // auto body_pose = tree->relativeTransform(cache, 0, body_index);
+        auto body_pose = tree->relativeTransform(cache, 0, body_index);
         // Get Position and Quaternion
-          //  const auto& body_xyz = body_pose.translation();
-         //   Vector4d body_quat = drake::math::rotmat2quat(body_pose.linear());        
+        const auto& body_xyz = body_pose.translation();
+        Vector4d body_quat = drake::math::rotmat2quat(body_pose.linear());        
 
         // Populate msg
         geometry_msgs::Pose this_body_pose;
-        //this_body_pose.position.x = ;
-        // this_body_pose.orientation.x =;
+        // Position:
+        this_body_pose.position.x = body_xyz[0];
+        this_body_pose.position.y = body_xyz[1];
+        this_body_pose.position.z = body_xyz[2];
+        // Orientation
+        this_body_pose.orientation.w = body_quat[0];
+        this_body_pose.orientation.x = body_quat[1];        
+        this_body_pose.orientation.y = body_quat[2];
+        this_body_pose.orientation.z = body_quat[3];        
+
         body_poses.push_back(this_body_pose);
         //
     }
+    res.body_world_poses = body_poses;
 
     return true;
 

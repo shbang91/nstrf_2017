@@ -8,6 +8,9 @@
 //IHMC Control Messages
 #include "ihmc_msgs/WholeBodyTrajectoryRosMessage.h"
 
+// Drake FK Service
+#include "val_ik/DrakeFKBodyPose.h"
+
 class IK_IHMC_Bridge{
 public:
 	geometry_msgs::Pose 				initial_left_foot_pose;
@@ -23,6 +26,9 @@ public:
 	const std::vector<std::string> 			rarm_joint_names;
 	const std::vector<std::string>			larm_joint_names;
 
+	// Finds the body poses of a given robot state using Drake's Forward Kinematics
+	bool FK_bodies(	ros::ServiceClient &fk_client,	RobotState &robot_state,
+				    std::vector<std::string> &body_queries, geometry_msgs::Pose &body_poses);
 
 	bool prepareSingleIKWBC(RobotState &start_state, RobotState &end_state, double &traj_time,
 						 ihmc_msgs::WholeBodyTrajectoryRosMessage &wbc_traj_msg);

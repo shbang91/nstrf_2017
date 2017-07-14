@@ -81,7 +81,7 @@ FIND_LIBRARY(drakeRigidBodyConstraint_LIB drakeRigidBodyConstraint ${DRAKE_CATKI
 
 
 
-add_executable(val_ik_service src/val_ik_service.cpp src/convexHull.cpp)
+add_executable(val_ik_service src/val_ik_service.cpp src/convexHull.cpp src/global_vars.cpp)
 target_link_libraries(val_ik_service ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
                          ${DRAKEIK_LIB}
                          ${DRAKELCM_LIB} 
@@ -113,6 +113,7 @@ target_link_libraries(val_ik ${catkin_LIBRARIES} ${DRAKECOMMON_LIB}
 												 ${drakeJoints_LIB}
 												 ${drakeIKoptions_LIB}
 												 ${drakeRigidBodyConstraint_LIB})
+add_dependencies(val_ik ${catkin_EXPORTED_TARGETS})                         
 
 add_executable(val_ik_ros_pub_test src/test/val_ik_ros_pub_test.cpp)
 target_link_libraries(val_ik_ros_pub_test ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
@@ -126,6 +127,8 @@ target_link_libraries(val_ik_ros_pub_test ${catkin_LIBRARIES} ${DRAKECOMMON_LIB}
                          ${drakeJoints_LIB}
                          ${drakeIKoptions_LIB}
                          ${drakeRigidBodyConstraint_LIB})
+add_dependencies(val_ik_ros_pub_test ${catkin_EXPORTED_TARGETS})
+
 
 add_executable(val_ik_ros_srv_node src/test/val_ik_ros_srv_node.cpp)
 target_link_libraries(val_ik_ros_srv_node ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 

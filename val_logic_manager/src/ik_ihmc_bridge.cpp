@@ -24,6 +24,34 @@ void IK_IHMC_Bridge::set_final_IK_state(RobotState &end_state){
 }
 
 
+bool IK_IHMC_Bridge::FK_bodies(	ros::ServiceClient &fk_client,	RobotState &robot_state,
+		  					    std::vector<std::string> &body_queries, geometry_msgs::Pose &body_poses){
+	val_ik::DrakeFKBodyPose fk_srv;
+	val_ik_msgs::RobotState init_robot_state;
+
+	init_robot_state.robot_pose = robot_state.robot_pose.pose.pose; // This is because robot_pose is a nav_msgs::Odometry
+	init_robot_state.body_joint_states = robot_state.joint_state;
+
+	// Fill in service request
+	fk_srv.request.robot_state = init_robot_state;
+	fk_srv.request.body_names = body_queries;
+
+	if (fk_client.call(fk_srv)){
+        ROS_INFO("    FK Call Successful");
+
+    }
+    else{
+       ROS_WARN("    Failed to call val_fk_service");
+    }
+
+
+/*	val_ik_msgs/RobotState robot_state
+string[] body_names # list of body names to get poses
+---
+geometry_msgs/Pose[] body_world_poses*/
+
+}
+
 
 bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end_state, double &traj_time,
 									 ihmc_msgs::WholeBodyTrajectoryRosMessage &wbc_traj_msg){

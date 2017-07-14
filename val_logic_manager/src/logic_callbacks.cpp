@@ -17,13 +17,6 @@ void  LogicManager::interactive_callback(const visualization_msgs::InteractiveMa
 				 msg->markers[0].pose.orientation.z << " " <<
 				 msg->markers[0].pose.orientation.w << std::endl;
 
-		tf::Transform transform;
-		tf::Quaternion q(msg->markers[0].pose.orientation.x, msg->markers[0].pose.orientation.y, msg->markers[0].pose.orientation.z, msg->markers[0].pose.orientation.w );
-		transform.setOrigin( tf::Vector3(msg->markers[0].pose.position.x, msg->markers[0].pose.position.y, msg->markers[0].pose.position.z) );
-		transform.setRotation(q);
-		br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "basic_controls/im_frame"));
-		
-
 		if	(global_first_state_update_received and ik_init_robot_state.valid_fields){
 			// geometry_msgs::Pose marker_pose;
 			// getIKSol(marker_pose);
