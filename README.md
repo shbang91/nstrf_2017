@@ -1,6 +1,8 @@
 # NSTRF 2017
 Contains code I used for my NSTRF at NASA JSC during the summer of 2017
 
+![alt text](https://raw.githubusercontent.com/stevenjj/nstrf_2017/master/valkyrie_wbc.png)
+
 ## Dependency Compilation
 This repo contains a lot of external dependencies. Most notably to openpose_ros and darknet. Add or Remove dependencies as needed.
 
