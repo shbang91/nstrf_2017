@@ -28,7 +28,7 @@ public:
 
 	// Finds the body poses of a given robot state using Drake's Forward Kinematics
 	bool FK_bodies(	ros::ServiceClient &fk_client,	RobotState &robot_state,
-				    std::vector<std::string> &body_queries, geometry_msgs::Pose &body_poses);
+				    std::vector<std::string> &body_queries, std::vector<geometry_msgs::Pose> &body_poses);
 
 	bool prepareSingleIKWBC(RobotState &start_state, RobotState &end_state, double &traj_time,
 						 ihmc_msgs::WholeBodyTrajectoryRosMessage &wbc_traj_msg);

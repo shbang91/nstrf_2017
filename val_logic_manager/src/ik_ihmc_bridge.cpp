@@ -25,7 +25,7 @@ void IK_IHMC_Bridge::set_final_IK_state(RobotState &end_state){
 
 
 bool IK_IHMC_Bridge::FK_bodies(	ros::ServiceClient &fk_client,	RobotState &robot_state,
-		  					    std::vector<std::string> &body_queries, geometry_msgs::Pose &body_poses){
+		  					    std::vector<std::string> &body_queries, std::vector<geometry_msgs::Pose> &body_poses){
 	val_ik::DrakeFKBodyPose fk_srv;
 	val_ik_msgs::RobotState init_robot_state;
 

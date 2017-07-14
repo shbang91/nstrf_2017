@@ -16,6 +16,8 @@ struct Point {
   }
 };
 
+std::vector<Point> eigenToPoints(const Eigen::Ref<const Eigen::Matrix<double, 2, Eigen::Dynamic>>& P);
+
 std::vector<Point> convexHull(std::vector<Point> P);
 bool inConvexHull(
     const Eigen::Ref<const Eigen::Matrix<double, 2, Eigen::Dynamic>> &P,

@@ -204,6 +204,7 @@ void publish_com_pos(double com_x, double com_y){
 
 bool FKServiceCallback(val_ik::DrakeFKBodyPose::Request& req, val_ik::DrakeFKBodyPose::Response& res){
     // define reach_start
+    /*
     VectorXd fk_q_start(tree->get_num_positions());
 
     // Fill in fk_q_start joint state values from robot_state  
@@ -272,7 +273,8 @@ bool FKServiceCallback(val_ik::DrakeFKBodyPose::Request& req, val_ik::DrakeFKBod
         //
     }
     res.body_world_poses = body_poses;
-
+*/
+    ROS_INFO("FK called");
     return true;
 
 }
@@ -609,7 +611,6 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     // Get COM position
     Vector3d com_sol = tree->centerOfMass(sol_cache);
     Vector2d xy_com_sol(com_sol[0], com_sol[1]);
-    publish_com_pos(com_sol[0], com_sol[1]);       
 
     if (info != SOLUTION_FOUND){ 
         // Calculate Convex Hull of left and right foot contact points
@@ -617,16 +618,40 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
         // Initialize x-y points for convex hull calculation
         Eigen::Matrix2Xd foot_xy_contact_points(2, leftFootContactPts.cols() + rightFootContactPts.cols());
 
-        for (size_t i = 0; i < leftFootContactPts.cols(); i ++){
+        std::cout << "Left Foot" << std::endl;
+        for (size_t i = 0; i < leftFootContactPts.cols(); i ++){           
+            std::cout << "    Contact Point: " ;
+            for(size_t j = 0; j < leftFootContactPts.rows(); j++){
+                std::cout << leftFootContactPts(j,i) << " ";
+            }
+            std::cout << std::endl;            
             foot_xy_contact_points(0, i) = leftFootContactPts(0,i);
             foot_xy_contact_points(1, i) = leftFootContactPts(1,i);
+            std::cout << "        xy: " << foot_xy_contact_points(0, i) << " " << foot_xy_contact_points(1, i) << std::endl;
+
         } 
+        std::cout << "Right Foot" << std::endl;        
         for (size_t i = 0; i < rightFootContactPts.cols(); i ++){
-            foot_xy_contact_points(0, i) = rightFootContactPts(0,i);
-            foot_xy_contact_points(1, i) = rightFootContactPts(1,i);
+            std::cout << "    Contact Point: " ;
+            for(size_t j = 0; j < rightFootContactPts.rows(); j++){
+                std::cout << rightFootContactPts(j,i) << " ";
+            }
+            std::cout << std::endl;
+            foot_xy_contact_points(0, i + leftFootContactPts.cols()) = rightFootContactPts(0,i);
+            foot_xy_contact_points(1, i + leftFootContactPts.cols()) = rightFootContactPts(1,i);
+            std::cout << "        xy: " << foot_xy_contact_points(0, i) << " " << foot_xy_contact_points(1, i) << std::endl;            
         }       
         // Check COM is inside Convex Hull
         bool com_inConvexHull = inConvexHull(foot_xy_contact_points, xy_com_sol);
+        std::vector<Point>  hullPts;
+        hullPts = convexHull(eigenToPoints(foot_xy_contact_points));
+
+        std::cout << "        COM output:" << com_sol[0] << ", " << com_sol[1] << std::endl;
+        std::cout << "     in ConvexHull:" << com_inConvexHull << std::endl;        
+        for (size_t i = 0; i < hullPts.size(); i++){
+            std::cout << "    Hull Pts: " << hullPts[i].x << ", " << hullPts[i].y << std::endl;
+        }
+
         if (com_inConvexHull == 0){
             ROS_ERROR("    IK Sol results in COM outside of convex hull!");
             return false;
@@ -641,6 +666,7 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
         lfoot_dist = lfoot_pos_sol - lfoot_pos0;
         rfoot_dist = rfoot_pos_sol - rfoot_pos0;
 
+
         if (lfoot_dist.norm() > tol_foot_pos){
             ROS_ERROR("    Post IK Sol left foot position is not satisfied");
             return false;
@@ -653,6 +679,7 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
     }
 
+    publish_com_pos(com_sol[0], com_sol[1]);       
     // Return IK Solution:
 
     // Prepare Joint State Message Response

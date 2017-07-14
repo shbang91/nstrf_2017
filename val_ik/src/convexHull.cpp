@@ -67,6 +67,9 @@ std::vector<Point> eigenToPoints(
     Point p;
     p.x = P(0, i);
     p.y = P(1, i);
+
+    std::cout << "           cvhPoint:" << p.x << " " << p.y << std::endl;
+
     points.push_back(p);
   }
   return points;
