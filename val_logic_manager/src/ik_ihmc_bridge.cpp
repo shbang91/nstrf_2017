@@ -55,16 +55,22 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 
 			// Find Joint Index of Right Arm Joints for starting waypoint
 			it = std::find (ik_init_robot_state.joint_state.name.begin(), ik_init_robot_state.joint_state.name.end(), rarm_joint_names.at(i));
-			int joint_index = std::distance(ik_init_robot_state.joint_state.name.begin(), it);
-
+			int sw_joint_index = std::distance(ik_init_robot_state.joint_state.name.begin(), it);
 			// Set the joint values
-			double joint_start_value = ik_init_robot_state.joint_state.position[joint_index];
-			double joint_end_value   = ik_final_robot_state.joint_state.position[joint_index];
+			double joint_start_value = ik_init_robot_state.joint_state.position[sw_joint_index];
+
+
+			// Find Joint Index of Right Arm Joints for ending waypoint
+			it = std::find (ik_final_robot_state.joint_state.name.begin(), ik_final_robot_state.joint_state.name.end(), rarm_joint_names.at(i));
+			int ew_joint_index = std::distance(ik_final_robot_state.joint_state.name.begin(), it);		
+			double joint_end_value   = ik_final_robot_state.joint_state.position[ew_joint_index];
+
+			std::cout << "SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl; 
+			std::cout << "EW Found joint " << ik_final_robot_state.joint_state.name[ew_joint_index]  << " val: " << joint_end_value << std::endl; 			
 
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_start_val_msg;
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_end_val_msg; 
-
-			
+		
             joint_start_val_msg.time = 0.0;    
             joint_start_val_msg.position = joint_start_value;  
             joint_start_val_msg.velocity = 0.0; 
@@ -96,18 +102,23 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			// Begin right arm joint;
 	        ihmc_msgs::OneDoFJointTrajectoryRosMessage larm_joint;
 
-			// Find Joint Index of Right Arm Joints for starting waypoint
+			// Find Joint Index of Left Arm Joints for starting waypoint
 			it = std::find (ik_init_robot_state.joint_state.name.begin(), ik_init_robot_state.joint_state.name.end(), larm_joint_names.at(i));
-			int joint_index = std::distance(ik_init_robot_state.joint_state.name.begin(), it);
-
+			int sw_joint_index = std::distance(ik_init_robot_state.joint_state.name.begin(), it);
 			// Set the joint values
-			double joint_start_value = ik_init_robot_state.joint_state.position[joint_index];
-			double joint_end_value   = ik_final_robot_state.joint_state.position[joint_index];
+			double joint_start_value = ik_init_robot_state.joint_state.position[sw_joint_index];
+
+
+			// Find Joint Index of Leftt Arm Joints for ending waypoint
+			it = std::find (ik_final_robot_state.joint_state.name.begin(), ik_final_robot_state.joint_state.name.end(), larm_joint_names.at(i));
+			int ew_joint_index = std::distance(ik_final_robot_state.joint_state.name.begin(), it);		
+			double joint_end_value   = ik_final_robot_state.joint_state.position[ew_joint_index];
 
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_start_val_msg;
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_end_val_msg; 
 
-			
+
+		
             joint_start_val_msg.time = 0.0;    
             joint_start_val_msg.position = joint_start_value;  
             joint_start_val_msg.velocity = 0.0; 
