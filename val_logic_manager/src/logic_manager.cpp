@@ -9,11 +9,15 @@ LogicManager::~LogicManager(){} // Destructor
 
 
 void LogicManager::publish_ik_init_state_viz(){
-    ik_init_robot_state.publish_viz(val_ik_initpose_robot_joint_states_pub, br);    
+    if (ik_init_robot_state.valid_fields){
+        ik_init_robot_state.publish_viz(val_ik_initpose_robot_joint_states_pub, br);    
+    }
 }
 
 void LogicManager::publish_ik_final_state_viz(){
-    ik_final_robot_state.publish_viz(val_ik_finalpose_robot_joint_states_pub, br);    
+    if (ik_final_robot_state.valid_fields){
+        ik_final_robot_state.publish_viz(val_ik_finalpose_robot_joint_states_pub, br);    
+    }
 }
 
 void LogicManager::update_current_robot_state(){
@@ -35,10 +39,27 @@ void LogicManager::update_current_robot_state(){
     }
 }
 
+
+void LogicManager::sendSingleIKWBC(){
+    // Prepare Whole Body Trajectory Message
+    double traj_time = 2.0;
+    ihmc_msgs::WholeBodyTrajectoryRosMessage wbc_traj_msg;
+    // Fill in fields:
+    if (ik_manager.prepareSingleIKWBC(ik_init_robot_state, ik_final_robot_state, traj_time, wbc_traj_msg)){
+        ROS_INFO("Message successfully prepared.");
+        ROS_INFO("Sending Message");
+        ihmc_wholebody_pub.publish(wbc_traj_msg);
+    }
+
+}
+
 void LogicManager::loop(){
     update_current_robot_state();
     sample_object_marker.header.stamp = ros::Time::now();
     marker_pub.publish(sample_object_marker);
+
+    publish_ik_init_state_viz();
+    publish_ik_final_state_viz();
 
 }
 

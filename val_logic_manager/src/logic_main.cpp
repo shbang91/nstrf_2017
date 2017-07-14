@@ -36,9 +36,10 @@ int main(int argc, char** argv){
     sync.registerCallback(boost::bind(&stateFiltersCallback, _1, _2));
 
     // Declare Publishers
-    logic_manager.val_ik_finalpose_robot_joint_states_pub = logic_manager.nh.advertise<sensor_msgs::JointState>("/val_ik_finalpose_robot/joint_states", 0);
-    logic_manager.val_ik_initpose_robot_joint_states_pub = logic_manager.nh.advertise<sensor_msgs::JointState>("/val_ik_initpose_robot/joint_states", 0);
+    logic_manager.val_ik_finalpose_robot_joint_states_pub = logic_manager.nh.advertise<sensor_msgs::JointState>("/val_ik_finalpose_robot/joint_states", 10);
+    logic_manager.val_ik_initpose_robot_joint_states_pub = logic_manager.nh.advertise<sensor_msgs::JointState>("/val_ik_initpose_robot/joint_states", 10);
     logic_manager.marker_pub = logic_manager.nh.advertise<visualization_msgs::Marker>("val_logic_manager/sample_marker", 0);
+    logic_manager.ihmc_wholebody_pub = logic_manager.nh.advertise<ihmc_msgs::WholeBodyTrajectoryRosMessage>("/ihmc_ros/valkyrie/control/whole_body_trajectory", 0);
 
     ros::Rate r(20);
 

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(val_logic_manager)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   val_viz
   tf
   interactive_markers
+  ihmc_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -88,6 +89,7 @@ catkin_package(
 	  val_viz
 	  tf
 	  interactive_markers
+	  ihmc_msgs
 )
 
 ###########
@@ -99,7 +101,7 @@ include_directories(
 )
 
 
-add_executable(logic_main src/logic_main.cpp src/logic_callbacks.cpp src/logic_manager.cpp src/robot_state.cpp)
+add_executable(logic_main src/logic_main.cpp src/logic_callbacks.cpp src/logic_manager.cpp src/robot_state.cpp src/ik_ihmc_bridge.cpp)
 target_link_libraries(logic_main ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_dependencies(logic_main ${catkin_EXPORTED_TARGETS})
 

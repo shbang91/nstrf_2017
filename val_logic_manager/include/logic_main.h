@@ -29,23 +29,15 @@
 #include "val_ik_msgs/RobotJointStates.h"
 #include "val_ik_msgs/RobotState.h"
 
+//IHMC Control Messages
+#include "ihmc_msgs/WholeBodyTrajectoryRosMessage.h"
+
 // Include ROS Service
 #include "val_ik/DrakeIKVal.h"
 #include "val_ik/DrakeOneHandSingleIk.h"
 
-class Val_IK_Bridge{
-public:
-	geometry_msgs::Pose 				initial_left_foot_pose;
-	geometry_msgs::Pose 				initial_right_foot_pose;
-	geometry_msgs::Pose 				initial_pelvis_pose;
+#include "ik_ihmc_bridge.h"
 
-	RobotState 							ik_init_robot_state;
-	RobotState 							ik_final_robot_state;	
-	void calc_single_hand_IK(geometry_msgs::Pose des_hand_pose);	
-	void set_init_IK_state(RobotState start_state);
-	void set_final_IK_state(RobotState end_state);	
-
-};
 
 class LogicManager{
 public:
@@ -54,6 +46,7 @@ public:
 	ros::Publisher						val_ik_initpose_robot_joint_states_pub;	
 	ros::Publisher						val_ik_finalpose_robot_joint_states_pub;	
 	ros::Publisher						marker_pub;		
+	ros::Publisher 						ihmc_wholebody_pub;
 
 	ros::Subscriber 					interactive_marker_sub;
 	ros::Subscriber 					operator_command_sub;	
@@ -61,7 +54,7 @@ public:
 	ros::ServiceClient  				ik_client;
 	ros::ServiceClient  				single_ik_client;	
 
-	Val_IK_Bridge 						ik_manager;
+	IK_IHMC_Bridge 						ik_manager;
 
 	RobotState 							current_robot_state;	
 	RobotState 							ik_init_robot_state;	
@@ -81,6 +74,7 @@ public:
 	void publish_ik_final_state_viz(); // the final IK pose
 
 
+	void sendSingleIKWBC(); // Send Single IK solution to IHMC controller	
 	void sendWBC(); // Send WBC to IHMC controller	
 
 	// Node Callbacks

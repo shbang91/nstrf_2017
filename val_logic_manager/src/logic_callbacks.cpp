@@ -47,7 +47,7 @@ void  LogicManager::interactive_callback(const visualization_msgs::InteractiveMa
 			single_ik_srv.request.des_hand_pose = marker_pose;
 
 			if (single_ik_client.call(single_ik_srv)){
-		        ROS_INFO("Single IK Call Successful");
+		        ROS_INFO("    Single IK Call Successful");
 		        // Store to final IK position
 		        ik_final_robot_state.robot_pose.pose.pose = single_ik_srv.response.robot_state.robot_pose;
 		        ik_final_robot_state.joint_state = single_ik_srv.response.robot_state.body_joint_states;
@@ -55,16 +55,24 @@ void  LogicManager::interactive_callback(const visualization_msgs::InteractiveMa
 		        publish_ik_final_state_viz();
 		    }
 		    else{
-		       ROS_ERROR("Failed to call Single IK service");
+		       ROS_WARN("    Failed to call Single IK service");
 		    }
 		}
 	}
-
 
 }
 
 void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& msg){
 	ROS_INFO("Logic Manager Operator Command Callback");	
+	std::string send_single_ik_wbc;
+	send_single_ik_wbc = "send_single_ik";
+	if (send_single_ik_wbc.compare(msg->data) == 0){
+		ROS_INFO("Attempting to send single IK WBC");
+		sendSingleIKWBC();
+	}else{
+		ROS_WARN("Unknown Operator Command");
+	}
+
 }
 
 void stateFiltersCallback(const sensor_msgs::JointStateConstPtr& joint_state_msg, const nav_msgs::OdometryConstPtr& odom_msg){
