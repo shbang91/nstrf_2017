@@ -376,7 +376,14 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     const Vector3d origin(0, 0, 0);
 
     int l_foot = tree->FindBodyIndex("leftFoot");
-    Vector4d lfoot_quat(1, 0, 0, 0);                // This should be changed to the current foot position
+
+
+//    Vector4d lfoot_quat(1, 0, 0, 0);                // This should be changed to the current foot position
+    auto lfoot_pose = tree->relativeTransform(cache, 0, l_foot);
+    Vector4d lfoot_quat = my_drake::math::rotmat2quat(lfoot_pose.linear()); 
+
+
+
     auto lfoot_pos0 = tree->transformPoints(cache, origin, l_foot, 0);
     Vector3d lfoot_pos_lb = lfoot_pos0;
     // Position and quaternion constraints are relaxed to make the problem
@@ -392,7 +399,11 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     // 3 Right foot position and orientation constraint
     int r_foot = tree->FindBodyIndex("rightFoot");
     auto rfoot_pos0 = tree->transformPoints(cache, origin, r_foot, 0);
-    Vector4d rfoot_quat(1, 0, 0, 0);
+
+    //Vector4d rfoot_quat(1, 0, 0, 0);
+    auto rfoot_pose = tree->relativeTransform(cache, 0, r_foot);
+    Vector4d rfoot_quat = my_drake::math::rotmat2quat(rfoot_pose.linear()); 
+
     Vector3d rfoot_pos_lb = rfoot_pos0;
     rfoot_pos_lb -= 0.0001*Vector3d::Ones();
     Vector3d rfoot_pos_ub = rfoot_pos0;
@@ -539,7 +550,13 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 //    pelvis_pos_lb(2) = 1.05;
 //    pelvis_pos_lb(2) = 0.9;    
 
-    Vector4d pelvis_quat(1, 0, 0, 0);
+
+//  Vector4d pelvis_quat(1, 0, 0, 0);
+
+    // Get Current Pelvis Quat
+    auto pelvis_pose = tree->relativeTransform(cache, 0, pelvis);
+    Vector4d pelvis_quat = my_drake::math::rotmat2quat(pelvis_pose.linear()); 
+
   //  double tol = 0.5 / 180 * M_PI;
     WorldQuatConstraint kc_pelvis_quat(tree.get(), pelvis, pelvis_quat, tol, tspan);
 
