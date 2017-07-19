@@ -16,7 +16,7 @@ int main(int argc, char** argv){
     // IK Client
     logic_manager.ik_client        = logic_manager.nh.serviceClient<val_ik::DrakeIKVal>("val_ik/val_ik_service");
     logic_manager.single_ik_client = logic_manager.nh.serviceClient<val_ik::DrakeOneHandSingleIk>("val_ik/val_single_ik_service");
-    logic_manager.ik_manager.fk_client        = logic_manager.nh.serviceClient<val_ik::DrakeFKBodyPose>("val_ik/val_fk_service");
+    logic_manager.ik_manager.fk_client  = logic_manager.nh.serviceClient<val_ik::DrakeFKBodyPose>("val_ik/val_fk_service");
 
     ROS_INFO("Waiting for package val_ik services ");
     ros::service::waitForService("val_ik/val_ik_service", -1);
@@ -42,6 +42,8 @@ int main(int argc, char** argv){
     logic_manager.val_ik_initpose_robot_joint_states_pub = logic_manager.nh.advertise<sensor_msgs::JointState>("/val_ik_initpose_robot/joint_states", 10);
     logic_manager.marker_pub = logic_manager.nh.advertise<visualization_msgs::Marker>("val_logic_manager/sample_marker", 0);
     logic_manager.ihmc_wholebody_pub = logic_manager.nh.advertise<ihmc_msgs::WholeBodyTrajectoryRosMessage>("/ihmc_ros/valkyrie/control/whole_body_trajectory", 0);
+
+    logic_manager.ihmc_go_home_pub = logic_manager.nh.advertise<ihmc_msgs::GoHomeRosMessage>("/ihmc_ros/valkyrie/control/go_home", 10);    
 
     ros::Rate r(20);
 

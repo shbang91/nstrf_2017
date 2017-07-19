@@ -31,6 +31,7 @@
 
 //IHMC Control Messages
 #include "ihmc_msgs/WholeBodyTrajectoryRosMessage.h"
+#include "ihmc_msgs/GoHomeRosMessage.h"
 
 // Include ROS Service
 #include "val_ik/DrakeIKVal.h"
@@ -47,6 +48,7 @@ public:
 	ros::Publisher						val_ik_finalpose_robot_joint_states_pub;	
 	ros::Publisher						marker_pub;		
 	ros::Publisher 						ihmc_wholebody_pub;
+	ros::Publisher 						ihmc_go_home_pub;	
 
 	ros::Subscriber 					interactive_marker_sub;
 	ros::Subscriber 					operator_command_sub;	
@@ -74,8 +76,10 @@ public:
 	void publish_ik_final_state_viz(); // the final IK pose
 
 
+
 	void sendSingleIKWBC(); // Send Single IK solution to IHMC controller	
 	void sendWBC(); // Send WBC to IHMC controller	
+	void sendWBCGoHome(); // Send go Home message to IHMC controller
 
 	// Node Callbacks
 	void  interactive_callback(const visualization_msgs::InteractiveMarkerInitConstPtr& msg);

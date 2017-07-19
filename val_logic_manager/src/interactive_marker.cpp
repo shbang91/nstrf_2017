@@ -30,16 +30,19 @@
 
 #include <ros/ros.h>
 
+#include <std_msgs/String.h>
+
 #include <interactive_markers/interactive_marker_server.h>
 #include <interactive_markers/menu_handler.h>
 
 #include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
 #include <tf/tf.h>
+
 
 #include <math.h>
 
 using namespace visualization_msgs;
-
 
 // %Tag(vars)%
 boost::shared_ptr<interactive_markers::InteractiveMarkerServer> server;
@@ -522,11 +525,67 @@ void makeMovingMarker( const tf::Vector3& position )
 }
 // %EndTag(Moving)%
 
+void callback_setIM_pose(const std_msgs::StringConstPtr& msg){
+  tf::TransformListener       tf_listener;
+  std::string re_init_markers;        re_init_markers = "re_init_markers";
+
+  if (re_init_markers.compare(msg->data) == 0){
+    ROS_INFO("Re Initializing Markers...");
+    std::string im_name; im_name = "simple_6dof_MOVE_ROTATE_3D";
+
+    while (ros::ok()){
+        tf::StampedTransform world_to_rpalm_transform;
+        std::string target_frame; target_frame = "rightPalm";
+        std::string origin_frame; origin_frame = "world";
+        try{
+        // Look up transform
+
+          tf_listener.lookupTransform(origin_frame, target_frame, ros::Time(0), world_to_rpalm_transform);
+          std::cout << "Frame ID:" << world_to_rpalm_transform.frame_id_ << std::endl;
+          std::cout << "Child ID:" << world_to_rpalm_transform.child_frame_id_ << std::endl;
+          std::cout << "Trans (x,y,z) = " << world_to_rpalm_transform.getOrigin().getX() << " " << world_to_rpalm_transform.getOrigin().getY() << " " << world_to_rpalm_transform.getOrigin().getZ() << std::endl;
+          
+          tf::Quaternion q;
+          q = world_to_rpalm_transform.getRotation(); 
+          q.normalize();
+          geometry_msgs::Quaternion quat_msg;
+          tf::quaternionTFToMsg (q, quat_msg);
+
+          std::cout << "Quat  (x,y,z,w) = " << quat_msg.x << " " << quat_msg.y << " " << quat_msg.z << " " << quat_msg.w << std::endl;        
+          // Use world_to_rpalm_transform
+
+          geometry_msgs::Pose im_marker_pose;
+          im_marker_pose.position.x =  world_to_rpalm_transform.getOrigin().getX();
+          im_marker_pose.position.y =  world_to_rpalm_transform.getOrigin().getY();          
+          im_marker_pose.position.z =  world_to_rpalm_transform.getOrigin().getZ();
+          im_marker_pose.orientation = quat_msg;
+
+          server->setPose( im_name, im_marker_pose );
+          server->applyChanges();
+        break;
+        }
+        //keep trying until we get the transform
+        catch (tf::TransformException ex){
+        ROS_ERROR_THROTTLE(2,"%s",ex.what());
+        ROS_WARN_THROTTLE(2, "   Waiting for tf to transform desired SAC axis to point cloud frame. trying again");
+        }
+    }
+
+
+
+  }
+
+}
+
+
 // %Tag(main)%
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "basic_controls");
   ros::NodeHandle n;
+  ros::Subscriber operator_command_sub;
+
+  operator_command_sub = n.subscribe<std_msgs::String>("val_logic_manager/operator_command", 1, callback_setIM_pose);
 
   // create a timer to update the published transforms
   //ros::Timer frame_timer = n.createTimer(ros::Duration(0.01), frameCallback);

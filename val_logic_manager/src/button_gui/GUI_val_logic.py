@@ -31,8 +31,9 @@ class ValGui(QtGui.QWidget):
       default_pub_topic = GUI_CMD_TOPIC
 
       # Set Commands
-      self.commands = [GO_NEUTRAL_POS_GUI_STRING,
+      self.commands = [GO_HOME_GUI_STRING,
                        SEND_SINGLE_IK_GUI_STRING, 
+                       RE_INIT_MARKERS_GUI_STRING
                        ] 
       
       positions = [(i,j) for i in range(len(self.commands)) for j in range(3)]
@@ -73,12 +74,12 @@ class ValGui(QtGui.QWidget):
         send_command = True
 
 
-      if command == GO_NEUTRAL_POS_GUI_STRING: 
-        string_cmd = GO_NEUTRAL_POS
-
+      if command == GO_HOME_GUI_STRING: 
+        string_cmd = GO_HOME
       elif command == SEND_SINGLE_IK_GUI_STRING: 
         string_cmd = SEND_SINGLE_IK 
-     
+      elif command == RE_INIT_MARKERS_GUI_STRING: 
+        string_cmd = RE_INIT_MARKERS      
       else:
         string_cmd = INVALID_CMD
       

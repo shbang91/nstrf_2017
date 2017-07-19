@@ -63,6 +63,51 @@ void LogicManager::loop(){
 
 }
 
+void LogicManager::sendWBCGoHome(){
+    int GO_HOME_ID = 2;
+    double go_home_time = 2.0;
+    // Left Arm GO Home Message
+    ihmc_msgs::GoHomeRosMessage larm_go_home_msg;
+    larm_go_home_msg.body_part =  larm_go_home_msg.ARM;
+    larm_go_home_msg.robot_side =  larm_go_home_msg.LEFT;
+    larm_go_home_msg.trajectory_time = go_home_time;
+    larm_go_home_msg.unique_id = GO_HOME_ID;
+    GO_HOME_ID++;
+
+    // Right Arm GO Home Message
+    ihmc_msgs::GoHomeRosMessage rarm_go_home_msg;
+    rarm_go_home_msg.body_part =  rarm_go_home_msg.ARM;
+    rarm_go_home_msg.robot_side =  rarm_go_home_msg.RIGHT;
+    rarm_go_home_msg.trajectory_time = go_home_time;
+    rarm_go_home_msg.unique_id = GO_HOME_ID;
+    GO_HOME_ID++;
+
+    // Chest GO Home Message
+    ihmc_msgs::GoHomeRosMessage chest_go_home_msg;
+    chest_go_home_msg.body_part =  chest_go_home_msg.CHEST;
+    chest_go_home_msg.robot_side =  0;
+    chest_go_home_msg.trajectory_time = go_home_time;
+    chest_go_home_msg.unique_id = GO_HOME_ID;
+    GO_HOME_ID++;    
+
+    // Pelvis GO Home Message
+    ihmc_msgs::GoHomeRosMessage pelvis_go_home_msg;
+    pelvis_go_home_msg.body_part =  pelvis_go_home_msg.PELVIS;
+    pelvis_go_home_msg.robot_side =  0;
+    pelvis_go_home_msg.trajectory_time = go_home_time;
+    pelvis_go_home_msg.unique_id = GO_HOME_ID;
+
+    //Publish GO Home Message
+    ihmc_go_home_pub.publish(larm_go_home_msg);
+    ros::Duration(0.5).sleep();
+    ihmc_go_home_pub.publish(rarm_go_home_msg); 
+    ros::Duration(0.5).sleep();
+    ihmc_go_home_pub.publish(chest_go_home_msg);
+    ros::Duration(0.5).sleep();
+    ihmc_go_home_pub.publish(pelvis_go_home_msg);        
+
+}
+
 // interactiveMarker callback();
 //      calculateIK at Marker Position and Orientation
 //      

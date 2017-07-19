@@ -10,7 +10,7 @@ void  LogicManager::interactive_callback(const visualization_msgs::InteractiveMa
 
 		geometry_msgs::Pose 	   marker_pose;
 		marker_pose = msg->markers[0].pose;
-
+		std::cout << "marker name: " << msg->markers[0].name << std::endl;
 		std::cout << "marker quat: " <<
 				 msg->markers[0].pose.orientation.x << " " <<
 				 msg->markers[0].pose.orientation.y << " " <<
@@ -65,11 +65,12 @@ void  LogicManager::interactive_callback(const visualization_msgs::InteractiveMa
 
 void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& msg){
 	ROS_INFO("Logic Manager Operator Command Callback");	
-	std::string send_single_ik_wbc;
-	send_single_ik_wbc = "send_single_ik";
+	std::string send_single_ik_wbc;		send_single_ik_wbc = "send_single_ik";
+	std::string testFK;					testFK = "testFK";
+	std::string go_home;				go_home = "go_home";
+	std::string re_init_markers;		re_init_markers = "re_init_markers";
 
-	std::string testFK;
-	testFK = "testFK";
+
 	if (send_single_ik_wbc.compare(msg->data) == 0){
 		ROS_INFO("Attempting to send single IK WBC");
 		sendSingleIKWBC();
@@ -92,7 +93,11 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
         	std::cout << "    quat z:" << body_poses[i].orientation.z << std::endl;
         	std::cout << "    quat w:" << body_poses[i].orientation.w << std::endl;        	        	        	
         }
-
+	}else if(go_home.compare(msg->data) == 0){
+		ROS_INFO("Sending Robot Home (to neutral position for walking)");
+		sendWBCGoHome();
+	}else if(re_init_markers.compare(msg->data) == 0){
+		ROS_INFO("Interactive Markers are being Reset. IM server will handle it");
 	}
 	else{
 		ROS_WARN("Unknown Operator Command");
