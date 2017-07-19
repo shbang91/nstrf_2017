@@ -52,7 +52,7 @@ public:
 	ros::Subscriber 					operator_command_sub;	
 
 	ros::ServiceClient  				ik_client;
-	ros::ServiceClient  				single_ik_client;	
+	ros::ServiceClient  				single_ik_client;
 	
 	IK_IHMC_Bridge 						ik_manager;
 
