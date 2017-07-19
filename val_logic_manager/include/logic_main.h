@@ -39,6 +39,8 @@
 
 #include "ik_ihmc_bridge.h"
 
+// Grasploc messages
+// #include "valkyrie/GraspHandPoses.h" //grasploc
 
 class LogicManager{
 public:
@@ -53,9 +55,7 @@ public:
 	ros::Subscriber 					interactive_marker_sub;
 	ros::Subscriber 					operator_command_sub;	
 
-	ros::ServiceClient  				ik_client;
-	ros::ServiceClient  				single_ik_client;
-	
+
 	IK_IHMC_Bridge 						ik_manager;
 
 	RobotState 							current_robot_state;	

@@ -23,6 +23,42 @@ void IK_IHMC_Bridge::set_final_IK_state(RobotState &end_state){
 	ik_final_robot_state.valid_fields = end_state.valid_fields;
 }
 
+bool IK_IHMC_Bridge::calc_single_hand_IK(const geometry_msgs::Pose& des_hand_pose, const int& robot_side, 
+										 const RobotState& robot_state_input, RobotState& robot_state_output){
+	// robot_side is not yet implemented
+
+	if(robot_state_input.valid_fields){
+		// Prepare Client Call
+		val_ik::DrakeOneHandSingleIk single_ik_srv;
+
+	    // Prepare Robot State msg
+	    val_ik_msgs::RobotState robot_state_msg;
+	    geometry_msgs::Pose robot_pose;
+	    // Convert odometry message to geometry_msgs::Pose
+	    robot_pose = robot_state_input.robot_pose.pose.pose; // This is because robot_pose is a nav_msgs::Odometry
+	    robot_state_msg.robot_pose = robot_pose;
+		robot_state_msg.body_joint_states = robot_state_input.joint_state;    
+
+		single_ik_srv.request.robot_state = robot_state_msg;
+		single_ik_srv.request.des_hand_pose = des_hand_pose;
+
+		if (single_ik_client.call(single_ik_srv)){
+	        ROS_INFO("    Single IK Call Successful");
+	        // Store to final IK position
+	        robot_state_output.robot_pose.pose.pose = single_ik_srv.response.robot_state.robot_pose;
+	        robot_state_output.joint_state = single_ik_srv.response.robot_state.body_joint_states;
+	        robot_state_output.valid_fields = true;	
+	        return true;
+	    }
+	    else{
+	       ROS_WARN("    Failed to call Single IK service");
+	       return false;
+	    }
+	}
+
+	ROS_WARN("    Failed to call single IK service. Invalid initial robot state.");
+	return false;
+}
 
 bool IK_IHMC_Bridge::FK_bodies( RobotState &robot_state,
 		  					    std::vector<std::string> &body_queries, std::vector<geometry_msgs::Pose> &body_poses){

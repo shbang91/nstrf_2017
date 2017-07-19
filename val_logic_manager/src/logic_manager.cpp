@@ -33,8 +33,8 @@ void LogicManager::update_current_robot_state(){
         // Test
 
 
-        ROS_INFO("State Update Received");
-        ROS_INFO("JointState Size = %zu", global_joint_state_msg.position.size());
+        ROS_INFO_THROTTLE(1, "Robot State Update Received");
+        //ROS_INFO_THROTTLE(2, "JointState Size = %zu", global_joint_state_msg.position.size());
         global_state_update_received = false;
     }
 }
@@ -46,7 +46,7 @@ void LogicManager::sendSingleIKWBC(){
     ihmc_msgs::WholeBodyTrajectoryRosMessage wbc_traj_msg;
     // Fill in fields:
     if (ik_manager.prepareSingleIKWBC(ik_init_robot_state, ik_final_robot_state, traj_time, wbc_traj_msg)){
-        ROS_INFO("Message successfully prepared.");
+        ROS_INFO("Single EndPoint WBC Message successfully prepared.");
         ROS_INFO("Sending Message");
         ihmc_wholebody_pub.publish(wbc_traj_msg);
     }

@@ -11,9 +11,13 @@
 
 // Drake FK Service
 #include "val_ik/DrakeFKBodyPose.h"
+#include "val_ik/DrakeIKVal.h"
+#include "val_ik/DrakeOneHandSingleIk.h"
 
 class IK_IHMC_Bridge{
 public:
+	ros::ServiceClient  				ik_client;
+	ros::ServiceClient  				single_ik_client;	
 	ros::ServiceClient 					fk_client;
 
 	geometry_msgs::Pose 				initial_left_foot_pose;
@@ -22,12 +26,16 @@ public:
 
 	RobotState 							ik_init_robot_state;
 	RobotState 							ik_final_robot_state;	
-	void calc_single_hand_IK(geometry_msgs::Pose &des_hand_pose);	
+
 	void set_init_IK_state(RobotState &start_state);
 	void set_final_IK_state(RobotState &end_state);	
 
 	const std::vector<std::string> 			rarm_joint_names;
 	const std::vector<std::string>			larm_joint_names;
+
+	// Calculates the IK solution with the hand pose as the only constraint.
+	bool calc_single_hand_IK(const geometry_msgs::Pose& des_hand_pose, const int& robot_side, 
+							 const RobotState& robot_state_input, RobotState& robot_state_output);	
 
 	// Finds the body poses of a given robot state using Drake's Forward Kinematics
 	bool FK_bodies(	RobotState &robot_state,
