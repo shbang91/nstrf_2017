@@ -24,7 +24,7 @@
     <arg name="paused" value="$(arg paused)" />
     <arg name="verbose" value="$(arg verbose)" />
     <!--arg name="world_name" value="$(find val_gazebo)/worlds/empty.world" /-->
-    <arg name="world_name" value="$(find val_logic_manager)/launch/valkyrie_ihmc_empty_world/empty_mars.world" />
+    <arg name="world_name" value="$(find val_world_launchers)/worlds/empty_mars.world" />
     
   </include>
 
