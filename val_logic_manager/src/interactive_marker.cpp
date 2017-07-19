@@ -610,8 +610,12 @@ int main(int argc, char** argv)
   position = tf::Vector3(-3, 0, 0);
   make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::ROTATE_3D, position, false );*/
 
-  position = tf::Vector3( 0.3695, -0.147, 0.938);
-  tf::Quaternion q_start(-0.0308, 0.096, 0.883, 0.458);
+/*  position = tf::Vector3( 0.3695, -0.147, 0.938);
+  tf::Quaternion q_start(-0.0308, 0.096, 0.883, 0.458);*/
+
+  position = tf::Vector3( 0.586061835289, -0.193872511387, 1.14380383492);
+  tf::Quaternion q_start(0.423302135094, -0.554713968345,  0.473368349139, 0.537615204056);
+
   make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE_3D, position, q_start, true );
 /*  position = tf::Vector3( 3, 0, 0);
   make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::MOVE_3D, position, false );

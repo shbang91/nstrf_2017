@@ -1,8 +1,23 @@
 #!/usr/bin/env python
 
-# Dreamer simple GUI
-from GUI_params import *
+# Val simple GUI
+# Based on Andrea Thomaz's lab's class code in UT Austin
+# Modified for personal use. 
+#     stevenjj@utexas.edu
 
+#from GUI_params import *
+
+# GUI Command list
+GUI_CMD_TOPIC = 'val_logic_manager/operator_command'
+INVALID_CMD = "invalid_cmd"
+
+GO_HOME, GO_HOME_GUI_STRING  = "go_home", "Go Neutral Pos"
+SEND_SINGLE_IK,  SEND_SINGLE_IK_GUI_STRING   = "send_single_ik", "Send Single IK"
+RE_INIT_MARKERS, RE_INIT_MARKERS_GUI_STRING = "re_init_markers", "Re Initialize Markers"
+RUN_GRASPLOC, RUN_GRASPLOC_GUI_STRING = "run_grasploc", "Run Grasploc"
+
+
+# ----- Start ------
 import rospy
 import sys
 #import rospkg
@@ -33,7 +48,8 @@ class ValGui(QtGui.QWidget):
       # Set Commands
       self.commands = [GO_HOME_GUI_STRING,
                        SEND_SINGLE_IK_GUI_STRING, 
-                       RE_INIT_MARKERS_GUI_STRING
+                       RE_INIT_MARKERS_GUI_STRING,
+                       RUN_GRASPLOC_GUI_STRING
                        ] 
       
       positions = [(i,j) for i in range(len(self.commands)) for j in range(3)]
@@ -80,6 +96,8 @@ class ValGui(QtGui.QWidget):
         string_cmd = SEND_SINGLE_IK 
       elif command == RE_INIT_MARKERS_GUI_STRING: 
         string_cmd = RE_INIT_MARKERS      
+      elif command == RUN_GRASPLOC_GUI_STRING: 
+        string_cmd = RUN_GRASPLOC                     
       else:
         string_cmd = INVALID_CMD
       
