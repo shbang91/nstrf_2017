@@ -131,6 +131,7 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+          Value: true
         leftHipYawLink:
           Alpha: 1
           Show Axes: false
@@ -311,6 +312,7 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+          Value: true
         rightHipYawLink:
           Alpha: 1
           Show Axes: false
@@ -963,6 +965,22 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Arrow Length: 0.3
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: true
+      Name: PoseArray
+      Topic: /grasp_viz/right_hand_x_pub
+      Unreliable: false
+      Value: true
+    - Arrow Length: 0.3
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: true
+      Name: PoseArray
+      Topic: /grasp_viz/right_hand_z_pub
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -987,7 +1005,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.82215
+      Distance: 2.92152
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -999,10 +1017,10 @@ Visualization Manager:
         Z: 0.993405
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.224798
+      Pitch: 0.370204
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.644162
+      Yaw: 4.35417
     Saved: ~
 Window Geometry:
   Displays:

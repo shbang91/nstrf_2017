@@ -50,22 +50,38 @@ Pelvis:
 
 
 Example Left Arm Trajectory Message:
-rostopic pub /ihmc_ros/valkyrie/control/arm_trajectory ihmc_msgs/ArmTrajectoryRosMessage "robot_side: 0
+rostopic pub /ihmc_ros/valkyrie/control/arm_trajectory ihmc_msgs/ArmTrajectoryRosMessage "robot_side: 1
 joint_trajectory_messages:
 - trajectory_points:
-  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
+  - {time: 0.0, position: -0.9, velocity: 0.0, unique_id: 0}
 - trajectory_points:
-  - {time: 0.2, position: 0.0, velocity: 0.0, unique_id: 0}
+  - {time: 0.0, position: 1.3, velocity: 0.0, unique_id: 0}
 - trajectory_points:
-  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
+  - {time: 0.0, position: 0.3, velocity: 0.0, unique_id: 0}
 - trajectory_points:
-  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
+  - {time: 0.0, position: 2.2, velocity: 0.0, unique_id: 0}
 - trajectory_points:
-  - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
+  - {time: 0.0, position: 1.4, velocity: 0.0, unique_id: 0}
 - trajectory_points:
   - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}
 - trajectory_points:
   - {time: 0.0, position: 0.0, velocity: 0.0, unique_id: 0}  
+  unique_id: 0
+execution_mode: 0
+previous_message_id: 0
+unique_id: 5"
+
+
+rostopic pub /ihmc_ros/valkyrie/control/arm_trajectory ihmc_msgs/ArmTrajectoryRosMessage "robot_side: 1
+joint_trajectory_messages:
+- trajectory_points:
+  - {time: 0.0, position: -0.9, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 1.3, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 0.3, velocity: 0.0, unique_id: 0}
+- trajectory_points:
+  - {time: 0.0, position: 2.2, velocity: 0.0, unique_id: 0}
   unique_id: 0
 execution_mode: 0
 previous_message_id: 0

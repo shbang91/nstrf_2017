@@ -1,0 +1,12 @@
+<launch>
+    <arg name="gui" default="False" />  
+
+    <param name="robot_description" textfile="$(find val_viz)/robot_urdf/valkyrie_sim.urdf" />        
+    <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher"/>
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+         <rosparam param="source_list">[/ihmc_ros/valkyrie/output/joint_states]</rosparam> 
+     </node>
+
+	<node pkg="tf" type="static_transform_publisher" name="head_to_ml_head" args="0 0 0 0 0 0 1 head multisense/head 100" />
+
+</launch>

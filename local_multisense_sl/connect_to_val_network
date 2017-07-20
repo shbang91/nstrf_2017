@@ -1,0 +1,24 @@
+#Connecting to the VAL network
+Find Network switch Hub #03 (It's to the right of this computer)
+Connect to port 03
+
+# Run the following two commands
+````
+sudo ifdown eth1 # Put down multisense
+sudo ifconfig eth0 10.185.0.230 # Change our static IP to the val network
+````
+
+# Test of we can ping Valkyrie Unit A Link and Zelda PC's:
+ping 10.185.0.10 # For Valkyrie Unit A - Link
+ping 10.185.0.11 # For Valkyrie Unit A - Zelda
+
+
+# Returning the Internet
+1. Find Network switch Hub#03 
+2. Connect to port 01
+Restart the Network Manager:
+$ sudo service network-manager restart
+
+
+# Bringing back up local multisense (If this is defined, we cannot communicate with Val)
+sudo ifconfig eth1 10.66.171.20 

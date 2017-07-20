@@ -88,16 +88,14 @@ void LogicManager::grasploc_callback(const valkyrie::GraspHandPosesConstPtr& msg
 	ROS_INFO("Received Grasploc Callback. Storing New Grasps");
 	right_hand_graps.clear();
 
-	ROS_INFO("hello world?");
-	std::cout << "Size:" << msg->right_hand_pose_one.size() << std::endl;
+	std::cout << "Number of grasps:" << msg->right_hand_pose.size() << std::endl;
 
-	for(size_t i = 0; i < (msg->right_hand_pose_one.size()); i++){
-		right_hand_graps.push_back( msg->right_hand_pose_one[i]);
+	for(size_t i = 0; i < (msg->right_hand_pose.size()); i++){
+		//if (msg->right_z_up[i] == 1){
+			right_hand_graps.push_back( msg->right_hand_pose[i]);
+		//}
 	}
 
-	for(size_t i = 0; i < (msg->right_hand_pose_two.size()); i++){
-		right_hand_graps.push_back( msg->right_hand_pose_one[i]);
-	}
 	ROS_INFO("Stored: %zu right hand grasps", right_hand_graps.size());
 
 

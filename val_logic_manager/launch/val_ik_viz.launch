@@ -1,6 +1,8 @@
 <launch>
     <arg name="gui" default="False" />  
 
+    <include file="$(find val_logic_manager)/launch/UnitA_robot_description.launch"/>
+
     <group ns="val_ik_finalpose_robot">
       <param name="robot_description" textfile="$(find val_viz)/robot_urdf/valkyrie_sim_gazebo_sync_red.urdf" />        
       <param name="use_gui" value="$(arg gui)"/>

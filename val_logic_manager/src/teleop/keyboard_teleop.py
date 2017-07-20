@@ -145,7 +145,7 @@ class KeyboardTeleop(object):
         self.tfListener = tf2_ros.TransformListener(self.tfBuffer)  # noqa
         self.footstep_count = 0
         # create publisher for arm trajectories
-        robot_name = rospy.get_param('/ihmc_ros/robot_name')
+        robot_name = "valkyrie" #rospy.get_param('/ihmc_ros/robot_name')
         self.arm_publisher = rospy.Publisher(
             '/ihmc_ros/{0}/control/arm_trajectory'.format(robot_name),
             ArmTrajectoryRosMessage, queue_size=1)
@@ -179,9 +179,9 @@ class KeyboardTeleop(object):
             self.LEFT_FOOT_FRAME_NAME = rospy.get_param(left_foot_frame_parameter_name)
         # make sure the simulation is running otherwise wait
         self.rate = rospy.Rate(2)  # 2hz
-        publishers = [
-            self.arm_publisher, self.left_hand_publisher, self.right_hand_publisher,
-            self.neck_publisher, self.head_publisher, self.footstep_publisher]
+        publishers = [self.neck_publisher]
+#            self.arm_publisher, self.left_hand_publisher, self.right_hand_publisher,
+#            self.neck_publisher, self.head_publisher, self.footstep_publisher]
         if any([p.get_num_connections() == 0 for p in publishers]):
             while any([p.get_num_connections() == 0 for p in publishers]):
                 rospy.loginfo('waiting for subscribers: ' + ', '.join(sorted([
