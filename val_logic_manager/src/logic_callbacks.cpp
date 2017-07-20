@@ -15,6 +15,7 @@ void  LogicManager::interactive_callback(const visualization_msgs::InteractiveMa
 		br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "basic_controls/im_frame"));
 
 
+		// Check that we have received at least a single initialized ik 
 		if	(global_first_state_update_received and ik_init_robot_state.valid_fields){
 			// Prepare initial IK robot state
 		    ik_init_robot_state.joint_state = current_robot_state.joint_state;
@@ -50,20 +51,9 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
 		std::vector<std::string> body_queries;
 		std::vector<geometry_msgs::Pose> body_poses;
 
-		body_queries.push_back("torso");
-		body_queries.push_back("rightPalm");				
+		body_queries.push_back("torso"); body_queries.push_back("rightPalm");				
 		ik_manager.FK_bodies(ik_init_robot_state, body_queries, body_poses);       
 
- 		for (size_t i = 0; i < body_poses.size(); i ++ ){
- 			std::cout << "Body:" << body_queries[i] << std::endl;
-        	std::cout << "    pos x:" << body_poses[i].position.x << std::endl;
-        	std::cout << "    pos y:" << body_poses[i].position.y << std::endl;
-        	std::cout << "    pos z:" << body_poses[i].position.z << std::endl;
-        	std::cout << "    quat x:" << body_poses[i].orientation.x << std::endl;
-        	std::cout << "    quat y:" << body_poses[i].orientation.y << std::endl;
-        	std::cout << "    quat z:" << body_poses[i].orientation.z << std::endl;
-        	std::cout << "    quat w:" << body_poses[i].orientation.w << std::endl;        	        	        	
-        }
 	}else if(go_home.compare(msg->data) == 0){
 		ROS_INFO("Sending Robot Home (to neutral position for walking)");
 		sendWBCGoHome();

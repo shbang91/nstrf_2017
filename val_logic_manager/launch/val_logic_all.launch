@@ -1,0 +1,18 @@
+<launch>
+  <!-- Run Val IK Services-->
+  <node name="val_ik" pkg="val_ik" type="val_ik_service"/>
+  <node name="val_ik_single_ik_server_node" pkg="val_ik" type="val_single_ik_srv"/>       
+
+  <!-- Run Interactive Markers -->
+  <node name="basic_controls" pkg="val_logic_manager" type="interactive_marker"/>
+
+  <!-- Run Val Logic-->
+  <node name="val_logic_manager" pkg="val_logic_manager" type="logic_main" output="screen"/>
+
+  <!-- Run Python GUI-->
+  <node name="simple_val_gui" pkg="val_logic_manager" type="GUI_val_logic.py" output="screen"/>
+
+  <!-- Run RVIZ -->
+  <include file="$(find val_logic_manager)/launch/val_ik_viz.launch"/>
+
+</launch>

@@ -125,11 +125,11 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			int ew_joint_index = std::distance(ik_final_robot_state.joint_state.name.begin(), it);		
 			double joint_end_value   = ik_final_robot_state.joint_state.position[ew_joint_index];
 
-			std::cout << "  ik_init_size: " << ik_init_robot_state.joint_state.name.size() << std::endl;
+/*			std::cout << "  ik_init_size: " << ik_init_robot_state.joint_state.name.size() << std::endl;
 			std::cout << "  SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl; 
 			std::cout << "  ik_final_size: " << ik_final_robot_state.joint_state.name.size() << std::endl;
 			std::cout << "  EW Found joint " << ik_final_robot_state.joint_state.name[ew_joint_index]  << " val: " << joint_end_value << std::endl; 			
-
+*/
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_start_val_msg;
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_end_val_msg; 
 		
@@ -176,12 +176,12 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			int ew_joint_index = std::distance(ik_final_robot_state.joint_state.name.begin(), it);		
 			double joint_end_value   = ik_final_robot_state.joint_state.position[ew_joint_index];
 
-			std::cout << "  SW index: " << sw_joint_index << std::endl;
+/*			std::cout << "  SW index: " << sw_joint_index << std::endl;
 			std::cout << "  SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl;
 
 			std::cout << "  EW index: " << ew_joint_index << std::endl;
 			std::cout << "  EW Found joint " << ik_final_robot_state.joint_state.name[ew_joint_index]  << " val: " << joint_end_value << std::endl; 			
-
+*/
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_start_val_msg;
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_end_val_msg; 
 
@@ -297,37 +297,5 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 
 	}
 
-/*
-    ihmc_msgs::WholeBodyTrajectoryRosMessage wbc_traj_msg;
 
-	joint_index    ik_init_robot_state.joint_state.name
-
-
-        ihmc_msgs::OneDoFJointTrajectoryRosMessage rarm_joint;
-        // for each right arm joint:
-            ihmc_msgs::TrajectoryPoint1DRosMessage start_joint_wp; 
-            ihmc_msgs::TrajectoryPoint1DRosMessage end_joint_wp;
-
-        rarm_traj_msg.unique_id = 1;
-       
-    // left arm
-
-    // create chest trajectory_msg    
-    ihmc_msgs::ChestTrajectoryRosMessage chest_trajectory_msg;
-            ihmc_msgs::SO3TrajectoryPointRosMessage     start_SO3_chest_traj;
-            ihmc_msgs::SO3TrajectoryPointRosMessage     end_SO3_chest_traj;            
-
-        chest_trajectory_msg.taskspace_trajectory_points.push_back(start_SO3_chest_traj);
-        chest_trajectory_msg.taskspace_trajectory_points.push_back(end_SO3_chest_traj);        
-
-    ihmc_msgs::PelvisTrajectoryRosMessage pelvis_trajectory_message;  
-           ihmc_msgs::SE3TrajectoryPointRosMessage      start_SE3_pelvis_traj;
-           ihmc_msgs::SE3TrajectoryPointRosMessage      end_SE3_pelvis_traj;           
-
-        pelvis_trajectory_message.taskspace_trajectory_points.push_back(start_SE3_pelvis_traj);
-        pelvis_trajectory_message.taskspace_trajectory_points.push_back(end_SE3_pelvis_traj);        
-
-
-    wbc_traj_msg.unique_id = 1;
-*/
 }

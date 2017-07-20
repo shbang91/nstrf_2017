@@ -18,12 +18,16 @@ RUN_GRASPLOC, RUN_GRASPLOC_GUI_STRING = "run_grasploc", "Run Grasploc"
 
 
 # ----- Start ------
-import rospy
+import signal
 import sys
+
+
+import rospy
 #import rospkg
 import yaml
 from std_msgs.msg import String
 from std_msgs.msg import Int8
+from PyQt4.QtCore import QTimer
 from PyQt4 import QtGui, QtCore
 
 class ValGui(QtGui.QWidget):
@@ -89,7 +93,6 @@ class ValGui(QtGui.QWidget):
       if command in self.commands:
         send_command = True
 
-
       if command == GO_HOME_GUI_STRING: 
         string_cmd = GO_HOME
       elif command == SEND_SINGLE_IK_GUI_STRING: 
@@ -108,10 +111,26 @@ class ValGui(QtGui.QWidget):
         msg.data = string_cmd
         self.pub.publish(msg)
 
-def gui_start():
-    app = QtGui.QApplication(sys.argv)
-    sg = ValGui()
-    sys.exit(app.exec_())
+# def gui_start():
+#     app = QtGui.QApplication(sys.argv)
+#     sg = ValGui()
+#     sys.exit(app.exec_())
 
 
-gui_start()
+def sigint_handler(*args):
+    """Handler for the SIGINT signal."""
+    sys.stderr.write('\r')
+    QtGui.QApplication.quit()
+
+if __name__ == "__main__":
+  #gui_start
+  signal.signal(signal.SIGINT, sigint_handler)
+
+  app = QtGui.QApplication(sys.argv)
+  timer = QTimer()
+  timer.start(100)  # You may change this if you wish.
+  timer.timeout.connect(lambda: None)  # Let the interpreter run each 100 ms.
+
+  sg = ValGui()
+  sys.exit(app.exec_())
+

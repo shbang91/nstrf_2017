@@ -525,7 +525,7 @@ void makeMovingMarker( const tf::Vector3& position )
 }
 // %EndTag(Moving)%
 
-void callback_setIM_pose(const std_msgs::StringConstPtr& msg){
+void callback_setIM_pose_to_current_robot_state(const std_msgs::StringConstPtr& msg){
   tf::TransformListener       tf_listener;
   std::string re_init_markers;        re_init_markers = "re_init_markers";
 
@@ -566,8 +566,8 @@ void callback_setIM_pose(const std_msgs::StringConstPtr& msg){
         }
         //keep trying until we get the transform
         catch (tf::TransformException ex){
-        ROS_ERROR_THROTTLE(2,"%s",ex.what());
-        ROS_WARN_THROTTLE(2, "   Waiting for tf to transform desired SAC axis to point cloud frame. trying again");
+          ROS_WARN_THROTTLE(2,"%s",ex.what());
+          ROS_WARN_THROTTLE(2, "   Waiting for tf to transform world to end effector frame. Trying again");
         }
     }
 
@@ -585,7 +585,7 @@ int main(int argc, char** argv)
   ros::NodeHandle n;
   ros::Subscriber operator_command_sub;
 
-  operator_command_sub = n.subscribe<std_msgs::String>("val_logic_manager/operator_command", 1, callback_setIM_pose);
+  operator_command_sub = n.subscribe<std_msgs::String>("val_logic_manager/operator_command", 1, callback_setIM_pose_to_current_robot_state);
 
   // create a timer to update the published transforms
   //ros::Timer frame_timer = n.createTimer(ros::Duration(0.01), frameCallback);
