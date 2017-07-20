@@ -64,13 +64,13 @@ public:
 	RobotState 							ik_final_robot_state;	
 
 
-	std::vector<geometry_msgs::Pose> 	right_hand_graps; 
-
 	visualization_msgs::Marker			sample_object_marker;
 	tf::TransformBroadcaster 			br;
 
 	int 								righthand_grasp_index;
+	std::vector<geometry_msgs::Pose> 	right_hand_graps; 
 
+	
 	void init_sample_object_marker(); //initialize sample_marker
 	void update_current_robot_state();
 	void publish_ik_init_state_viz(); // the initial IK pose
@@ -81,8 +81,7 @@ public:
 
 
 
-	void try_nearest_grasp();
-	void try_next_grasp();	
+	void try_grasp(int index);
 
 	void sendSingleIKWBC(); // Send Single IK solution to IHMC controller	
 	void sendWBC(); // Send WBC to IHMC controller	

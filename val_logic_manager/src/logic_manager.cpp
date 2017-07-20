@@ -112,10 +112,11 @@ void LogicManager::sendWBCGoHome(){
 
 }
 
-void LogicManager::try_nearest_grasp(){
-    if (right_hand_graps.size() > 0){
+void LogicManager::try_grasp(int index){
+    if ( (right_hand_graps.size() > 0) && (index < right_hand_graps.size()) ){
+
         // Calculate IK
-        if (ik_manager.calc_single_hand_IK( right_hand_graps[0] , 1, ik_init_robot_state, ik_final_robot_state)){
+        if (ik_manager.calc_single_hand_IK( right_hand_graps[index] , 1, ik_init_robot_state, ik_final_robot_state)){
             ROS_INFO("calc_single_hand_success!");
             publish_ik_final_state_viz();
         }else{
@@ -128,9 +129,6 @@ void LogicManager::try_nearest_grasp(){
 
 }
 
-void LogicManager::try_next_grasp(){
-    ROS_WARN("Function not implemented yet");
-}  
 
 
 

@@ -65,12 +65,16 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
 		ROS_INFO("Calling Grasploc. Grasploc server will handle it");
 	}else if(get_nearest_grasp_ik.compare(msg->data) == 0){
 		ROS_INFO("Finding IK For nearest Grasp");
-		try_nearest_grasp();
+		try_grasp(0);
 	}else if(try_next_grasp_ik.compare(msg->data) == 0){
 		ROS_INFO("Find IK for next Grasp");
-		try_next_grasp();
+		if (right_hand_graps.size() > 0){
+		    righthand_grasp_index = (righthand_grasp_index + 1) % right_hand_graps.size();
+			try_grasp(righthand_grasp_index);
+		}else{
+			ROS_ERROR("There are no stored grasps.");
+		}
 	}
-
 
 
 	else{
