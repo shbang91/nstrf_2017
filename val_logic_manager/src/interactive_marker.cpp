@@ -524,56 +524,70 @@ void makeMovingMarker( const tf::Vector3& position )
   server->setCallback(int_marker.name, &processFeedback);
 }
 // %EndTag(Moving)%
+bool getFramePose(const std::string& target_frame,  geometry_msgs::Pose& frame_pose){
+    tf::TransformListener       tf_listener;  
+    int attempts = 0;
+    while (ros::ok()){
+      if (attempts == 10){
+        ROS_ERROR("Cannot Get Frame Pose after 10 attempts");
+        break;
+      }
+      tf::StampedTransform world_to_rpalm_transform;
+      std::string origin_frame; origin_frame = "world";
+      try{
+      // Look up transform
+
+        tf_listener.lookupTransform(origin_frame, target_frame, ros::Time(0), world_to_rpalm_transform);
+        std::cout << "Frame ID:" << world_to_rpalm_transform.frame_id_ << std::endl;
+        std::cout << "Child ID:" << world_to_rpalm_transform.child_frame_id_ << std::endl;
+        std::cout << "Trans (x,y,z) = " << world_to_rpalm_transform.getOrigin().getX() << " " << world_to_rpalm_transform.getOrigin().getY() << " " << world_to_rpalm_transform.getOrigin().getZ() << std::endl;
+        
+        tf::Quaternion q;
+        q = world_to_rpalm_transform.getRotation(); 
+        q.normalize();
+        geometry_msgs::Quaternion quat_msg;
+        tf::quaternionTFToMsg (q, quat_msg);
+
+        std::cout << "Quat  (x,y,z,w) = " << quat_msg.x << " " << quat_msg.y << " " << quat_msg.z << " " << quat_msg.w << std::endl;        
+        // Use world_to_rpalm_transform
+
+        frame_pose.position.x =  world_to_rpalm_transform.getOrigin().getX();
+        frame_pose.position.y =  world_to_rpalm_transform.getOrigin().getY();          
+        frame_pose.position.z =  world_to_rpalm_transform.getOrigin().getZ();
+        frame_pose.orientation = quat_msg;
+
+        return true;
+
+      }
+      //keep trying until we get the transform
+      catch (tf::TransformException ex){
+        ROS_WARN_THROTTLE(2,"%s",ex.what());
+        ROS_WARN_THROTTLE(2, "   Waiting for tf to transform world to end effector frame. Trying again");
+        ros::Duration(1.0).sleep();
+        attempts = attempts + 1;
+
+      }
+    }
+  return false;
+}
 
 void callback_setIM_pose_to_current_robot_state(const std_msgs::StringConstPtr& msg){
-  tf::TransformListener       tf_listener;
-  std::string re_init_markers;        re_init_markers = "re_init_markers";
+    std::string re_init_markers;        
+    re_init_markers = "re_init_markers";
 
-  if (re_init_markers.compare(msg->data) == 0){
-    ROS_INFO("Re Initializing Markers...");
-    std::string im_name; im_name = "simple_6dof_MOVE_ROTATE_3D";
+    if (re_init_markers.compare(msg->data) == 0){
 
-    while (ros::ok()){
-        tf::StampedTransform world_to_rpalm_transform;
-        std::string target_frame; target_frame = "rightPalm";
-        std::string origin_frame; origin_frame = "world";
-        try{
-        // Look up transform
-
-          tf_listener.lookupTransform(origin_frame, target_frame, ros::Time(0), world_to_rpalm_transform);
-          std::cout << "Frame ID:" << world_to_rpalm_transform.frame_id_ << std::endl;
-          std::cout << "Child ID:" << world_to_rpalm_transform.child_frame_id_ << std::endl;
-          std::cout << "Trans (x,y,z) = " << world_to_rpalm_transform.getOrigin().getX() << " " << world_to_rpalm_transform.getOrigin().getY() << " " << world_to_rpalm_transform.getOrigin().getZ() << std::endl;
-          
-          tf::Quaternion q;
-          q = world_to_rpalm_transform.getRotation(); 
-          q.normalize();
-          geometry_msgs::Quaternion quat_msg;
-          tf::quaternionTFToMsg (q, quat_msg);
-
-          std::cout << "Quat  (x,y,z,w) = " << quat_msg.x << " " << quat_msg.y << " " << quat_msg.z << " " << quat_msg.w << std::endl;        
-          // Use world_to_rpalm_transform
-
-          geometry_msgs::Pose im_marker_pose;
-          im_marker_pose.position.x =  world_to_rpalm_transform.getOrigin().getX();
-          im_marker_pose.position.y =  world_to_rpalm_transform.getOrigin().getY();          
-          im_marker_pose.position.z =  world_to_rpalm_transform.getOrigin().getZ();
-          im_marker_pose.orientation = quat_msg;
-
-          server->setPose( im_name, im_marker_pose );
-          server->applyChanges();
-        break;
+        ROS_INFO("Re Initializing Markers...");
+        std::string im_name; im_name = "simple_6dof_MOVE_ROTATE_3D";
+        geometry_msgs::Pose des_pose;
+        if  (getFramePose("rightPalm", des_pose)){
+            server->setPose( im_name, des_pose);
+            server->applyChanges();
+        }else{
+            ROS_ERROR("Failed to change interactive marker pose");
         }
-        //keep trying until we get the transform
-        catch (tf::TransformException ex){
-          ROS_WARN_THROTTLE(2,"%s",ex.what());
-          ROS_WARN_THROTTLE(2, "   Waiting for tf to transform world to end effector frame. Trying again");
-        }
+
     }
-
-
-
-  }
 
 }
 
@@ -613,10 +627,20 @@ int main(int argc, char** argv)
 /*  position = tf::Vector3( 0.3695, -0.147, 0.938);
   tf::Quaternion q_start(-0.0308, 0.096, 0.883, 0.458);*/
 
-  position = tf::Vector3( 0.586061835289, -0.193872511387, 1.14380383492);
-  tf::Quaternion q_start(0.423302135094, -0.554713968345,  0.473368349139, 0.537615204056);
+    position = tf::Vector3( 0.586061835289, -0.193872511387, 1.14380383492);
+    tf::Quaternion q_start(0.423302135094, -0.554713968345,  0.473368349139, 0.537615204056);
 
-  make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE_3D, position, q_start, true );
+    geometry_msgs::Pose des_pose;
+    if  (getFramePose("rightPalm", des_pose)){
+        position.setX(des_pose.position.x);
+        position.setY(des_pose.position.y);
+        position.setZ(des_pose.position.z);                
+
+        tf::Quaternion q_start_pose(des_pose.orientation.x, des_pose.orientation.z, des_pose.orientation.z, des_pose.orientation.w);
+        q_start = q_start_pose;
+    }        
+
+    make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE_3D, position, q_start, true );
 /*  position = tf::Vector3( 3, 0, 0);
   make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::MOVE_3D, position, false );
   position = tf::Vector3(-3,-3, 0);
@@ -634,11 +658,9 @@ int main(int argc, char** argv)
   position = tf::Vector3( 0,-9, 0);
   makeButtonMarker( position );*/
 
-  server->applyChanges();
-
-  ros::spin();
-
-  server.reset();
+    server->applyChanges();
+    ros::spin();
+    server.reset();
 }
 // %EndTag(main)%
 
