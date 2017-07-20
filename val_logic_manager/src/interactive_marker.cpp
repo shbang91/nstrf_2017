@@ -636,7 +636,7 @@ int main(int argc, char** argv)
         position.setY(des_pose.position.y);
         position.setZ(des_pose.position.z);                
 
-        tf::Quaternion q_start_pose(des_pose.orientation.x, des_pose.orientation.z, des_pose.orientation.z, des_pose.orientation.w);
+        tf::Quaternion q_start_pose(des_pose.orientation.x, des_pose.orientation.y, des_pose.orientation.z, des_pose.orientation.w);
         q_start = q_start_pose;
     }        
 

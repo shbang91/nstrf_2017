@@ -29,6 +29,9 @@ int main(int argc, char** argv){
                                                                                                                   boost::bind(&LogicManager::interactive_callback, &logic_manager, _1));
     logic_manager.operator_command_sub = logic_manager.nh.subscribe<std_msgs::String>("val_logic_manager/operator_command", 1,
                                                                                        boost::bind(&LogicManager::operator_command_callback, &logic_manager, _1));
+
+    logic_manager.grasploc_sub = logic_manager.nh.subscribe<valkyrie::GraspHandPoses>("graspable_points", 1,
+                                                                                       boost::bind(&LogicManager::grasploc_callback, &logic_manager, _1)); //grasploc
     // Synchronize Robot Joint State and Robot Pose
     message_filters::Subscriber<sensor_msgs::JointState> joint_state_sub(logic_manager.nh, "/ihmc_ros/valkyrie/output/joint_states", 1);
     message_filters::Subscriber<nav_msgs::Odometry> robot_pose_sub(logic_manager.nh, "/ihmc_ros/valkyrie/output/robot_pose", 1);

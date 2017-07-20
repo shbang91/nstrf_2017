@@ -40,7 +40,7 @@
 #include "ik_ihmc_bridge.h"
 
 // Grasploc messages
-// #include "valkyrie/GraspHandPoses.h" //grasploc
+#include "valkyrie/GraspHandPoses.h" //grasploc
 
 class LogicManager{
 public:
@@ -54,6 +54,7 @@ public:
 
 	ros::Subscriber 					interactive_marker_sub;
 	ros::Subscriber 					operator_command_sub;	
+	ros::Subscriber 					grasploc_sub; //grasploc
 
 
 	IK_IHMC_Bridge 						ik_manager;
@@ -62,20 +63,26 @@ public:
 	RobotState 							ik_init_robot_state;	
 	RobotState 							ik_final_robot_state;	
 
-	visualization_msgs::Marker			sample_object_marker;
 
+	std::vector<geometry_msgs::Pose> 	right_hand_graps; 
+
+	visualization_msgs::Marker			sample_object_marker;
 	tf::TransformBroadcaster 			br;
+
+	int 								righthand_grasp_index;
 
 	void init_sample_object_marker(); //initialize sample_marker
 	void update_current_robot_state();
 	void publish_ik_init_state_viz(); // the initial IK pose
 
 
-//	void publish_robot_state_viz(); // the current robot state
 //	void publish_ik_traj_state_viz(); // the IK trajectory
 	void publish_ik_final_state_viz(); // the final IK pose
 
 
+
+	void try_nearest_grasp();
+	void try_next_grasp();	
 
 	void sendSingleIKWBC(); // Send Single IK solution to IHMC controller	
 	void sendWBC(); // Send WBC to IHMC controller	
@@ -84,6 +91,10 @@ public:
 	// Node Callbacks
 	void  interactive_callback(const visualization_msgs::InteractiveMarkerInitConstPtr& msg);
 	void  operator_command_callback(const std_msgs::StringConstPtr& msg);
+
+
+
+	void grasploc_callback(const valkyrie::GraspHandPosesConstPtr& msg); //grasploc
 
 	// Loop
 	void loop();

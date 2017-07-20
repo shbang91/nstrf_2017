@@ -3,6 +3,7 @@ LogicManager::LogicManager(){
 	init_sample_object_marker();
     ik_init_robot_state.robot_namespace = "val_ik_initpose_robot";
     ik_final_robot_state.robot_namespace = "val_ik_finalpose_robot";
+    righthand_grasp_index = 0;
 } // Constructor
 LogicManager::~LogicManager(){} // Destructor
 
@@ -103,31 +104,33 @@ void LogicManager::sendWBCGoHome(){
     ihmc_go_home_pub.publish(rarm_go_home_msg); 
     ros::Duration(0.5).sleep();
     ihmc_go_home_pub.publish(chest_go_home_msg);
-    ros::Duration(0.5).sleep();
-    ihmc_go_home_pub.publish(pelvis_go_home_msg);        
+//    ros::Duration(0.5).sleep();
+//    ihmc_go_home_pub.publish(pelvis_go_home_msg);        
+
+    ROS_INFO("Finished Sending GO Home messages for arms and chest.");
+//    ROS_WARN("Once the robot has gone home, the robot will fail to satisfy desired pelvis trajectories");    
 
 }
 
-// interactiveMarker callback();
-//      calculateIK at Marker Position and Orientation
-//      
-// Send WB Reach Trajectory to IHMC
-// getGrabPose
-// calculateIK at SE(3);
-// 
+void LogicManager::try_nearest_grasp(){
+    if (right_hand_graps.size() > 0){
+        // Calculate IK
+        if (ik_manager.calc_single_hand_IK( right_hand_graps[0] , 1, ik_init_robot_state, ik_final_robot_state)){
+            ROS_INFO("calc_single_hand_success!");
+            publish_ik_final_state_viz();
+        }else{
+            ROS_WARN("Failed to calculate desired hand pose IK");
+        }
 
-/*
-void calcIK(geometry_msgs::Pose des_hand_pose, int robot_side)
-    prepare initial IK pose
+    }else{
+        ROS_ERROR("There are no stored grasps. Failed to solve IK for nearest grasp");
+    }
 
-    ros service call singleIK
+}
 
-
-
-
-*/
-
-//void LogicManager::publish_ik_final_state_viz(){}
+void LogicManager::try_next_grasp(){
+    ROS_WARN("Function not implemented yet");
+}  
 
 
 

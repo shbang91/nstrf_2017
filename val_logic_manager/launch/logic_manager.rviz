@@ -31,7 +31,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: PointCloud2
 Visualization Manager:
   Class: ""
   Displays:
@@ -933,6 +933,36 @@ Visualization Manager:
         ik_final_COM: true
       Queue Size: 100
       Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Flat Squares
+      Topic: /multisense/image_points2_color
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -957,22 +987,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.03839
+      Distance: 2.82215
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.0665256
-        Y: -0.111851
-        Z: 1.04767
+        X: -0.00511848
+        Y: 0.00420534
+        Z: 0.993405
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.119798
+      Pitch: 0.224798
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.0841621
+      Yaw: 0.644162
     Saved: ~
 Window Geometry:
   Displays:
@@ -990,5 +1020,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1855
-  X: 2106
-  Y: 118
+  X: 1975
+  Y: 14

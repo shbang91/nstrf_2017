@@ -37,11 +37,13 @@ void  LogicManager::interactive_callback(const visualization_msgs::InteractiveMa
 
 void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& msg){
 	ROS_INFO("Logic Manager Operator Command Callback");	
-	std::string send_single_ik_wbc;		send_single_ik_wbc = "send_single_ik";
-	std::string testFK;					testFK = "testFK";
-	std::string go_home;				go_home = "go_home";
-	std::string re_init_markers;		re_init_markers = "re_init_markers";
-
+	std::string send_single_ik_wbc;		 send_single_ik_wbc = "send_single_ik";
+	std::string testFK;					 testFK = "testFK";
+	std::string go_home;				 go_home = "go_home";
+	std::string re_init_markers;		 re_init_markers = "re_init_markers";
+	std::string run_grasploc;            run_grasploc = "run_grasploc";
+	std::string get_nearest_grasp_ik;    get_nearest_grasp_ik = "get_nearest_grasp_ik";
+	std::string try_next_grasp_ik;       try_next_grasp_ik = "try_next_grasp_ik";
 
 	if (send_single_ik_wbc.compare(msg->data) == 0){
 		ROS_INFO("Attempting to send single IK WBC");
@@ -59,15 +61,43 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
 		sendWBCGoHome();
 	}else if(re_init_markers.compare(msg->data) == 0){
 		ROS_INFO("Interactive Markers are being Reset. IM server will handle it");
+	}else if(run_grasploc.compare(msg->data) == 0){
+		ROS_INFO("Calling Grasploc. Grasploc server will handle it");
+	}else if(get_nearest_grasp_ik.compare(msg->data) == 0){
+		ROS_INFO("Finding IK For nearest Grasp");
+		try_nearest_grasp();
+	}else if(try_next_grasp_ik.compare(msg->data) == 0){
+		ROS_INFO("Find IK for next Grasp");
+		try_next_grasp();
 	}
+
+
+
 	else{
 		ROS_WARN("Unknown Operator Command");
 	}
 
 
-
-
 }
+
+void LogicManager::grasploc_callback(const valkyrie::GraspHandPosesConstPtr& msg){
+	ROS_INFO("Received Grasploc Callback. Storing New Grasps");
+	right_hand_graps.clear();
+
+	ROS_INFO("hello world?");
+	std::cout << "Size:" << msg->right_hand_pose_one.size() << std::endl;
+
+	for(size_t i = 0; i < (msg->right_hand_pose_one.size()); i++){
+		right_hand_graps.push_back( msg->right_hand_pose_one[i]);
+	}
+
+	for(size_t i = 0; i < (msg->right_hand_pose_two.size()); i++){
+		right_hand_graps.push_back( msg->right_hand_pose_one[i]);
+	}
+	ROS_INFO("Stored: %zu right hand grasps", right_hand_graps.size());
+
+
+} //grasploc
 
 void stateFiltersCallback(const sensor_msgs::JointStateConstPtr& joint_state_msg, const nav_msgs::OdometryConstPtr& odom_msg){
 	state_mutex.lock();

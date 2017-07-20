@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   interactive_markers
   ihmc_msgs
+  valkyrie  #grasploc
 )
 
 ## System dependencies are found with CMake's conventions
@@ -90,6 +91,7 @@ catkin_package(
 	  tf
 	  interactive_markers
 	  ihmc_msgs
+	  valkyrie #grasploc
 )
 
 ###########

@@ -14,7 +14,11 @@ INVALID_CMD = "invalid_cmd"
 GO_HOME, GO_HOME_GUI_STRING  = "go_home", "Go Neutral Pos"
 SEND_SINGLE_IK,  SEND_SINGLE_IK_GUI_STRING   = "send_single_ik", "Send Single IK"
 RE_INIT_MARKERS, RE_INIT_MARKERS_GUI_STRING = "re_init_markers", "Re Initialize Markers"
+
 RUN_GRASPLOC, RUN_GRASPLOC_GUI_STRING = "run_grasploc", "Run Grasploc"
+GET_NEAREST_GRASP_IK, GET_NEAREST_GRASP_IK_GUI_STRING = "get_nearest_grasp_ik", "Get Nearest Grasp IK"
+TRY_NEXT_GRASP_IK, TRY_NEXT_GRASP_IK_GUI_STRING = "try_next_grasp_ik", "Try IK for Next Grasp"
+
 
 
 # ----- Start ------
@@ -53,7 +57,9 @@ class ValGui(QtGui.QWidget):
       self.commands = [GO_HOME_GUI_STRING,
                        SEND_SINGLE_IK_GUI_STRING, 
                        RE_INIT_MARKERS_GUI_STRING,
-                       RUN_GRASPLOC_GUI_STRING
+                       RUN_GRASPLOC_GUI_STRING,
+                       GET_NEAREST_GRASP_IK_GUI_STRING,
+                       TRY_NEXT_GRASP_IK_GUI_STRING                       
                        ] 
       
       positions = [(i,j) for i in range(len(self.commands)) for j in range(3)]
@@ -100,7 +106,11 @@ class ValGui(QtGui.QWidget):
       elif command == RE_INIT_MARKERS_GUI_STRING: 
         string_cmd = RE_INIT_MARKERS      
       elif command == RUN_GRASPLOC_GUI_STRING: 
-        string_cmd = RUN_GRASPLOC                     
+        string_cmd = RUN_GRASPLOC                    
+      elif command == GET_NEAREST_GRASP_IK_GUI_STRING: 
+        string_cmd = GET_NEAREST_GRASP_IK                    
+      elif command == TRY_NEXT_GRASP_IK_GUI_STRING: 
+        string_cmd = TRY_NEXT_GRASP_IK                             
       else:
         string_cmd = INVALID_CMD
       

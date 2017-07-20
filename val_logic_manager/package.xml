@@ -90,6 +90,13 @@
   <run_depend>ihmc_msgs</run_depend>                    
 
 
+  <!-- GraspLoc -->
+  <build_depend>valkyrie</build_depend>
+  <run_depend>valkyrie</run_depend>                      
+
+
+
+
  
   <!-- The export tag contains other, unspecified, tags -->
   <export>
