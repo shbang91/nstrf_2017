@@ -30,7 +30,7 @@ int main(int argc, char** argv){
     logic_manager.operator_command_sub = logic_manager.nh.subscribe<std_msgs::String>("val_logic_manager/operator_command", 1,
                                                                                        boost::bind(&LogicManager::operator_command_callback, &logic_manager, _1));
 
-    logic_manager.grasploc_sub = logic_manager.nh.subscribe<valkyrie::GraspHandPoses>("graspable_points", 1,
+    logic_manager.grasploc_sub = logic_manager.nh.subscribe<valkyrie::GraspHandPoses>("/drake_ik_hand_trajectory", 1,
                                                                                        boost::bind(&LogicManager::grasploc_callback, &logic_manager, _1)); //grasploc
     // Synchronize Robot Joint State and Robot Pose
     message_filters::Subscriber<sensor_msgs::JointState> joint_state_sub(logic_manager.nh, "/ihmc_ros/valkyrie/output/joint_states", 1);
@@ -53,9 +53,9 @@ int main(int argc, char** argv){
     // Spin Forever
     while (ros::ok()){
         logic_manager.loop();
-
         r.sleep();
-        ros::spinOnce();        
+        ros::spinOnce(); 
+
     }
 
     return 0;

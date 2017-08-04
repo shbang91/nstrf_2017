@@ -146,7 +146,10 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			rarm_joint.trajectory_points.push_back(joint_start_val_msg);
 			rarm_joint.trajectory_points.push_back(joint_end_val_msg);
 			rarm_joint.unique_id = traj_unique_id;
-
+			
+			#ifdef ON_REAL_ROBOT
+				rarm_joint.weight = std::numeric_limits<double>::quiet_NaN(); // Added line to comply with new ihmc messages
+			#endif
 
 			rarm_traj_msg.robot_side = rarm_traj_msg.RIGHT; // RIGHT SIDE		
 			rarm_traj_msg.joint_trajectory_messages.push_back(rarm_joint);
@@ -200,6 +203,10 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			larm_joint.trajectory_points.push_back(joint_end_val_msg);
 			larm_joint.unique_id = traj_unique_id;
 
+			#ifdef ON_REAL_ROBOT
+				larm_joint.weight = std::numeric_limits<double>::quiet_NaN(); // Added line to comply with new ihmc messages
+			#endif			
+
 			larm_traj_msg.robot_side = larm_traj_msg.LEFT; // LEFT SIDE		
 			larm_traj_msg.joint_trajectory_messages.push_back(larm_joint);
 			larm_traj_msg.execution_mode = 0;
@@ -252,6 +259,11 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
         chest_trajectory_msg.taskspace_trajectory_points.push_back(start_SO3_chest_traj);
         chest_trajectory_msg.taskspace_trajectory_points.push_back(end_SO3_chest_traj);
 
+		#ifdef ON_REAL_ROBOT
+        	chest_trajectory_msg.frame_information.trajectory_reference_frame_id = 83766130;
+        	chest_trajectory_msg.frame_information.data_reference_frame_id = 83766130;        	
+	        chest_trajectory_msg.use_custom_control_frame = false;
+		#endif
 
 
     	geometry_msgs::Vector3 linear_velocity; 
@@ -285,6 +297,12 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
         pelvis_trajectory_message.unique_id = traj_unique_id;
         pelvis_trajectory_message.taskspace_trajectory_points.push_back(start_SE3_pelvis_traj);
         pelvis_trajectory_message.taskspace_trajectory_points.push_back(end_SE3_pelvis_traj);        
+
+		#ifdef ON_REAL_ROBOT
+        	pelvis_trajectory_message.frame_information.trajectory_reference_frame_id = 83766130;
+        	pelvis_trajectory_message.frame_information.data_reference_frame_id = 83766130;        	
+	        pelvis_trajectory_message.use_custom_control_frame = false;
+		#endif
 
 
         // Copy Chest and Pelvis Trajectories

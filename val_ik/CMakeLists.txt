@@ -100,56 +100,56 @@ add_dependencies(se3_traj ${catkin_EXPORTED_TARGETS})
 
 
 # Everything below are test nodes
-add_executable(val_ik src/test/val_ik.cpp)
-target_link_libraries(val_ik ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
-												 ${DRAKEIK_LIB}
-												 ${DRAKELCM_LIB} 
-												 ${DRAKEMULTIBODYPARSERS_LIB} 
-												 ${DRAKERBM_LIB}
-												 ${DRAKERIGIDBODYPLANT_LIB}
-												 ${drakeLcmSystem_LIB}
-												 ${drake_lcmtypes_LIB}
-												 ${drakeJoints_LIB}
-												 ${drakeIKoptions_LIB}
-												 ${drakeRigidBodyConstraint_LIB})
-add_dependencies(val_ik ${catkin_EXPORTED_TARGETS})                         
+#add_executable(val_ik src/test/val_ik.cpp)
+#target_link_libraries(val_ik ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
+#												 ${DRAKEIK_LIB}
+#												 ${DRAKELCM_LIB} 
+#												 ${DRAKEMULTIBODYPARSERS_LIB} 
+#												 ${DRAKERBM_LIB}
+#												 ${DRAKERIGIDBODYPLANT_LIB}
+#												 ${drakeLcmSystem_LIB}
+#												 ${drake_lcmtypes_LIB}
+#												 ${drakeJoints_LIB}
+#												 ${drakeIKoptions_LIB}
+#												 ${drakeRigidBodyConstraint_LIB})
+#add_dependencies(val_ik ${catkin_EXPORTED_TARGETS})                         
 
-add_executable(val_ik_ros_pub_test src/test/val_ik_ros_pub_test.cpp)
-target_link_libraries(val_ik_ros_pub_test ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
-                         ${DRAKEIK_LIB}
-                         ${DRAKELCM_LIB} 
-                         ${DRAKEMULTIBODYPARSERS_LIB} 
-                         ${DRAKERBM_LIB}
-                         ${DRAKERIGIDBODYPLANT_LIB}
-                         ${drakeLcmSystem_LIB}
-                         ${drake_lcmtypes_LIB}
-                         ${drakeJoints_LIB}
-                         ${drakeIKoptions_LIB}
-                         ${drakeRigidBodyConstraint_LIB})
-add_dependencies(val_ik_ros_pub_test ${catkin_EXPORTED_TARGETS})
+#add_executable(val_ik_ros_pub_test src/test/val_ik_ros_pub_test.cpp)
+#target_link_libraries(val_ik_ros_pub_test ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
+#                         ${DRAKEIK_LIB}
+#                         ${DRAKELCM_LIB} 
+#                         ${DRAKEMULTIBODYPARSERS_LIB} 
+#                         ${DRAKERBM_LIB}
+#                         ${DRAKERIGIDBODYPLANT_LIB}
+#                         ${drakeLcmSystem_LIB}
+#                         ${drake_lcmtypes_LIB}
+#                         ${drakeJoints_LIB}
+#                         ${drakeIKoptions_LIB}
+#                         ${drakeRigidBodyConstraint_LIB})
+#add_dependencies(val_ik_ros_pub_test ${catkin_EXPORTED_TARGETS})
 
 
-add_executable(val_ik_ros_srv_node src/test/val_ik_ros_srv_node.cpp)
-target_link_libraries(val_ik_ros_srv_node ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
-                         ${DRAKEIK_LIB}
-                         ${DRAKELCM_LIB} 
-                         ${DRAKEMULTIBODYPARSERS_LIB} 
-                         ${DRAKERBM_LIB}
-                         ${DRAKERIGIDBODYPLANT_LIB}
-                         ${drakeLcmSystem_LIB}
-                         ${drake_lcmtypes_LIB}
-                         ${drakeJoints_LIB}
-                         ${drakeIKoptions_LIB}
-                         ${drakeRigidBodyConstraint_LIB})
-add_dependencies(val_ik_ros_srv_node ${catkin_EXPORTED_TARGETS})
+#add_executable(val_ik_ros_srv_node src/test/val_ik_ros_srv_node.cpp)
+#target_link_libraries(val_ik_ros_srv_node ${catkin_LIBRARIES} ${DRAKECOMMON_LIB} 
+#                         ${DRAKEIK_LIB}
+#                       ${DRAKELCM_LIB} 
+#                         ${DRAKEMULTIBODYPARSERS_LIB} 
+#                         ${DRAKERBM_LIB}
+#                         ${DRAKERIGIDBODYPLANT_LIB}
+#                         ${drakeLcmSystem_LIB}
+#                         ${drake_lcmtypes_LIB}
+#                         ${drakeJoints_LIB}
+#                         ${drakeIKoptions_LIB}
+#                         ${drakeRigidBodyConstraint_LIB})
+#add_dependencies(val_ik_ros_srv_node ${catkin_EXPORTED_TARGETS})
 
-add_executable(test_ik_service src/test/test_ik_service.cpp)
-target_link_libraries(test_ik_service ${catkin_LIBRARIES})
-add_dependencies(test_ik_service ${catkin_EXPORTED_TARGETS})
+#add_executable(test_ik_service src/test/test_ik_service.cpp)
+#target_link_libraries(test_ik_service ${catkin_LIBRARIES})
+#add_dependencies(test_ik_service ${catkin_EXPORTED_TARGETS})
 
-add_executable(test_ik_simple_service src/test/test_ik_simple_service.cpp)
-target_link_libraries(test_ik_simple_service ${catkin_LIBRARIES})
-add_dependencies(test_ik_simple_service ${catkin_EXPORTED_TARGETS})
+#add_executable(test_ik_simple_service src/test/test_ik_simple_service.cpp)
+#target_link_libraries(test_ik_simple_service ${catkin_LIBRARIES})
+#add_dependencies(test_ik_simple_service ${catkin_EXPORTED_TARGETS})
 
 add_executable(val_single_ik_srv src/val_single_ik_srv.cpp src/global_vars.cpp)
 target_link_libraries(val_single_ik_srv ${catkin_LIBRARIES})

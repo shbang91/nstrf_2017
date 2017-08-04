@@ -14,6 +14,9 @@
 #include "val_ik/DrakeIKVal.h"
 #include "val_ik/DrakeOneHandSingleIk.h"
 
+#define ON_REAL_ROBOT
+
+
 class IK_IHMC_Bridge{
 public:
 	ros::ServiceClient  				ik_client;

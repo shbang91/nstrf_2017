@@ -446,7 +446,7 @@ Visualization Manager:
           Show Trail: false
           Value: true
       Name: TrueRobotModel
-      Robot Description: robot_description
+      Robot Description: val_real_robot/robot_description
       TF Prefix: ""
       Update Interval: 0
       Value: true
@@ -932,7 +932,7 @@ Visualization Manager:
       Marker Topic: /val_ik/last_ik_COM_xy
       Name: lastIK_COM_pos
       Namespaces:
-        ik_final_COM: true
+        {}
       Queue Size: 100
       Value: true
     - Alpha: 1
@@ -968,17 +968,25 @@ Visualization Manager:
     - Arrow Length: 0.3
       Class: rviz/PoseArray
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Name: PoseArray
       Topic: /grasp_viz/right_hand_x_pub
       Unreliable: false
-      Value: true
+      Value: false
+    - Arrow Length: 0.3
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: false
+      Name: PoseArray
+      Topic: /grasp_viz/right_hand_z_pub
+      Unreliable: false
+      Value: false
     - Arrow Length: 0.3
       Class: rviz/PoseArray
       Color: 255; 25; 0
       Enabled: true
       Name: PoseArray
-      Topic: /grasp_viz/right_hand_z_pub
+      Topic: /path_visualization
       Unreliable: false
       Value: true
   Enabled: true
@@ -1012,15 +1020,15 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.00511848
-        Y: 0.00420534
+        X: -0.279318
+        Y: -0.13798
         Z: 0.993405
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.370204
+      Pitch: 0.230204
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.35417
+      Yaw: 2.04917
     Saved: ~
 Window Geometry:
   Displays:

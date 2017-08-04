@@ -48,7 +48,7 @@ class ValGui(QtGui.QWidget):
       grid.setSpacing(20)
 
       # Initialize rosnode
-      rospy.init_node("simple_val_gui") 
+      rospy.init_node("steven_simple_val_gui") 
 
       #rospack = rospkg.RosPack()
       default_pub_topic = GUI_CMD_TOPIC

@@ -596,7 +596,7 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     if(std::find(request_constrained_quat_positions.begin(), 
                  request_constrained_quat_positions.end(), "rightPalm") != request_constrained_quat_positions.end()) {
     
-        constraint_array.push_back(&kc_rh_palm_quat);  
+        //constraint_array.push_back(&kc_rh_palm_quat);  
     
     }
 
