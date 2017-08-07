@@ -420,7 +420,9 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     FindJointAndInsert(tree.get(), "torsoPitch", &torso_idx);
     FindJointAndInsert(tree.get(), "torsoRoll", &torso_idx);
     Vector3d torso_nominal = Vector3d::Zero();
-    Vector3d torso_half_range(11.0 / 180 * M_PI, 15.0 / 180 * M_PI, 1.0 / 180 * M_PI);
+//    Vector3d torso_half_range(11.0 / 180 * M_PI, 15.0 / 180 * M_PI, 1.0 / 180 * M_PI);
+//    Vector3d torso_half_range(16.0 / 180 * M_PI, 20.0 / 180 * M_PI, 1.0 / 180 * M_PI);    
+    Vector3d torso_half_range(30.0 / 180 * M_PI, 30.0 / 180 * M_PI, 2.0 / 180 * M_PI);        
 //    Vector3d torso_half_range(1.0 / 180 * M_PI, 1.0 / 180 * M_PI, 1.0 / 180 * M_PI);  
     Vector3d torso_lb = torso_nominal - torso_half_range;
     Vector3d torso_ub = torso_nominal + torso_half_range;
@@ -608,8 +610,8 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 //    Vector3d pelvis_pos_lb = pelvis_pos_end - Vector3d::Constant(pos_tol);
  //   Vector3d pelvis_pos_ub = pelvis_pos_end + Vector3d::Constant(pos_tol);    
 
-//    pelvis_pos_lb(2) = 1.05;
-//    pelvis_pos_lb(2) = 0.9;    
+    pelvis_pos_lb(2) = 2.0; // 1.05
+    pelvis_pos_lb(2) = 0.1; // 0.75
 
 
 //  Vector4d pelvis_quat(1, 0, 0, 0);
@@ -647,19 +649,15 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     constraint_array.push_back(&kc_rfoot_quat);
     constraint_array.push_back(&kc_posture_torso);
     constraint_array.push_back(&kc_posture_knee);
-    constraint_array.push_back(&kc_posture_larm);
-  //  constraint_array.push_back(&kc_posture_rarm);
+
     constraint_array.push_back(&kc_quasi);
 
-    constraint_array.push_back(&kc_rh_palm_pos);
-
-
-    constraint_array.push_back(&kc_lh_palm_pos);    
 
     // Add right palm quaternion constraint if it exists
     if(std::find(request_constrained_quat_positions.begin(), 
                  request_constrained_quat_positions.end(), "rightPalm") != request_constrained_quat_positions.end()) {
-    
+        constraint_array.push_back(&kc_posture_larm);
+        constraint_array.push_back(&kc_rh_palm_pos);    
         //constraint_array.push_back(&kc_rh_palm_quat);  
     
     }
@@ -667,13 +665,14 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     // Add left palm quaternion constraint if it exists
     if(std::find(request_constrained_quat_positions.begin(), 
                  request_constrained_quat_positions.end(), "leftPalm") != request_constrained_quat_positions.end()) {
-    
+        constraint_array.push_back(&kc_posture_rarm);
+        constraint_array.push_back(&kc_lh_palm_pos);        
         //constraint_array.push_back(&kc_lh_palm_quat);  
     
     }
 
 
-//    constraint_array.push_back(&kc_pelvis_pos);
+    constraint_array.push_back(&kc_pelvis_pos);
     constraint_array.push_back(&kc_pelvis_quat);
 
     IKoptions ikoptions(tree.get());
