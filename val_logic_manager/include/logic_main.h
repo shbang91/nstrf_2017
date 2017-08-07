@@ -51,6 +51,8 @@ public:
 	ros::Publisher						marker_pub;		
 	ros::Publisher 						ihmc_wholebody_pub;
 	ros::Publisher 						ihmc_go_home_pub;	
+	ros::Publisher 						ihmc_pelvis_traj_pub;
+
 
 	ros::Subscriber 					interactive_marker_sub;
 	ros::Subscriber 					operator_command_sub;	

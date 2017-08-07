@@ -99,14 +99,70 @@ void LogicManager::sendWBCGoHome(){
     pelvis_go_home_msg.trajectory_time = go_home_time;
     pelvis_go_home_msg.unique_id = GO_HOME_ID;
 
+    ROS_INFO("Attempting to call FK for Feet and Pelvis pose");
+    std::vector<std::string> body_queries;
+    std::vector<geometry_msgs::Pose> body_poses;
+
+    body_queries.push_back("leftFoot"); body_queries.push_back("rightFoot"); body_queries.push_back("pelvis");              
+
+    ihmc_msgs::PelvisTrajectoryRosMessage   pelvis_trajectory_message;
+    if (ik_manager.FK_bodies(ik_init_robot_state, body_queries, body_poses)){
+        double traj_time = 2.0;
+        float des_pelvis_x = (body_poses[0].position.x + body_poses[1].position.x)/2.0;
+        float des_pelvis_y = (body_poses[0].position.y + body_poses[1].position.y)/2.0;
+        float des_pelvis_z = 1.0;
+
+        geometry_msgs::Vector3 linear_velocity; 
+        geometry_msgs::Vector3 angular_velocity; 
+        angular_velocity.x = 0.0;
+        angular_velocity.y = 0.0;
+        angular_velocity.z = 0.0;
+        // Prepare Pelvis SE(3) Trajectory Message
+            ihmc_msgs::SE3TrajectoryPointRosMessage     start_SE3_pelvis_traj;
+            start_SE3_pelvis_traj.time = 0.0;
+            start_SE3_pelvis_traj.position.x = body_poses[2].position.x;
+            start_SE3_pelvis_traj.position.y = body_poses[2].position.y;
+            start_SE3_pelvis_traj.position.z = body_poses[2].position.z;                        
+            start_SE3_pelvis_traj.orientation = body_poses[2].orientation;
+            start_SE3_pelvis_traj.linear_velocity = linear_velocity;
+            start_SE3_pelvis_traj.angular_velocity = angular_velocity;  
+            start_SE3_pelvis_traj.unique_id = GO_HOME_ID;       
+
+            ihmc_msgs::SE3TrajectoryPointRosMessage     end_SE3_pelvis_traj;
+            end_SE3_pelvis_traj.time = traj_time;
+            end_SE3_pelvis_traj.position.x = des_pelvis_x;
+            end_SE3_pelvis_traj.position.y = des_pelvis_y;
+            end_SE3_pelvis_traj.position.z = des_pelvis_z;                        
+            end_SE3_pelvis_traj.orientation = body_poses[2].orientation;
+            end_SE3_pelvis_traj.linear_velocity = linear_velocity;
+            end_SE3_pelvis_traj.angular_velocity = angular_velocity;  
+            end_SE3_pelvis_traj.unique_id = GO_HOME_ID;
+
+        pelvis_trajectory_message.execution_mode = 0;
+        pelvis_trajectory_message.previous_message_id = 0;
+        pelvis_trajectory_message.unique_id = GO_HOME_ID;
+        pelvis_trajectory_message.taskspace_trajectory_points.push_back(start_SE3_pelvis_traj);
+        pelvis_trajectory_message.taskspace_trajectory_points.push_back(end_SE3_pelvis_traj);        
+
+        #ifdef ON_REAL_ROBOT
+            pelvis_trajectory_message.frame_information.trajectory_reference_frame_id = 83766130;
+            pelvis_trajectory_message.frame_information.data_reference_frame_id = 83766130;         
+            pelvis_trajectory_message.use_custom_control_frame = false;
+        #endif        
+
+        ROS_INFO("SENDING PELVIS TO z = 1.0");
+        ihmc_pelvis_traj_pub.publish(pelvis_trajectory_message);
+        ros::Duration(0.5).sleep();
+    }
+
     //Publish GO Home Message
     ihmc_go_home_pub.publish(larm_go_home_msg);
     ros::Duration(0.5).sleep();
     ihmc_go_home_pub.publish(rarm_go_home_msg); 
     ros::Duration(0.5).sleep();
     ihmc_go_home_pub.publish(chest_go_home_msg);
-    ros::Duration(0.5).sleep();
-    ihmc_go_home_pub.publish(pelvis_go_home_msg);        
+//    ros::Duration(0.5).sleep();
+//    ihmc_go_home_pub.publish(pelvis_go_home_msg);        
 
     ROS_INFO("Finished Sending GO Home messages for arms and chest.");
 //    ROS_WARN("Once the robot has gone home, the robot will fail to satisfy desired pelvis trajectories");    

@@ -48,6 +48,9 @@ int main(int argc, char** argv){
 
     logic_manager.ihmc_go_home_pub = logic_manager.nh.advertise<ihmc_msgs::GoHomeRosMessage>("/ihmc_ros/valkyrie/control/go_home", 10);    
 
+    logic_manager.ihmc_pelvis_traj_pub = logic_manager.nh.advertise<ihmc_msgs::PelvisTrajectoryRosMessage>("/ihmc_ros/valkyrie/control/pelvis_trajectory", 10);    
+
+
     ros::Rate r(20);
 
     // Spin Forever
