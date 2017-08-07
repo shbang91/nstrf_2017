@@ -72,12 +72,26 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
 		try_grasp(0);
 	}else if(try_next_grasp_ik.compare(msg->data) == 0){
 		ROS_INFO("Find IK for next Grasp");
-		if (right_hand_graps.size() > 0){
-		    righthand_grasp_index = (righthand_grasp_index + 1) % right_hand_graps.size();
-			try_grasp(righthand_grasp_index);
-		}else{
-			ROS_ERROR("There are no stored grasps.");
+
+		if (hand_to_use == RIGHT_HAND){		
+			if (right_hand_grasps.size() > 0){
+			    righthand_grasp_index = (righthand_grasp_index + 1) % right_hand_grasps.size();
+				try_grasp(righthand_grasp_index);
+			}else{
+				ROS_ERROR("There are no right hand stored grasps.");
+			}
 		}
+		else if (hand_to_use == LEFT_HAND){
+
+			if (left_hand_grasps.size() > 0){
+			    lefthand_grasp_index = (lefthand_grasp_index + 1) % left_hand_grasps.size();
+				try_grasp(lefthand_grasp_index);
+			}else{
+				ROS_ERROR("There are no left hand stored grasps.");
+			}
+		}
+
+
 	}else if(use_right_hand.compare(msg->data) == 0){
 		ROS_INFO("Will use right hand");
 		hand_to_use = RIGHT_HAND;
@@ -94,17 +108,24 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
 
 void LogicManager::grasploc_callback(const valkyrie::GraspHandPosesConstPtr& msg){
 	ROS_INFO("Received Grasploc Callback. Storing New Grasps");
-	right_hand_graps.clear();
 
-	std::cout << "Number of grasps:" << msg->right_hand_pose.size() << std::endl;
-
+	right_hand_grasps.clear();
+	std::cout << "Number of right hand grasps:" << msg->right_hand_pose.size() << std::endl;
 	for(size_t i = 0; i < (msg->right_hand_pose.size()); i++){
-		//if (msg->right_z_up[i] == 1){
-			right_hand_graps.push_back( msg->right_hand_pose[i]);
-		//}
+		right_hand_grasps.push_back( msg->right_hand_pose[i]);	
 	}
+	ROS_INFO("Stored: %zu right hand grasps", right_hand_grasps.size());
 
-	ROS_INFO("Stored: %zu right hand grasps", right_hand_graps.size());
+	left_hand_grasps.clear();
+	std::cout << "Number of left hand grasps:" << msg->left_hand_pose.size() << std::endl;
+	for(size_t i = 0; i < (msg->left_hand_pose.size()); i++){
+		left_hand_grasps.push_back( msg->left_hand_pose[i]);
+	}	
+	ROS_INFO("Stored: %zu left hand grasps", right_hand_grasps.size());	
+
+
+
+
 
 
 } //grasploc

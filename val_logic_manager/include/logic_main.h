@@ -68,7 +68,11 @@ public:
 	tf::TransformBroadcaster 			br;
 
 	int 								righthand_grasp_index;
-	std::vector<geometry_msgs::Pose> 	right_hand_graps; 
+	std::vector<geometry_msgs::Pose> 	right_hand_grasps; 
+
+	int 								lefthand_grasp_index;
+	std::vector<geometry_msgs::Pose> 	left_hand_grasps; 
+
 
 	int 								hand_to_use;
 	

@@ -114,18 +114,32 @@ void LogicManager::sendWBCGoHome(){
 }
 
 void LogicManager::try_grasp(int index){
-    if ( (right_hand_graps.size() > 0) && (index < right_hand_graps.size()) ){
+    if (hand_to_use == RIGHT_HAND){
+        if ( (right_hand_grasps.size() > 0) && (index < right_hand_grasps.size()) ){
+            // Calculate IK
+            if (ik_manager.calc_single_hand_IK( right_hand_grasps[index] , RIGHT_HAND, ik_init_robot_state, ik_final_robot_state)){
+                ROS_INFO("calc_single_hand_success!");
+                publish_ik_final_state_viz();
+            }else{
+                ROS_WARN("Failed to calculate desired right hand pose IK");
+            }
 
-        // Calculate IK
-        if (ik_manager.calc_single_hand_IK( right_hand_graps[index] , RIGHT_HAND, ik_init_robot_state, ik_final_robot_state)){
-            ROS_INFO("calc_single_hand_success!");
-            publish_ik_final_state_viz();
         }else{
-            ROS_WARN("Failed to calculate desired hand pose IK");
+            ROS_ERROR("There are no stored right hand grasps. Failed to solve IK for grasp");
         }
-
-    }else{
-        ROS_ERROR("There are no stored grasps. Failed to solve IK for nearest grasp");
+    }
+    else if(hand_to_use == LEFT_HAND){
+        if ( (left_hand_grasps.size() > 0) && (index < left_hand_grasps.size()) ){
+        // Calculate IK
+            if (ik_manager.calc_single_hand_IK( left_hand_grasps[index] , LEFT_HAND, ik_init_robot_state, ik_final_robot_state)){
+                ROS_INFO("calc_single_hand_success!");
+                publish_ik_final_state_viz();
+            }else{
+                ROS_WARN("Failed to calculate desired left hand pose IK");
+            }
+        }else{
+            ROS_ERROR("There are no stored left hand grasps. Failed to solve IK for grasp");
+        }
     }
 
 }
