@@ -161,8 +161,8 @@ void LogicManager::sendWBCGoHome(){
     ihmc_go_home_pub.publish(rarm_go_home_msg); 
     ros::Duration(0.5).sleep();
     ihmc_go_home_pub.publish(chest_go_home_msg);
-//    ros::Duration(0.5).sleep();
-//    ihmc_go_home_pub.publish(pelvis_go_home_msg);        
+    ros::Duration(0.5).sleep();
+    ihmc_go_home_pub.publish(pelvis_go_home_msg);        
 
     ROS_INFO("Finished Sending GO Home messages for arms and chest.");
 //    ROS_WARN("Once the robot has gone home, the robot will fail to satisfy desired pelvis trajectories");    

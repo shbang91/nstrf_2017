@@ -614,7 +614,7 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     pelvis_pos_lb(2) = 0.1; // 0.75
 
 
-//  Vector4d pelvis_quat(1, 0, 0, 0);
+//    Vector4d pelvis_quat(1, 0, 0, 0);
 
     // Get Current Pelvis Quat
     auto pelvis_pose = tree->relativeTransform(cache, 0, pelvis);
