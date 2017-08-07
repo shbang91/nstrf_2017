@@ -42,6 +42,9 @@
 // Grasploc messages
 #include "valkyrie/GraspHandPoses.h" //grasploc
 
+// Helper
+#include "quat_helper.h"
+
 class LogicManager{
 public:
     // Declare Node Handle

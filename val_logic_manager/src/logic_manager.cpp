@@ -117,6 +117,37 @@ void LogicManager::sendWBCGoHome(){
         angular_velocity.x = 0.0;
         angular_velocity.y = 0.0;
         angular_velocity.z = 0.0;
+
+        // Get Foot Orientations
+        geometry_msgs::Quaternion lfoot_quat = body_poses[0].orientation;
+        geometry_msgs::Quaternion rfoot_quat = body_poses[1].orientation;
+
+        Vector3f lfoot_x_dir = get_RotMat_col(quat_to_R(lfoot_quat), 0);
+        Vector3f rfoot_x_dir = get_RotMat_col(quat_to_R(rfoot_quat), 0);       
+        
+        std::cout << "Left Foot X dir:" << lfoot_x_dir[0] <<  lfoot_x_dir[1] << lfoot_x_dir[2] << std::endl;
+        std::cout << "Right Foot X dir:" << rfoot_x_dir[0] <<  rfoot_x_dir[1] << rfoot_x_dir[2] << std::endl;        
+
+        Vector3f pelvis_x_dir = (lfoot_x_dir + rfoot_x_dir)/2.0;
+        pelvis_x_dir(2) = 0.0;
+        pelvis_x_dir = pelvis_x_dir / pelvis_x_dir.norm();
+
+        Vector3f pelvis_z_dir(0,0,1.0);
+        Vector3f pelvis_y_dir = pelvis_z_dir.cross(pelvis_x_dir);
+
+        std::cout << "Pelvis X dir:" << pelvis_x_dir[0] <<  " " << pelvis_x_dir[1] << " " <<pelvis_x_dir[2] << std::endl;
+        std::cout << "Pelvis Y dir:" << pelvis_y_dir[0] <<  " " << pelvis_y_dir[1] << " " <<pelvis_y_dir[2] << std::endl;
+        std::cout << "Pelvis Z dir:" << pelvis_z_dir[0] <<  " " << pelvis_z_dir[1] << " " << pelvis_z_dir[2] << std::endl;        
+
+        RotMat3f R_pelvis;
+        R_pelvis(0,0) = pelvis_x_dir[0]; R_pelvis(0,1) = pelvis_y_dir[0]; R_pelvis(0,2) = pelvis_z_dir[0]; 
+        R_pelvis(1,0) = pelvis_x_dir[1]; R_pelvis(1,1) = pelvis_y_dir[1]; R_pelvis(1,2) = pelvis_z_dir[1];
+        R_pelvis(2,0) = pelvis_x_dir[2]; R_pelvis(2,1) = pelvis_y_dir[2]; R_pelvis(2,2) = pelvis_z_dir[2];     
+
+
+        geometry_msgs::Quaternion des_pelvis_quat = R_to_quat(R_pelvis);
+        std::cout << "Pelvis des quat:" << des_pelvis_quat.x <<  " " << des_pelvis_quat.y << " " << des_pelvis_quat.z << " " << des_pelvis_quat.w << std::endl;        
+
         // Prepare Pelvis SE(3) Trajectory Message
             ihmc_msgs::SE3TrajectoryPointRosMessage     start_SE3_pelvis_traj;
             start_SE3_pelvis_traj.time = 0.0;
@@ -133,7 +164,7 @@ void LogicManager::sendWBCGoHome(){
             end_SE3_pelvis_traj.position.x = des_pelvis_x;
             end_SE3_pelvis_traj.position.y = des_pelvis_y;
             end_SE3_pelvis_traj.position.z = des_pelvis_z;                        
-            end_SE3_pelvis_traj.orientation = body_poses[2].orientation;
+            end_SE3_pelvis_traj.orientation = des_pelvis_quat;//body_poses[2].orientation;
             end_SE3_pelvis_traj.linear_velocity = linear_velocity;
             end_SE3_pelvis_traj.angular_velocity = angular_velocity;  
             end_SE3_pelvis_traj.unique_id = GO_HOME_ID;
@@ -161,8 +192,8 @@ void LogicManager::sendWBCGoHome(){
     ihmc_go_home_pub.publish(rarm_go_home_msg); 
     ros::Duration(0.5).sleep();
     ihmc_go_home_pub.publish(chest_go_home_msg);
-    ros::Duration(0.5).sleep();
-    ihmc_go_home_pub.publish(pelvis_go_home_msg);        
+    //ros::Duration(0.5).sleep();
+    //ihmc_go_home_pub.publish(pelvis_go_home_msg);        
 
     ROS_INFO("Finished Sending GO Home messages for arms and chest.");
 //    ROS_WARN("Once the robot has gone home, the robot will fail to satisfy desired pelvis trajectories");    

@@ -103,7 +103,7 @@ include_directories(
 )
 
 
-add_executable(logic_main src/logic_main.cpp src/logic_callbacks.cpp src/logic_manager.cpp src/robot_state.cpp src/ik_ihmc_bridge.cpp)
+add_executable(logic_main src/logic_main.cpp src/logic_callbacks.cpp src/logic_manager.cpp src/robot_state.cpp src/ik_ihmc_bridge.cpp src/quat_helper.cpp)
 target_link_libraries(logic_main ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_dependencies(logic_main ${catkin_EXPORTED_TARGETS})
 
