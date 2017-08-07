@@ -475,66 +475,127 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
 
 
+    // RIGHT PALM CONSTRAINT
 
-    int rh_palm = tree->FindBodyIndex("rightPalm");
-    Vector4d rh_palm_quat(0.707, 0, 0, 0.707);
+        int rh_palm = tree->FindBodyIndex("rightPalm");
+        Vector4d rh_palm_quat(0.707, 0, 0, 0.707);
 
-    if(std::find(request_constrained_quat_positions.begin(), 
-                 request_constrained_quat_positions.end(), "rightPalm") != request_constrained_quat_positions.end()) {
-        //ROS_INFO("rightPalm Quaternion Request");
-        geometry_msgs::Quaternion rh_quat;
-        int index = quaternion_constrained_body_to_index["rightPalm"];
-        rh_quat = req.desired_quaternion_positions[index].quaternion;
+        if(std::find(request_constrained_quat_positions.begin(), 
+                     request_constrained_quat_positions.end(), "rightPalm") != request_constrained_quat_positions.end()) {
+            //ROS_INFO("rightPalm Quaternion Request");
+            geometry_msgs::Quaternion rh_quat;
+            int index = quaternion_constrained_body_to_index["rightPalm"];
+            rh_quat = req.desired_quaternion_positions[index].quaternion;
 
-        rh_palm_quat[0] = rh_quat.w; 
-        rh_palm_quat[1] = rh_quat.x;
-        rh_palm_quat[2] = rh_quat.y;
-        rh_palm_quat[3] = rh_quat.z;                
-    }
-
-
-    auto rh_palm0 = tree->transformPoints(cache, world_origin, rh_palm, 0);
-
-    //std::cout << "rh_palm0:" << rh_palm0[0] << " " << rh_palm0[1] << " " << rh_palm0[2] << " " << std::endl;
-    WorldQuatConstraint kc_rh_palm_quat(tree.get(), rh_palm, rh_palm_quat, tol, tspan);
-
-
-
-    // Position and quaternion constraints are relaxed to make the problem
-    // solvable by IPOPT.
-    Vector3d rh_palm_des_offset(0.0, 0.0, 0.0);  
-
-    if(std::find(request_constrained_body_positions.begin(), 
-                 request_constrained_body_positions.end(), "rightPalm") != request_constrained_body_positions.end()) {
-        //ROS_INFO("rightPalm Position Request");
-        geometry_msgs::Point world_point;
-        int index = position_constrained_body_to_index["rightPalm"];
-        world_point = req.desired_body_positions[index].world_position;
-        //ROS_INFO("x,y,z");
-        //std::cout << world_point.x << " " << world_point.y << " " << world_point.z << " " << std::endl;
-
-        Vector3d rpalm_desired_world_pos( world_point.x,  world_point.y,  world_point.z);
-
-        rh_palm_des_offset = rpalm_desired_world_pos;
-        if (!req.desired_body_positions[index].offset_from_current){
-            rh_palm_des_offset = rpalm_desired_world_pos - rh_palm0;
+            rh_palm_quat[0] = rh_quat.w; 
+            rh_palm_quat[1] = rh_quat.x;
+            rh_palm_quat[2] = rh_quat.y;
+            rh_palm_quat[3] = rh_quat.z;                
         }
 
-        //std::cout << rh_palm_des_offset[0] << " " << rh_palm_des_offset[1] << " " << rh_palm_des_offset[2] << " " << std::endl;        
-    }
+
+        auto rh_palm0 = tree->transformPoints(cache, world_origin, rh_palm, 0);
+
+        //std::cout << "rh_palm0:" << rh_palm0[0] << " " << rh_palm0[1] << " " << rh_palm0[2] << " " << std::endl;
+        WorldQuatConstraint kc_rh_palm_quat(tree.get(), rh_palm, rh_palm_quat, tol, tspan);
 
 
-    Vector3d pos_end;
-    pos_end = rh_palm0 + rh_palm_des_offset;
+        // Position and quaternion constraints are relaxed to make the problem
+        // solvable by IPOPT.
+        Vector3d rh_palm_des_offset(0.0, 0.0, 0.0);  
 
-//    ROS_INFO("Pos end:");
- //   std::cout << pos_end[0] << " " << pos_end[1] << " " << pos_end[2] << " " << std::endl;        
+        if(std::find(request_constrained_body_positions.begin(), 
+                     request_constrained_body_positions.end(), "rightPalm") != request_constrained_body_positions.end()) {
+            //ROS_INFO("rightPalm Position Request");
+            geometry_msgs::Point world_point;
+            int index = position_constrained_body_to_index["rightPalm"];
+            world_point = req.desired_body_positions[index].world_position;
+            //ROS_INFO("x,y,z");
+            //std::cout << world_point.x << " " << world_point.y << " " << world_point.z << " " << std::endl;
 
-    const double pos_tol = 0.001;
-    const Vector3d pos_lb = pos_end - Vector3d::Constant(pos_tol);
-    const Vector3d pos_ub = pos_end + Vector3d::Constant(pos_tol);
+            Vector3d rpalm_desired_world_pos( world_point.x,  world_point.y,  world_point.z);
 
-    WorldPositionConstraint kc_rh_palm_pos(tree.get(), rh_palm, world_origin, pos_lb, pos_ub, tspan);
+            rh_palm_des_offset = rpalm_desired_world_pos;
+            if (!req.desired_body_positions[index].offset_from_current){
+                rh_palm_des_offset = rpalm_desired_world_pos - rh_palm0;
+            }
+
+            //std::cout << rh_palm_des_offset[0] << " " << rh_palm_des_offset[1] << " " << rh_palm_des_offset[2] << " " << std::endl;        
+        }
+
+
+        Vector3d pos_end;
+        pos_end = rh_palm0 + rh_palm_des_offset;
+
+    //    ROS_INFO("Pos end:");
+     //   std::cout << pos_end[0] << " " << pos_end[1] << " " << pos_end[2] << " " << std::endl;        
+
+        const double pos_tol = 0.001;
+        const Vector3d pos_lb = pos_end - Vector3d::Constant(pos_tol);
+        const Vector3d pos_ub = pos_end + Vector3d::Constant(pos_tol);
+
+        WorldPositionConstraint kc_rh_palm_pos(tree.get(), rh_palm, world_origin, pos_lb, pos_ub, tspan);
+
+
+
+//--------------------------------------------------------------------------------------------------------------------
+    // LEFT PALM CONSTRAINT
+
+        int lh_palm = tree->FindBodyIndex("leftPalm");
+        Vector4d lh_palm_quat(0.707, 0, 0, 0.707);
+
+        if(std::find(request_constrained_quat_positions.begin(), 
+                     request_constrained_quat_positions.end(), "leftPalm") != request_constrained_quat_positions.end()) {
+            //ROS_INFO("rightPalm Quaternion Request");
+            geometry_msgs::Quaternion lh_quat;
+            int index = quaternion_constrained_body_to_index["leftPalm"];
+            lh_quat = req.desired_quaternion_positions[index].quaternion;
+
+            lh_palm_quat[0] = lh_quat.w; 
+            lh_palm_quat[1] = lh_quat.x;
+            lh_palm_quat[2] = lh_quat.y;
+            lh_palm_quat[3] = lh_quat.z;                
+        }
+
+
+        auto lh_palm0 = tree->transformPoints(cache, world_origin, lh_palm, 0);
+
+        WorldQuatConstraint kc_lh_palm_quat(tree.get(), lh_palm, lh_palm_quat, tol, tspan);
+
+
+        // Position and quaternion constraints are relaxed to make the problem
+        // solvable by IPOPT.
+        Vector3d lh_palm_des_offset(0.0, 0.0, 0.0);  
+
+        if(std::find(request_constrained_body_positions.begin(), 
+                     request_constrained_body_positions.end(), "leftPalm") != request_constrained_body_positions.end()) {
+            geometry_msgs::Point world_point;
+            int index = position_constrained_body_to_index["leftPalm"];
+            world_point = req.desired_body_positions[index].world_position;
+
+            Vector3d lpalm_desired_world_pos( world_point.x,  world_point.y,  world_point.z);
+
+            lh_palm_des_offset = lpalm_desired_world_pos;
+            if (!req.desired_body_positions[index].offset_from_current){
+                lh_palm_des_offset = lpalm_desired_world_pos - lh_palm0;
+            }
+
+        }
+
+
+        Vector3d lh_pos_end;
+        lh_pos_end = lh_palm0 + lh_palm_des_offset;
+
+    //    ROS_INFO("Pos end:");
+     //   std::cout << pos_end[0] << " " << pos_end[1] << " " << pos_end[2] << " " << std::endl;        
+
+        const double lh_pos_tol = 0.001;
+        const Vector3d lh_pos_lb = lh_pos_end - Vector3d::Constant(lh_pos_tol);
+        const Vector3d lh_pos_ub = lh_pos_end + Vector3d::Constant(lh_pos_tol);
+
+        WorldPositionConstraint kc_lh_palm_pos(tree.get(), lh_palm, world_origin, lh_pos_lb, lh_pos_ub, tspan);
+//--------------------------------------------------------------------------------------------------------------------
+
 
 
     int pelvis = tree->FindBodyIndex("pelvis");
@@ -592,11 +653,22 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
 
     constraint_array.push_back(&kc_rh_palm_pos);
 
+
+    constraint_array.push_back(&kc_lh_palm_pos);    
+
     // Add right palm quaternion constraint if it exists
     if(std::find(request_constrained_quat_positions.begin(), 
                  request_constrained_quat_positions.end(), "rightPalm") != request_constrained_quat_positions.end()) {
     
         //constraint_array.push_back(&kc_rh_palm_quat);  
+    
+    }
+
+    // Add left palm quaternion constraint if it exists
+    if(std::find(request_constrained_quat_positions.begin(), 
+                 request_constrained_quat_positions.end(), "leftPalm") != request_constrained_quat_positions.end()) {
+    
+        //constraint_array.push_back(&kc_lh_palm_quat);  
     
     }
 

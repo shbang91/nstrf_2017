@@ -4,6 +4,7 @@ LogicManager::LogicManager(){
     ik_init_robot_state.robot_namespace = "val_ik_initpose_robot";
     ik_final_robot_state.robot_namespace = "val_ik_finalpose_robot";
     righthand_grasp_index = 0;
+    hand_to_use = RIGHT_HAND;
 } // Constructor
 LogicManager::~LogicManager(){} // Destructor
 
@@ -116,7 +117,7 @@ void LogicManager::try_grasp(int index){
     if ( (right_hand_graps.size() > 0) && (index < right_hand_graps.size()) ){
 
         // Calculate IK
-        if (ik_manager.calc_single_hand_IK( right_hand_graps[index] , 1, ik_init_robot_state, ik_final_robot_state)){
+        if (ik_manager.calc_single_hand_IK( right_hand_graps[index] , RIGHT_HAND, ik_init_robot_state, ik_final_robot_state)){
             ROS_INFO("calc_single_hand_success!");
             publish_ik_final_state_viz();
         }else{

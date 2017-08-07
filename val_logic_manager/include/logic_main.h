@@ -70,6 +70,7 @@ public:
 	int 								righthand_grasp_index;
 	std::vector<geometry_msgs::Pose> 	right_hand_graps; 
 
+	int 								hand_to_use;
 	
 	void init_sample_object_marker(); //initialize sample_marker
 	void update_current_robot_state();

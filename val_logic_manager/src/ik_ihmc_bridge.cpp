@@ -42,6 +42,9 @@ bool IK_IHMC_Bridge::calc_single_hand_IK(const geometry_msgs::Pose& des_hand_pos
 		single_ik_srv.request.robot_state = robot_state_msg;
 		single_ik_srv.request.des_hand_pose = des_hand_pose;
 
+		// Declare Robot Side
+		single_ik_srv.request.robot_side = robot_side;
+
 		if (single_ik_client.call(single_ik_srv)){
 	        ROS_INFO("    Single IK Call Successful");
 	        // Store to final IK position

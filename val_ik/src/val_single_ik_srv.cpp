@@ -88,6 +88,11 @@ void Single_IK_srv::define_desired_hand_pos(val_ik::DrakeOneHandSingleIk::Reques
     body_quat_constraint.offset_from_current = false;
     body_quat_constraint.quaternion = req.des_hand_pose.orientation;
 
+    if (req.robot_side == req.robot_state.LEFT){
+    	body_constraint.body_name = "leftPalm";
+    	body_quat_constraint.body_name = "leftPalm";    	
+    }
+
     ik_srv.request.desired_body_positions.push_back(body_constraint);
     ik_srv.request.desired_quaternion_positions.push_back(body_quat_constraint);
 }

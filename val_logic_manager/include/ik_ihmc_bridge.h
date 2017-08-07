@@ -17,6 +17,10 @@
 #include "compile_settings.h"
 //#define ON_REAL_ROBOT
 
+// robot_side enum
+#define LEFT_HAND 0
+#define RIGHT_HAND 1
+
 
 class IK_IHMC_Bridge{
 public:

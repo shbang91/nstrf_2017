@@ -42,12 +42,18 @@
 
 #include <math.h>
 
+#define LEFT_HAND 0
+#define RIGHT_HAND 1
+
 using namespace visualization_msgs;
 
 // %Tag(vars)%
 boost::shared_ptr<interactive_markers::InteractiveMarkerServer> server;
 interactive_markers::MenuHandler menu_handler;
 // %EndTag(vars)%
+
+
+int hand_to_use = RIGHT_HAND;
 
 
 // %Tag(Box)%
@@ -571,25 +577,48 @@ bool getFramePose(const std::string& target_frame,  geometry_msgs::Pose& frame_p
   return false;
 }
 
-void callback_setIM_pose_to_current_robot_state(const std_msgs::StringConstPtr& msg){
-    std::string re_init_markers;        
-    re_init_markers = "re_init_markers";
-
-    if (re_init_markers.compare(msg->data) == 0){
-
-        ROS_INFO("Re Initializing Markers...");
-        std::string im_name; im_name = "simple_6dof_MOVE_ROTATE_3D";
-        geometry_msgs::Pose des_pose;
+//void setIM_pose_to_current_robot_state
+void setIM_hand_pose_to_current_robot_state(){
+    std::string im_name; im_name = "simple_6dof_MOVE_ROTATE_3D";
+    geometry_msgs::Pose des_pose;  
+    if (hand_to_use == LEFT_HAND){
+        if  (getFramePose("leftPalm", des_pose)){
+            server->setPose( im_name, des_pose);
+            server->applyChanges();
+        }else{
+            ROS_ERROR("Failed to change interactive marker pose");
+        }
+    }else{
         if  (getFramePose("rightPalm", des_pose)){
             server->setPose( im_name, des_pose);
             server->applyChanges();
         }else{
             ROS_ERROR("Failed to change interactive marker pose");
         }
+    }
+}
 
+
+void callback_operator(const std_msgs::StringConstPtr& msg){
+    std::string re_init_markers; re_init_markers = "re_init_markers";
+    std::string use_right_hand; use_right_hand = "use_right_hand";    
+    std::string use_left_hand; use_left_hand = "use_left_hand";    
+
+    if (re_init_markers.compare(msg->data) == 0){
+        setIM_hand_pose_to_current_robot_state();
+
+    }else if(use_right_hand.compare(msg->data) == 0){
+        ROS_INFO("IM callback. Will now use right hand");
+        hand_to_use = RIGHT_HAND;
+        setIM_hand_pose_to_current_robot_state();
+    }else if(use_left_hand.compare(msg->data) == 0){
+        ROS_INFO("IM callback. Will now use left hand");      
+        hand_to_use = LEFT_HAND;
+        setIM_hand_pose_to_current_robot_state();        
     }
 
 }
+
 
 
 // %Tag(main)%
@@ -599,7 +628,7 @@ int main(int argc, char** argv)
   ros::NodeHandle n;
   ros::Subscriber operator_command_sub;
 
-  operator_command_sub = n.subscribe<std_msgs::String>("val_logic_manager/operator_command", 1, callback_setIM_pose_to_current_robot_state);
+  operator_command_sub = n.subscribe<std_msgs::String>("val_logic_manager/operator_command", 1, callback_operator);
 
   // create a timer to update the published transforms
   //ros::Timer frame_timer = n.createTimer(ros::Duration(0.01), frameCallback);

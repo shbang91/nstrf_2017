@@ -19,6 +19,8 @@ RUN_GRASPLOC, RUN_GRASPLOC_GUI_STRING = "run_grasploc", "Run Grasploc"
 GET_NEAREST_GRASP_IK, GET_NEAREST_GRASP_IK_GUI_STRING = "get_nearest_grasp_ik", "Get Nearest Grasp IK"
 TRY_NEXT_GRASP_IK, TRY_NEXT_GRASP_IK_GUI_STRING = "try_next_grasp_ik", "Try IK for Next Grasp"
 
+USE_RIGHT_HAND, USE_RIGHT_HAND_GUI_STRING = "use_right_hand", "Use Right Hand"
+USE_LEFT_HAND, USE_LEFT_HAND_GUI_STRING = "use_left_hand", "Use Left Hand"
 
 
 # ----- Start ------
@@ -59,7 +61,9 @@ class ValGui(QtGui.QWidget):
                        RE_INIT_MARKERS_GUI_STRING,
                        RUN_GRASPLOC_GUI_STRING,
                        GET_NEAREST_GRASP_IK_GUI_STRING,
-                       TRY_NEXT_GRASP_IK_GUI_STRING                       
+                       TRY_NEXT_GRASP_IK_GUI_STRING,
+                       USE_RIGHT_HAND_GUI_STRING,
+                       USE_LEFT_HAND_GUI_STRING
                        ] 
       
       positions = [(i,j) for i in range(len(self.commands)) for j in range(3)]
@@ -111,6 +115,10 @@ class ValGui(QtGui.QWidget):
         string_cmd = GET_NEAREST_GRASP_IK                    
       elif command == TRY_NEXT_GRASP_IK_GUI_STRING: 
         string_cmd = TRY_NEXT_GRASP_IK                             
+      elif command == USE_RIGHT_HAND_GUI_STRING: 
+        string_cmd = USE_RIGHT_HAND
+      elif command == USE_LEFT_HAND_GUI_STRING: 
+        string_cmd = USE_LEFT_HAND        
       else:
         string_cmd = INVALID_CMD
       

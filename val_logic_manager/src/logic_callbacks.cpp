@@ -22,7 +22,7 @@ void  LogicManager::interactive_callback(const visualization_msgs::InteractiveMa
 		    ik_init_robot_state.robot_pose = current_robot_state.robot_pose;
 
 		    // Calculate IK
-			if (ik_manager.calc_single_hand_IK(marker_pose, 1, ik_init_robot_state, ik_final_robot_state)){
+			if (ik_manager.calc_single_hand_IK(marker_pose, hand_to_use, ik_init_robot_state, ik_final_robot_state)){
 				ROS_INFO("calc_single_hand_success!");
 				publish_ik_final_state_viz();
 			}else{
@@ -44,6 +44,10 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
 	std::string run_grasploc;            run_grasploc = "run_grasploc";
 	std::string get_nearest_grasp_ik;    get_nearest_grasp_ik = "get_nearest_grasp_ik";
 	std::string try_next_grasp_ik;       try_next_grasp_ik = "try_next_grasp_ik";
+	std::string use_right_hand;       	 use_right_hand = "use_right_hand";
+	std::string use_left_hand;       	 use_left_hand = "use_left_hand";	
+
+
 
 	if (send_single_ik_wbc.compare(msg->data) == 0){
 		ROS_INFO("Attempting to send single IK WBC");
@@ -74,9 +78,13 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
 		}else{
 			ROS_ERROR("There are no stored grasps.");
 		}
-	}
-
-
+	}else if(use_right_hand.compare(msg->data) == 0){
+		ROS_INFO("Will use right hand");
+		hand_to_use = RIGHT_HAND;
+	}else if(use_left_hand.compare(msg->data) == 0){
+		ROS_INFO("Will use left hand");
+		hand_to_use = LEFT_HAND;		
+	}	
 	else{
 		ROS_WARN("Unknown Operator Command");
 	}
