@@ -656,20 +656,31 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     constraint_array.push_back(&kc_quasi);
 
 
+    // Add right palm position constraint if it exists
+    if(std::find(request_constrained_body_positions.begin(), 
+                 request_constrained_body_positions.end(), "rightPalm") != request_constrained_body_positions.end()) {
+        constraint_array.push_back(&kc_posture_larm); // Fix posture of left arm
+        constraint_array.push_back(&kc_rh_palm_pos);    
+    
+    }    
+
     // Add right palm quaternion constraint if it exists
     if(std::find(request_constrained_quat_positions.begin(), 
                  request_constrained_quat_positions.end(), "rightPalm") != request_constrained_quat_positions.end()) {
-        constraint_array.push_back(&kc_posture_larm);
-        constraint_array.push_back(&kc_rh_palm_pos);    
         constraint_array.push_back(&kc_rh_palm_quat);  
-    
+    }
+
+
+    // Add left palm position constraint if it exists
+    if(std::find(request_constrained_body_positions.begin(), 
+                 request_constrained_body_positions.end(), "leftPalm") != request_constrained_body_positions.end()) {
+        constraint_array.push_back(&kc_posture_rarm); // Fix posture of right arm
+        constraint_array.push_back(&kc_lh_palm_pos);        
     }
 
     // Add left palm quaternion constraint if it exists
     if(std::find(request_constrained_quat_positions.begin(), 
-                 request_constrained_quat_positions.end(), "leftPalm") != request_constrained_quat_positions.end()) {
-        constraint_array.push_back(&kc_posture_rarm);
-        constraint_array.push_back(&kc_lh_palm_pos);        
+                 request_constrained_quat_positions.end(), "leftPalm") != request_constrained_quat_positions.end()) {   
         constraint_array.push_back(&kc_lh_palm_quat);  
     
     }
