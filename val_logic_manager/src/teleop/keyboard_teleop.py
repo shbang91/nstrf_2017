@@ -30,6 +30,10 @@ from std_msgs.msg import MultiArrayDimension
 from tf.transformations import euler_from_quaternion, quaternion_from_euler, quaternion_matrix
 import tf2_ros
 
+import argparse
+
+ON_REAL_ROBOT_USE = False
+
 
 class KeyboardTeleop(object):
 
@@ -131,6 +135,11 @@ class KeyboardTeleop(object):
         try:
             self.init()
             self.print_usage()
+
+            if (ON_REAL_ROBOT_USE):
+                print 'Will send messages formatted for the real robot'                      
+            else:
+                print 'Will send messages formatted for sim'
             while not rospy.is_shutdown():
                 ch = self.get_key()
                 self.process_key(ch)
@@ -520,8 +529,12 @@ class KeyboardTeleop(object):
 
     def getEmptyFootsetListMsg(self):
         msg = FootstepDataListRosMessage()
-        msg.default_transfer_time = 1.5
-        msg.default_swing_time = 1.5
+        if ON_REAL_ROBOT_USE:
+            msg.default_transfer_duration = 1.5
+            msg.default_swing_duration = 1.5
+        else:
+            msg.default_transfer_time = 1.5
+            msg.default_swing_time = 1.5
         msg.execution_mode = 0
         msg.unique_id = -1
         return msg
@@ -637,6 +650,8 @@ class KeyboardTeleop(object):
             point.time = time
             point.position = joint_value
             point.velocity = 0
+            if ON_REAL_ROBOT_USE:
+                point.weight = float('NaN')
             msg.joint_trajectory_messages[i].trajectory_points.append(point)
 
     def _append_trajectory_point_so3(self, msg, time, joint_values):
@@ -664,5 +679,16 @@ class KeyboardTeleop(object):
 
 if __name__ == '__main__':
     rospy.init_node('keyboard_teleop')
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-r', '--real-robot',  help='Pass "True" if running on the real robot. argument is set to "False" otherwise', default="False")
+    args = parser.parse_args()
+    print args.real_robot
+
+    if (args.real_robot == "True"):
+        ON_REAL_ROBOT_USE = True
+    else:
+        ON_REAL_ROBOT_USE = False
+
     teleop = KeyboardTeleop()
     teleop.run()

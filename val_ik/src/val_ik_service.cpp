@@ -40,6 +40,7 @@
 
 #include <tf/transform_broadcaster.h>
 
+#define VAL_URDF_PATH "/home/stevenjj/nstrf_ws/src/nstrf_2017/val_ik/drake_urdf/valkyrie_A_sim.urdf"
 
 // Solution Info Results (from Drake's inverse_kinematics_backend.cc file)
 #define SOLUTION_FOUND 1
@@ -140,8 +141,10 @@ void FindJointAndInsert(const RigidBodyTreed* model, const std::string& name,
 void init_IK_global_vars(){
   // Initialize Tree and URDF
   parsers::urdf::AddModelInstanceFromUrdfFileToWorld(
-      GetDrakePath() + "/examples/Valkyrie/urdf/urdf/"
-          "valkyrie_A_sim_drake_one_neck_dof_wide_ankle_rom.urdf",
+/*      GetDrakePath() + "/examples/Valkyrie/urdf/urdf/"
+          "valkyrie_A_sim_drake_one_neck_dof_wide_ankle_rom.urdf",*/
+        GetDrakePath() + "/examples/Valkyrie/urdf/urdf/"
+          "valkyrie_A_sim.urdf",
       multibody::joints::kRollPitchYaw, tree.get());
 
 }
@@ -658,7 +661,7 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
                  request_constrained_quat_positions.end(), "rightPalm") != request_constrained_quat_positions.end()) {
         constraint_array.push_back(&kc_posture_larm);
         constraint_array.push_back(&kc_rh_palm_pos);    
-        //constraint_array.push_back(&kc_rh_palm_quat);  
+        constraint_array.push_back(&kc_rh_palm_quat);  
     
     }
 
@@ -667,7 +670,7 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
                  request_constrained_quat_positions.end(), "leftPalm") != request_constrained_quat_positions.end()) {
         constraint_array.push_back(&kc_posture_rarm);
         constraint_array.push_back(&kc_lh_palm_pos);        
-        //constraint_array.push_back(&kc_lh_palm_quat);  
+        constraint_array.push_back(&kc_lh_palm_quat);  
     
     }
 

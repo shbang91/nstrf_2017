@@ -1,0 +1,163 @@
+Does the new IHMC messages use the sole frame for the foot? If so, is it just a z-offset from the foot ankle frame?
+	The z-offset looks like 0.0944 from the ground
+
+
+It seems that the only concern for change is specificying
+
+For OLD FootstepDataRosMessage:
+geometry_msgs/Vector3 location
+
+For NEW FootstepDataRosMessage
+*geometry_msgs/Point location 
+
+
+For OLD FootstepDataListRosMessage:
+float64 default_swing_time (1.5)
+float64 default_transfer_time (1.5)
+float64 final_transfer_time (unspecified)
+
+For NEW FootstepDataListRosMessage:
+*float64 default_swing_duration (1.5) name change
+*float64 default_transfer_duration (1.5) name change
+*float64 final_transfer_duration (unspecified) name change
+
+#ifdef ON_REAL_ROBOT
+	ihmc_msgs::OneDoFJointTrajectoryRosMessage rarm_joint;
+#endif
+
+#ifdef ON_REAL_ROBOT
+	rarm_joint.weight = std::numeric_limits<double>::quiet_NaN(); // Added line to comply with new ihmc messages
+#endif
+
+magic number for
+WORLD_FRAME_HASH 83766130
+
+#ifdef ON_REAL_ROBOT
+    pelvis_trajectory_message.frame_information.trajectory_reference_frame_id = 83766130;
+    pelvis_trajectory_message.frame_information.data_reference_frame_id = 83766130;         
+    pelvis_trajectory_message.use_custom_control_frame = false;
+#endif 
+
+
+
+
+
+float('NaN')
+
+----------------OLD------------------- 
+## FootstepDataRosMessage
+uint8 origin (0 = AT_ANKLE_FRAME)
+uint8 robot_side 
+geometry_msgs/Vector3 location
+geometry_msgs/Quaternion orientation
+
+ihmc_msgs/Point2dRosMessage[] predicted_contact_points
+
+# DEFAULT. 
+uint8 trajectory_type (0 = DEFAULT)
+geometry_msgs/Vector3[] trajectory_waypoints (empty)
+
+float64 swing_height (unspecified)
+bool has_timings (false)
+
+float64 swing_time (unspecified)
+float64 transfer_time (unspecified)
+bool has_absolute_time (false)
+
+float64 swing_start_time
+int64 unique_id
+
+# "robot_side" enum values:
+uint8 LEFT=0 # refers to the LEFT side of a robot
+uint8 RIGHT=1 # refers to the RIGHT side of a robot
+
+# "footstep_origin" enum values:
+uint8 AT_ANKLE_FRAME=0 # The location of the footstep refers to the location of the ankle frame. The ankle frame is fixed in the foot, centered at the last ankle joint. The orientation = [qx = 0.0, qy = 0.0, qz = 0.0, qs = 1.0] corresponds to: x-axis pointing forward, y-axis pointing left, z-axis pointing upward. This option is for backward compatibility only and will be gone in an upcoming release. This origin is deprecated as it directly depends on the robot structure and is not directly related to the actual foot sole.
+uint8 AT_SOLE_FRAME=1 # The location of the footstep refers to the location of the sole frame. The sole frame is fixed in the foot, centered at the center of the sole. The orientation = [qx = 0.0, qy = 0.0, qz = 0.0, qs = 1.0] corresponds to: x-axis pointing forward, y-axis pointing left, z-axis pointing upward. This origin is preferred as it directly depends on the actual foot sole and is less dependent on the robot structure.
+
+# "trajectory_type" enum values:
+uint8 DEFAULT=0 # is a default trajectory
+uint8 OBSTACLE_CLEARANCE=1 # will attempt to step over an obstacle
+uint8 CUSTOM=2 # allows to specify trajectory waypoints
+
+
+----------------NEW------------------- 
+## FootstepDataRosMessage
+# This message specifies the position, orientation and side (left or right) of a desired footstep in
+# world frame.
+
+uint8 robot_side
+*geometry_msgs/Point location
+geometry_msgs/Quaternion orientation
+
+
+ihmc_msgs/Point2dRosMessage[] predicted_contact_points (empty)
+
+uint8 trajectory_type (unspecified=default) (Would like CUSTOM)
+
+float64 swing_height (unspecified) (for DEFAULT and OBSTACLE CLEARANCE. If value is small than the minimal swing height such as 0.0, it will be set to default)
+
+*geometry_msgs/Point[] position_waypoints (empty) (FOR CUSTOM) 
+*ihmc_msgs/SE3TrajectoryPointRosMessage[] swing_trajectory (empty) (this is for WAYPOINTS setting)
+*float64 swing_trajectory_blend_duration (empty) (this is for WAYPOINTS setting)
+
+*float64 swing_duration (unspecified)
+*float64 transfer_duration (unspecified)
+
+int64 unique_id
+
+
+# This message utilizes "enums". Enum value information for this message follows.
+
+# "robot_side" enum values:
+uint8 LEFT=0 # refers to the LEFT side of a robot
+uint8 RIGHT=1 # refers to the RIGHT side of a robot
+
+# "trajectory_type" enum values:
+uint8 DEFAULT=0 # The controller will execute a default trajectory.
+uint8 OBSTACLE_CLEARANCE=1 # The controller will attempt to step on/off an obstacle.
+uint8 CUSTOM=2 # In this mode two trajectory position waypoints can be specified.
+uint8 WAYPOINTS=3 # The swing trajectory is fully defined by the given waypoints.
+
+
+
+
+----------------OLD------------------- 
+## FootstepDataListRosMessage
+ihmc_msgs/FootstepDataRosMessage[] footstep_data_list
+uint8 execution_mode (OVERRIDE)
+float64 default_swing_time (1.5)
+float64 default_transfer_time (1.5)
+float64 final_transfer_time
+int64 unique_id
+
+# "execution_mode" enum values:
+uint8 OVERRIDE=0 # This message will override the previous.
+uint8 QUEUE=1 # The previous message will first be executed before executing this message. When sending a series of queued messages, the very first has to be declared as OVERRIDE.
+
+
+
+----------------NEW------------------- 
+## FootstepDataListRosMessage
+ihmc_msgs/FootstepDataRosMessage[] footstep_data_list
+
+uint8 execution_timing (I believe CONTROL_DURATIONS for default setrting)
+
+*float64 default_swing_duration (1.5) name change
+*float64 default_transfer_duration (1.5) name change
+*float64 final_transfer_duration (unspecified) name change
+
+uint8 execution_mode (OVERRIDE)
+
+int64 previous_message_id (UNSPECIFIED)
+int64 unique_id
+
+# This message utilizes "enums". Enum value information for this message follows.
+
+# "execution_mode" enum values:
+uint8 OVERRIDE=0 # This message will override the previous.
+uint8 QUEUE=1 # The previous message will first be executed before executing this message. When sending a series of queued messages, the very first has to be declared as OVERRIDE.
+
+# "execution_timing" enum values:
+uint8 CONTROL_DURATIONS=0 # During the execution of this message the controller will attempt to achieve the given durations for segments of the whole trajectory.
+uint8 CONTROL_ABSOLUTE_TIMINGS=1 # During the execution of this message the controller will attempt to achieve the absolute timings at the knot points relative to the start of execution.
