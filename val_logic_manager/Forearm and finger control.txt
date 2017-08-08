@@ -1,0 +1,33 @@
+/*Controlling Forearms and Fingers
+
+  private_nh.param<float>("open_fingers", open_fingers_, 0.05);
+  private_nh.param<float>("close_fingers", close_fingers_, 2.4);
+
+  Publish to topics
+
+  *left_joint_state_pub_ = nh.advertise<sensor_msgs::JointState>("/left_hand_command", 1);
+  *right_joint_state_pub_ = nh.advertise<sensor_msgs::JointState>("/right_hand_command", 1);
+
+
+  0,1,2 are forearm joints
+  3,4,5,6,7,8,9 are finger joints
+
+*/
+  sensor_msgs::JointState msg;
+  msg.header.frame_id = "world";
+  msg.header.stamp = ros::Time::now();
+
+  // Open or close the hand everything
+  //    Note this also sets the forearm angles but these will just be overiden
+  float angle = is_open_hand_ ? open_fingers_ : close_fingers_;
+  for (int i = 0; i < 9; ++i) {
+    msg.name.push_back(std::to_string(i));
+    msg.position.push_back(angle);
+    msg.velocity.push_back(0);
+    msg.effort.push_back(0);
+  }
+
+  // Fill in the forearm joint angles
+  for (int i = 0; i < 3; ++i) {
+    msg.position[i] = (*angles)[i];
+  }

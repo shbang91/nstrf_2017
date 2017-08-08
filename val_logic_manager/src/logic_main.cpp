@@ -34,6 +34,7 @@ int main(int argc, char** argv){
                                                                                        boost::bind(&LogicManager::grasploc_callback, &logic_manager, _1)); //grasploc
     // Synchronize Robot Joint State and Robot Pose
     message_filters::Subscriber<sensor_msgs::JointState> joint_state_sub(logic_manager.nh, "/ihmc_ros/valkyrie/output/joint_states", 1);
+//    message_filters::Subscriber<sensor_msgs::JointState> joint_state_sub(logic_manager.nh, "/joint_states", 1);    
     message_filters::Subscriber<nav_msgs::Odometry> robot_pose_sub(logic_manager.nh, "/ihmc_ros/valkyrie/output/robot_pose", 1);
 
     // ApproximateTime takes a queue size as its constructor argument, hence JointOdomSyncPolicy(10)

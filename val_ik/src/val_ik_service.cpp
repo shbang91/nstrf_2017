@@ -369,8 +369,13 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     FindJointAndInsert(tree.get(), "lowerNeckPitch", &neck_idx);
     FindJointAndInsert(tree.get(), "neckYaw", &neck_idx);
     FindJointAndInsert(tree.get(), "upperNeckPitch", &neck_idx);
+
     VectorXd neck_lb = VectorXd::Zero(neck_idx.size());
     VectorXd neck_ub = VectorXd::Zero(neck_idx.size());
+
+    for (int i = 0; i < 3; i++) neck_lb(i) = reach_start(neck_idx[i]);
+    neck_ub = neck_lb;
+
     kc_posture_neck.setJointLimits(neck_idx.size(), neck_idx.data(), neck_lb,
                                    neck_ub);
 
