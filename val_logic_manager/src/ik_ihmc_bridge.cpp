@@ -3,7 +3,14 @@
 IK_IHMC_Bridge::IK_IHMC_Bridge() : rarm_joint_names{"rightShoulderPitch", "rightShoulderRoll", "rightShoulderYaw", 
 													"rightElbowPitch", "rightForearmYaw", "rightWristRoll", "rightWristPitch"}, 
 								   larm_joint_names{"leftShoulderPitch",  "leftShoulderRoll", "leftShoulderYaw",
-													"leftElbowPitch", "leftForearmYaw", "leftWristRoll", "leftWristPitch" }
+													"leftElbowPitch", "leftForearmYaw", "leftWristRoll", "leftWristPitch" },
+								   nasa_left_arm_joint_names{"leftForearmYaw", "leftWristRoll", "leftWristPitch", 
+								   							 "leftThumbRoll", "leftThumbPitch1", "leftThumbPitch2", "leftIndexFingerPitch1",
+								   							 "leftMiddleFingerPitch1", "leftPinkyPitch1"},
+								   nasa_right_arm_joint_names{"rightForearmYaw", "rightWristRoll", "rightWristPitch", 
+								   							 "rightThumbRoll", "rightThumbPitch1", "rightThumbPitch2", "rightIndexFingerPitch1",
+								   							 "rightMiddleFingerPitch1", "rightPinkyPitch1"}
+
 {
 
 
@@ -88,7 +95,11 @@ bool IK_IHMC_Bridge::FK_bodies( RobotState &robot_state,
 
 
 bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end_state, double &traj_time,
-									 ihmc_msgs::WholeBodyTrajectoryRosMessage &wbc_traj_msg){
+						 ihmc_msgs::WholeBodyTrajectoryRosMessage &wbc_traj_msg,     
+						 sensor_msgs::JointState &left_arm_msg,	
+						 sensor_msgs::JointState &right_arm_msg,
+						 int left_hand_open_close_status,
+						 int right_hand_open_close_status){
 	// Initialize ik positions
 	set_init_IK_state(start_state);
 	set_final_IK_state(end_state);	
@@ -107,6 +118,26 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 	}	
 
 	if (ik_init_robot_state.valid_fields && ik_final_robot_state.valid_fields){
+		// Prepare NASA Right Arm Message
+		right_arm_msg.name = nasa_right_arm_joint_names;
+
+		// Set Fingers Angle
+		float right_fingers_angle = OPEN_HAND_VALS;
+		if (right_hand_open_close_status == CLOSE_HAND){
+			right_fingers_angle = CLOSE_HAND_VALS;
+		}
+
+		// Fill in Position for all right arm joints. Overwrite Forearms later
+		for (size_t i = 0; i < nasa_right_arm_joint_names.size(); i++){
+			right_arm_msg.position.push_back(right_fingers_angle);		
+			right_arm_msg.velocity.push_back(0.0);		
+			right_arm_msg.effort.push_back(0.0);					 
+		}
+
+		// Set Forearms to 0.0 unless filled in later by IK
+		for (size_t i = 0; i < 3; i++){
+			right_arm_msg.position[i] = 0.0;		 
+		}
 
 	    // Begin Right Arm Trajectory Message ----------------------------------------------------------------------------------------------
 	    ihmc_msgs::ArmTrajectoryRosMessage rarm_traj_msg;
@@ -129,10 +160,21 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 			double joint_end_value   = ik_final_robot_state.joint_state.position[ew_joint_index];
 
 /*			std::cout << "  ik_init_size: " << ik_init_robot_state.joint_state.name.size() << std::endl;
-			std::cout << "  SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl; 
-			std::cout << "  ik_final_size: " << ik_final_robot_state.joint_state.name.size() << std::endl;
+			std::cout << "  SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl;*/
+
+//			std::cout << "  ik_final_size: " << ik_final_robot_state.joint_state.name.size() << std::endl;
 			std::cout << "  EW Found joint " << ik_final_robot_state.joint_state.name[ew_joint_index]  << " val: " << joint_end_value << std::endl; 			
-*/
+
+
+			// Fill in "rightForearmYaw", "rightWristRoll", "rightWristPitch"
+			for (size_t j = 0; j < 3; j++){
+				if (right_arm_msg.name[j].compare(ik_final_robot_state.joint_state.name[ew_joint_index]) == 0){
+					std::cout << "Found" << right_arm_msg.name[j] << " setting it to" <<  joint_end_value << std::endl;
+					right_arm_msg.position[j] = joint_end_value;
+				}
+			}
+
+
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_start_val_msg;
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_end_val_msg; 
 		
@@ -162,6 +204,28 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 
 		}
 
+
+		// Prepare NASA Left Arm Message
+		left_arm_msg.name = nasa_left_arm_joint_names;
+		// Set Fingers Angle
+		float left_fingers_angle = OPEN_HAND_VALS;
+		if (right_hand_open_close_status == CLOSE_HAND){
+			left_fingers_angle = CLOSE_HAND_VALS;
+		}
+
+		// Fill in Position for all right arm joints. Overwrite Forearms later
+		for (size_t i = 0; i < nasa_right_arm_joint_names.size(); i++){
+			left_arm_msg.position.push_back(left_fingers_angle);	
+			left_arm_msg.velocity.push_back(0.0);		
+			left_arm_msg.effort.push_back(0.0);					 				 
+		}
+
+		// Set Forearms to 0.0 unless filled in later by IK
+		for (size_t i = 0; i < 3; i++){
+			left_arm_msg.position[i] = 0.0;		 
+		}
+
+
 	    std::cout << "Preparing Left Arm Trajectory Message" << std::endl;
 	    // Begin Left Arm Trajectory Message ----------------------------------------------------------------------------------------------
 	    ihmc_msgs::ArmTrajectoryRosMessage larm_traj_msg;
@@ -184,10 +248,20 @@ bool IK_IHMC_Bridge::prepareSingleIKWBC(RobotState &start_state, RobotState &end
 
 /*			std::cout << "  SW index: " << sw_joint_index << std::endl;
 			std::cout << "  SW Found joint " << ik_init_robot_state.joint_state.name[sw_joint_index]  << " val: " << joint_start_value << std::endl;
-
-			std::cout << "  EW index: " << ew_joint_index << std::endl;
-			std::cout << "  EW Found joint " << ik_final_robot_state.joint_state.name[ew_joint_index]  << " val: " << joint_end_value << std::endl; 			
 */
+//			std::cout << "  EW index: " << ew_joint_index << std::endl;
+			std::cout << "  EW Found joint " << ik_final_robot_state.joint_state.name[ew_joint_index]  << " val: " << joint_end_value << std::endl; 			
+
+
+			// Fill in "leftForearmYaw", "leftWristRoll", "leftWristPitch"
+			for (size_t j = 0; j < 3; j++){
+				if (left_arm_msg.name[j].compare(ik_final_robot_state.joint_state.name[ew_joint_index]) == 0){
+					std::cout << "Found" << left_arm_msg.name[j] << " setting it to" <<  joint_end_value << std::endl;
+					left_arm_msg.position[j] = joint_end_value;
+				}
+			}
+
+
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_start_val_msg;
             ihmc_msgs::TrajectoryPoint1DRosMessage joint_end_val_msg; 
 

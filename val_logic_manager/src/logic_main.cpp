@@ -51,6 +51,9 @@ int main(int argc, char** argv){
 
     logic_manager.ihmc_pelvis_traj_pub = logic_manager.nh.advertise<ihmc_msgs::PelvisTrajectoryRosMessage>("/ihmc_ros/valkyrie/control/pelvis_trajectory", 10);    
 
+    logic_manager.nasa_left_arm_pub = logic_manager.nh.advertise<sensor_msgs::JointState>("/left_hand_command", 10);    
+    logic_manager.nasa_right_arm_pub = logic_manager.nh.advertise<sensor_msgs::JointState>("/right_hand_command", 10);        
+
 
     ros::Rate r(20);
 

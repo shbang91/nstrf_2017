@@ -32,23 +32,14 @@ import tf2_ros
 
 import argparse
 
-ON_REAL_ROBOT_USE = True
+ON_REAL_ROBOT_USE = False
 
 
 class KeyboardTeleop(object):
 
     # constants used for walking
-    LEFT_FOOT_FRAME_NAME = None
-    RIGHT_FOOT_FRAME_NAME = None
-
-    if (ON_REAL_ROBOT_USE):
-        LEFT_FOOT_FRAME_NAME = "leftCOP_Frame" #None
-        RIGHT_FOOT_FRAME_NAME = "rightCOP_Frame" #None
-    else:
-        LEFT_FOOT_FRAME_NAME = "leftFoot" #None
-        RIGHT_FOOT_FRAME_NAME = "rightFoot" #None        
-
-
+    LEFT_FOOT_FRAME_NAME = "leftFoot" #None
+    RIGHT_FOOT_FRAME_NAME = "rightFoot" #None
     TRANS_STEP = 0.2  # each step will be 20cm
     ROT_STEP = radians(45)  # each rotation will be 45degrees
 
@@ -534,9 +525,6 @@ class KeyboardTeleop(object):
         footstep.location.y += transformedOffset[1]
         footstep.location.z += transformedOffset[2]
 
-        #print "(left, right)", self.LEFT_FOOT_FRAME_NAME, self.RIGHT_FOOT_FRAME_NAME
-        #print "(x,y,z)", footstep.location.x, footstep.location.y, footstep.location.z
-
         return footstep
 
     def getEmptyFootsetListMsg(self):
@@ -585,7 +573,6 @@ class KeyboardTeleop(object):
         return False
 
     def translate(self, offset):
-        self.set_init_pose()
         msg = self.getTranslationFootstepMsg(offset)
         res = self.execute_footsteps(msg)
         if res:

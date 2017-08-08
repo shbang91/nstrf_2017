@@ -45,6 +45,8 @@
 // Helper
 #include "quat_helper.h"
 
+
+
 class LogicManager{
 public:
     // Declare Node Handle
@@ -55,6 +57,9 @@ public:
 	ros::Publisher 						ihmc_wholebody_pub;
 	ros::Publisher 						ihmc_go_home_pub;	
 	ros::Publisher 						ihmc_pelvis_traj_pub;
+
+	ros::Publisher 						nasa_left_arm_pub;	
+	ros::Publisher 						nasa_right_arm_pub;	
 
 
 	ros::Subscriber 					interactive_marker_sub;
@@ -80,7 +85,11 @@ public:
 
 
 	int 								hand_to_use;
+	int 								left_hand_open_close_status;	
+	int 								right_hand_open_close_status;		
 	
+
+
 	void init_sample_object_marker(); //initialize sample_marker
 	void update_current_robot_state();
 	void publish_ik_init_state_viz(); // the initial IK pose

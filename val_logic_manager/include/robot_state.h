@@ -10,6 +10,12 @@
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
 
+#define CLOSE_HAND 0
+#define OPEN_HAND 1
+
+#define CLOSE_HAND_VALS 2.9
+#define OPEN_HAND_VALS 0.0
+
 class RobotState{
 public:
 	std::string 						robot_namespace;

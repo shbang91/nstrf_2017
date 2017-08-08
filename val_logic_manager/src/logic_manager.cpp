@@ -5,6 +5,8 @@ LogicManager::LogicManager(){
     ik_final_robot_state.robot_namespace = "val_ik_finalpose_robot";
     righthand_grasp_index = 0;
     hand_to_use = RIGHT_HAND;
+    left_hand_open_close_status = OPEN_HAND;
+    right_hand_open_close_status = OPEN_HAND;
 } // Constructor
 LogicManager::~LogicManager(){} // Destructor
 
@@ -46,11 +48,19 @@ void LogicManager::sendSingleIKWBC(){
     // Prepare Whole Body Trajectory Message
     double traj_time = 2.0;
     ihmc_msgs::WholeBodyTrajectoryRosMessage wbc_traj_msg;
+    sensor_msgs::JointState left_arm_msg;
+    sensor_msgs::JointState right_arm_msg;    
     // Fill in fields:
-    if (ik_manager.prepareSingleIKWBC(ik_init_robot_state, ik_final_robot_state, traj_time, wbc_traj_msg)){
+    if (ik_manager.prepareSingleIKWBC(ik_init_robot_state, ik_final_robot_state, traj_time, wbc_traj_msg, 
+                                                            left_arm_msg, right_arm_msg, 
+                                                            left_hand_open_close_status, right_hand_open_close_status)){
         ROS_INFO("Single EndPoint WBC Message successfully prepared.");
         ROS_INFO("Sending Message");
         ihmc_wholebody_pub.publish(wbc_traj_msg);
+        ros::Duration(0.5).sleep();
+        nasa_left_arm_pub.publish(left_arm_msg);
+        ros::Duration(0.5).sleep();
+        nasa_right_arm_pub.publish(right_arm_msg);        
     }
 
 }

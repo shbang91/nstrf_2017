@@ -369,18 +369,18 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     FindJointAndInsert(tree.get(), "lowerNeckPitch", &neck_idx);
     FindJointAndInsert(tree.get(), "neckYaw", &neck_idx);
     FindJointAndInsert(tree.get(), "upperNeckPitch", &neck_idx);
-//    VectorXd neck_lb = VectorXd::Zero(neck_idx.size());
-//    VectorXd neck_ub = VectorXd::Zero(neck_idx.size());
+    VectorXd neck_lb = VectorXd::Zero(neck_idx.size());
+    VectorXd neck_ub = VectorXd::Zero(neck_idx.size());
 
 
-    Vector3d neck_lb = VectorXd::Zero(neck_idx.size());
+/*    Vector3d neck_lb = VectorXd::Zero(neck_idx.size());
     Vector3d neck_ub = VectorXd::Zero(neck_idx.size());
     for (int i = 0; i < 3; i++) neck_lb(i) = reach_start(neck_idx[i]);    
     neck_ub = neck_lb;
 
     neck_lb -= 0.001*Vector3d::Ones();
     neck_ub += 0.001*Vector3d::Ones();    
-
+*/
     kc_posture_neck.setJointLimits(neck_idx.size(), neck_idx.data(), neck_lb,
                                    neck_ub);
 
@@ -776,10 +776,10 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
             std::cout << "    Hull Pts: " << hullPts[i].x << ", " << hullPts[i].y << std::endl;
         }
 
-        if (com_inConvexHull == 0){
-            ROS_ERROR("    IK Sol results in COM outside of convex hull!");
-            return false;
-        }
+//        if (com_inConvexHull == 0){
+//            ROS_ERROR("    IK Sol results in COM outside of convex hull!");
+//            return false;
+//        }
 
         // Check Foot Position Constraint
         Vector3d lfoot_pos_sol = tree->transformPoints(sol_cache, origin, l_foot, 0);        

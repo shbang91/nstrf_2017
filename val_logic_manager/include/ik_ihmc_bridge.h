@@ -41,6 +41,10 @@ public:
 	const std::vector<std::string> 			rarm_joint_names;
 	const std::vector<std::string>			larm_joint_names;
 
+	const std::vector<std::string> 			nasa_left_arm_joint_names;
+	const std::vector<std::string>			nasa_right_arm_joint_names;
+
+
 	// Calculates the IK solution with the hand pose as the only constraint.
 	bool calc_single_hand_IK(const geometry_msgs::Pose& des_hand_pose, const int& robot_side, 
 							 const RobotState& robot_state_input, RobotState& robot_state_output);	
@@ -50,7 +54,11 @@ public:
 				    std::vector<std::string> &body_queries, std::vector<geometry_msgs::Pose> &body_poses);
 
 	bool prepareSingleIKWBC(RobotState &start_state, RobotState &end_state, double &traj_time,
-						 ihmc_msgs::WholeBodyTrajectoryRosMessage &wbc_traj_msg);
+						 ihmc_msgs::WholeBodyTrajectoryRosMessage &wbc_traj_msg,     
+						 sensor_msgs::JointState &left_arm_msg,	
+						 sensor_msgs::JointState &right_arm_msg,
+						 int left_hand_open_close_status,
+						 int right_hand_open_close_status);
 
 	IK_IHMC_Bridge();
 	~IK_IHMC_Bridge();	
