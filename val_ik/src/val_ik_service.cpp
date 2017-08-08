@@ -369,12 +369,17 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     FindJointAndInsert(tree.get(), "lowerNeckPitch", &neck_idx);
     FindJointAndInsert(tree.get(), "neckYaw", &neck_idx);
     FindJointAndInsert(tree.get(), "upperNeckPitch", &neck_idx);
+//    VectorXd neck_lb = VectorXd::Zero(neck_idx.size());
+//    VectorXd neck_ub = VectorXd::Zero(neck_idx.size());
 
-    VectorXd neck_lb = VectorXd::Zero(neck_idx.size());
-    VectorXd neck_ub = VectorXd::Zero(neck_idx.size());
 
-    for (int i = 0; i < 3; i++) neck_lb(i) = reach_start(neck_idx[i]);
+    Vector3d neck_lb = VectorXd::Zero(neck_idx.size());
+    Vector3d neck_ub = VectorXd::Zero(neck_idx.size());
+    for (int i = 0; i < 3; i++) neck_lb(i) = reach_start(neck_idx[i]);    
     neck_ub = neck_lb;
+
+    neck_lb -= 0.001*Vector3d::Ones();
+    neck_ub += 0.001*Vector3d::Ones();    
 
     kc_posture_neck.setJointLimits(neck_idx.size(), neck_idx.data(), neck_lb,
                                    neck_ub);
@@ -673,6 +678,7 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
     if(std::find(request_constrained_quat_positions.begin(), 
                  request_constrained_quat_positions.end(), "rightPalm") != request_constrained_quat_positions.end()) {
         constraint_array.push_back(&kc_rh_palm_quat);  
+   
     }
 
 
@@ -681,6 +687,7 @@ bool IKServiceCallback(val_ik::DrakeIKVal::Request& req, val_ik::DrakeIKVal::Res
                  request_constrained_body_positions.end(), "leftPalm") != request_constrained_body_positions.end()) {
         constraint_array.push_back(&kc_posture_rarm); // Fix posture of right arm
         constraint_array.push_back(&kc_lh_palm_pos);        
+
     }
 
     // Add left palm quaternion constraint if it exists
