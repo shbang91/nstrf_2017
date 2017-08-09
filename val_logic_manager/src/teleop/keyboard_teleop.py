@@ -542,11 +542,11 @@ class KeyboardTeleop(object):
     def getEmptyFootsetListMsg(self):
         msg = FootstepDataListRosMessage()
         if ON_REAL_ROBOT_USE:
-            msg.default_transfer_duration = 1.5
-            msg.default_swing_duration = 1.5
+            msg.default_transfer_duration = 3.0#1.5
+            msg.default_swing_duration = 3.0#1.5
         else:
-            msg.default_transfer_time = 1.5
-            msg.default_swing_time = 1.5
+            msg.default_transfer_time = 3.0#1.5
+            msg.default_swing_time = 3.0#1.5
         msg.execution_mode = 0
         msg.unique_id = -1
         return msg
