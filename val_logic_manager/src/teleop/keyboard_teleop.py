@@ -8,6 +8,7 @@ import termios
 import tty
 
 from geometry_msgs.msg import Quaternion, Transform, Vector3
+from visualization_msgs.msg import Marker, MarkerArray
 
 from ihmc_msgs.msg import AbortWalkingRosMessage
 from ihmc_msgs.msg import ArmTrajectoryRosMessage
@@ -32,7 +33,12 @@ import tf2_ros
 
 import argparse
 
-ON_REAL_ROBOT_USE = True
+
+
+ON_REAL_ROBOT_USE = False
+
+MESH_LOCATION = "package://val_desc/model/meshes/legs/foot_green.dae"
+#ROBOT_MESH_LOCATION = "package://val_desc/model/meshes/legs/foot_green.dae"
 
 # SOLE_FRAME_X_OFFSET = 0.052
 # SOLE_FRAME_Y_OFFSET = 0.0
@@ -192,6 +198,9 @@ class KeyboardTeleop(object):
         self.abort_walking_publisher = rospy.Publisher(
             '/ihmc_ros/{0}/control/abort_walking'.format(robot_name),
             AbortWalkingRosMessage, queue_size=1)
+
+        # Declare Footstep command Visualizer
+        self.footstep_visualize_publisher = rospy.Publisher('/visualize_footstep_teleop', MarkerArray, queue_size=1)
 
         # right_foot_frame_parameter_name = "/ihmc_ros/{0}/right_foot_frame_name".format(robot_name)
         # left_foot_frame_parameter_name = "/ihmc_ros/{0}/left_foot_frame_name".format(robot_name)
@@ -573,8 +582,90 @@ class KeyboardTeleop(object):
 
         return msg
 
+    def createMarker(self, marker_id, position, orientation):
+        marker_msg = Marker()
+        marker_msg.header.frame_id = "world";
+        marker_msg.header.stamp = rospy.Time();
+
+        if (marker_id == 0):
+            marker_msg.action = marker_msg.DELETE
+            return marker_msg
+        marker_msg.ns = "visualize_footstep_cmds";
+        marker_msg.id = marker_id
+
+        marker_msg.type = marker_msg.MESH_RESOURCE;
+        marker_msg.mesh_resource = MESH_LOCATION #"package://val_description/model/meshes/legs/foot.dae"
+        marker_msg.action = marker_msg.ADD
+        marker_msg.pose.position = position
+        marker_msg.pose.orientation = orientation
+
+        self.loginfo("Marker (x,y,z) (" + str(position.x) + ", " + str(position.y) + ", " + str(position.z) + ")")
+
+        marker_msg.scale.x = 1.0;
+        marker_msg.scale.y = 1.0;
+        marker_msg.scale.z = 1.0;        
+
+        # marker_msg.color.r = 0.0
+        # marker_msg.color.g = 1.0
+        # marker_msg.color.b = 0.0
+        # marker_msg.color.a = 0.5
+        marker_msg.mesh_use_embedded_materials = True
+
+        marker_msg.lifetime = rospy.Duration()
+        return marker_msg
+
+
+    # // Set the namespace and id for this marker.  This serves to create a unique ID
+    # // Any marker sent with the same namespace and id will overwrite the old one
+    # marker.ns = "basic_shapes";
+    # marker.id = 0;
+
+    # // Set the marker type.  Initially this is CUBE, and cycles between that and SPHERE, ARROW, and CYLINDER
+    # marker.type = shape;
+
+    # // Set the marker action.  Options are ADD, DELETE, and new in ROS Indigo: 3 (DELETEALL)
+    # marker.action = visualization_msgs::Marker::ADD;
+
+    # // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
+    # marker.pose.position.x = 0;
+    # marker.pose.position.y = 0;
+    # marker.pose.position.z = 0;
+    # marker.pose.orientation.x = 0.0;
+    # marker.pose.orientation.y = 0.0;
+    # marker.pose.orientation.z = 0.0;
+    # marker.pose.orientation.w = 1.0;
+
+    # // Set the scale of the marker -- 1x1x1 here means 1m on a side
+    # marker.scale.x = 1.0;
+    # marker.scale.y = 1.0;
+    # marker.scale.z = 1.0;
+
+    # // Set the color -- be sure to set alpha to something non-zero!
+    # marker.color.r = 0.0f;
+    # marker.color.g = 1.0f;
+    # marker.color.b = 0.0f;
+    # marker.color.a = 1.0;
+
+    # marker.lifetime = ros::Duration();
+
+
+    def visualize_footsteps(self, msg):
+        markerArray_msg = MarkerArray()
+        number_of_footsteps = len(msg.footstep_data_list)
+        self.loginfo("Number of Footsteps " + str(number_of_footsteps))
+        self.loginfo("Publishing Marker Array")
+
+        markerArray_msg.markers.append(self.createMarker(0, None, None) ) #Delete old markers
+        marker_id = 1
+        for footstep_msg in msg.footstep_data_list:
+            markerArray_msg.markers.append(self.createMarker(marker_id, footstep_msg.location, footstep_msg.orientation) )
+            marker_id += 1
+
+        self.footstep_visualize_publisher.publish(markerArray_msg)
+
     def execute_footsteps(self, msg):
         self.footstep_count = 0
+        self.visualize_footsteps(msg)        
         self.footstep_publisher.publish(msg)
         number_of_footsteps = len(msg.footstep_data_list)
         max_iterations = 100
