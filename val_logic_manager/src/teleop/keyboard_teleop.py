@@ -35,7 +35,7 @@ import argparse
 
 
 
-ON_REAL_ROBOT_USE = False
+ON_REAL_ROBOT_USE = True
 
 MESH_LOCATION = "package://val_desc/model/meshes/legs/foot_green.dae"
 #ROBOT_MESH_LOCATION = "package://val_desc/model/meshes/legs/foot_green.dae"
@@ -505,12 +505,12 @@ class KeyboardTeleop(object):
 
         left_footstep.location.x += left_transformedOffset[0]
         left_footstep.location.y += left_transformedOffset[1]
-        left_footstep.location.z += left_transformedOffset[2]
+        left_footstep.location.z = 0.0 #+= left_transformedOffset[2]
         left_footstep.orientation = quat_final
 
         right_footstep.location.x += right_transformedOffset[0]
         right_footstep.location.y += right_transformedOffset[1]
-        right_footstep.location.z += right_transformedOffset[2]
+        right_footstep.location.z = 0.0 #+= right_transformedOffset[2]
         right_footstep.orientation = quat_final
 
         if yaw > 0:
@@ -545,7 +545,7 @@ class KeyboardTeleop(object):
 
         footstep.location.x += transformedOffset[0]
         footstep.location.y += transformedOffset[1]
-        footstep.location.z += transformedOffset[2]
+        footstep.location.z = 0.0 #+= transformedOffset[2]
 
         #print "(left, right)", self.LEFT_FOOT_FRAME_NAME, self.RIGHT_FOOT_FRAME_NAME
         #print "(x,y,z)", footstep.location.x, footstep.location.y, footstep.location.z
@@ -723,9 +723,9 @@ class KeyboardTeleop(object):
             self.loginfo('moving feet further apart\n')
             msg = self.getEmptyFootsetListMsg()
             msg.footstep_data_list.append(self.createTranslationFootStepOffset(
-                FootstepDataRosMessage.LEFT, [0.0, 0.06, 0.0]))
+                FootstepDataRosMessage.LEFT, [0.0, 0.075, 0.0]))
             msg.footstep_data_list.append(self.createTranslationFootStepOffset(
-                FootstepDataRosMessage.RIGHT, [0.0, -0.06, 0.0]))
+                FootstepDataRosMessage.RIGHT, [0.0, -0.075, 0.0]))
             self.execute_footsteps(msg)
             self.loginfo('done moving feet further apart\n')
 
