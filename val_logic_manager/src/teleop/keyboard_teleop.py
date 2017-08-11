@@ -38,6 +38,7 @@ import argparse
 
 
 ON_REAL_ROBOT_USE = False
+EXECUTE_FOOTSTEPS = True
 
 MESH_LOCATION = "package://val_desc/model/meshes/legs/foot_green.dae"
 #ROBOT_MESH_LOCATION = "package://val_desc/model/meshes/legs/foot_green.dae"
@@ -741,20 +742,24 @@ class KeyboardTeleop(object):
     def execute_footsteps(self, msg):
         self.footstep_count = 0
         self.visualize_footsteps(msg)        
-        self.footstep_publisher.publish(msg)
-        number_of_footsteps = len(msg.footstep_data_list)
-        max_iterations = 100
-        count = 0
-        while count < max_iterations:
-            self.rate.sleep()
-            count += 1
-            if self.footstep_count == number_of_footsteps:
-                return True
-                break
-        msg = AbortWalkingRosMessage()
-        msg.unique_id = -1
-        self.abort_walking_publisher.publish(msg)
-        return False
+
+        if (EXECUTE_FOOTSTEPS):
+            self.footstep_publisher.publish(msg)
+            number_of_footsteps = len(msg.footstep_data_list)
+            max_iterations = 100
+            count = 0
+            while count < max_iterations:
+                self.rate.sleep()
+                count += 1
+                if self.footstep_count == number_of_footsteps:
+                    return True
+                    break
+            msg = AbortWalkingRosMessage()
+            msg.unique_id = -1
+            self.abort_walking_publisher.publish(msg)
+            return False
+        else:
+            return True
 
     def translate(self, offset):
         self.set_init_pose()
