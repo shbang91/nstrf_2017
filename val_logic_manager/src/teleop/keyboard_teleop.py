@@ -7,6 +7,8 @@ import sys
 import termios
 import tty
 
+import util_quat as quat
+
 from geometry_msgs.msg import Quaternion, Transform, Vector3
 from visualization_msgs.msg import Marker, MarkerArray
 
@@ -35,7 +37,7 @@ import argparse
 
 
 
-ON_REAL_ROBOT_USE = True
+ON_REAL_ROBOT_USE = False
 
 MESH_LOCATION = "package://val_desc/model/meshes/legs/foot_green.dae"
 #ROBOT_MESH_LOCATION = "package://val_desc/model/meshes/legs/foot_green.dae"
@@ -48,6 +50,7 @@ SOLE_FRAME_Z_OFFSET = -0.09
 class KeyboardTeleop(object):
 
     # constants used for walking
+    PELVIS_FRAME_NAME = "pelvis"
     LEFT_FOOT_FRAME_NAME = None
     RIGHT_FOOT_FRAME_NAME = None
 
@@ -451,6 +454,32 @@ class KeyboardTeleop(object):
             self.loginfo('Rotating ' + ('counter-clockwise' if is_lower_case else 'clockwise'))
             self.rotate(self.ROT_STEP * direction)
 
+
+    def get_pelvis_xy_coplanar_quat(self, q_pelvis_in):
+        q_pelvis = quat.Normalize(q_pelvis_in)
+        # Convert Quat to R matrix
+        R_pelvis = quat.quat_to_R(q_pelvis)
+
+        # Get Columns of R matrix
+        pelvis_x_dir = R_pelvis[0][:]
+        pelvis_y_dir = R_pelvis[1][:]
+        pelvis_z_dir = R_pelvis[2][:]       
+
+        # Set directions to be coplanar to x-y and normalize the directions
+        pelvis_x_dir = pelvis_x_dir /  numpy.linalg.norm(pelvis_x_dir)
+        pelvis_y_dir = pelvis_y_dir /  numpy.linalg.norm(pelvis_y_dir)
+        pelvis_z_dir = numpy.array([0,0,1.0])
+
+        # Create new R matrix representing only the yaw of the pelvis
+        R_pelvis_yaw = numpy.array([pelvis_x_dir, pelvis_y_dir, pelvis_z_dir])
+
+        # Get the quaternion of the R matrix
+        quat_pelvis_yaw = quat.R_to_quat(R_pelvis_yaw)
+
+        print "Pelvis exp representation: (theta, axis_of_rotation_hat)", quat.quat_to_wth(quat_pelvis_yaw)
+
+        return quat_pelvis_yaw
+
     def createRotationFootStepList(self, yaw):
         left_footstep = FootstepDataRosMessage()
         left_footstep.robot_side = FootstepDataRosMessage.LEFT
@@ -460,7 +489,8 @@ class KeyboardTeleop(object):
         left_foot_world = self.tfBuffer.lookup_transform(
             'world', self.LEFT_FOOT_FRAME_NAME, rospy.Time())
         right_foot_world = self.tfBuffer.lookup_transform(
-            'world', self.RIGHT_FOOT_FRAME_NAME, rospy.Time())    
+            'world', self.RIGHT_FOOT_FRAME_NAME, rospy.Time())  
+
         intermediate_transform = Transform()
         # create a virtual fram between the feet, this will be the center of the rotation
         intermediate_transform.translation.x = (
@@ -470,7 +500,23 @@ class KeyboardTeleop(object):
         intermediate_transform.translation.z = (
             left_foot_world.transform.translation.z + right_foot_world.transform.translation.z)/2.
         # here we assume that feet have the same orientation so we can pick arbitrary left or right
-        intermediate_transform.rotation = left_foot_world.transform.rotation
+        #intermediate_transform.rotation = left_foot_world.transform.rotation #  Get Pelvis orientation
+
+
+        # We will use the pelvis's rotation as the initial frame of reference
+        pelvis_world = self.tfBuffer.lookup_transform(
+            'world', self.PELVIS_FRAME_NAME, rospy.Time())                
+
+        quat_pelvis_world = pelvis_world.transform.rotation
+        quat_pelvis = numpy.array([quat_pelvis_world.w, quat_pelvis_world.x, quat_pelvis_world.y, quat_pelvis_world.z])
+        quat_to_use = self.get_pelvis_xy_coplanar_quat(quat_pelvis)
+
+        quat = Quaternion()
+        quat.w = quat_to_use[0]
+        quat.x = quat_to_use[1]
+        quat.y = quat_to_use[2]
+        quat.z = quat_to_use[3]
+        intermediate_transform.rotation = quat      
 
         left_footstep.location = left_foot_world.transform.translation
         right_footstep.location = right_foot_world.transform.translation
@@ -505,12 +551,19 @@ class KeyboardTeleop(object):
 
         left_footstep.location.x += left_transformedOffset[0]
         left_footstep.location.y += left_transformedOffset[1]
-        left_footstep.location.z = 0.0 #+= left_transformedOffset[2]
+
+        if ON_REAL_ROBOT_USE:
+            left_footstep.location.z = 0.0 
+        else:
+            left_footstep.location.z = -SOLE_FRAME_Z_OFFSET #+= left_transformedOffset[2]            
         left_footstep.orientation = quat_final
 
         right_footstep.location.x += right_transformedOffset[0]
         right_footstep.location.y += right_transformedOffset[1]
-        right_footstep.location.z = 0.0 #+= right_transformedOffset[2]
+        if ON_REAL_ROBOT_USE:
+            right_footstep.location.z = 0.0 
+        else:
+            right_footstep.location.z = -SOLE_FRAME_Z_OFFSET #+= right_transformedOffset[2]
         right_footstep.orientation = quat_final
 
         if yaw > 0:
@@ -539,14 +592,31 @@ class KeyboardTeleop(object):
         footstep = self.createFootStepInPlace(step_side)
 
         # transform the offset to world frame
-        quat = footstep.orientation
+        #quat = footstep.orientation 
+        
+        #Get Pelvis orientation as we want to be with respect to the pelvis
+        pelvis_world = self.tfBuffer.lookup_transform(
+            'world', self.PELVIS_FRAME_NAME, rospy.Time())                
+
+        quat_pelvis_world = pelvis_world.transform.rotation
+        quat_pelvis = numpy.array([quat_pelvis_world.w, quat_pelvis_world.x, quat_pelvis_world.y, quat_pelvis_world.z])
+        quat_to_use = self.get_pelvis_xy_coplanar_quat(quat_pelvis)
+
+        quat = Quaternion()
+        quat.w = quat_to_use[0]
+        quat.x = quat_to_use[1]
+        quat.y = quat_to_use[2]
+        quat.z = quat_to_use[3]
+
         rot = quaternion_matrix([quat.x, quat.y, quat.z, quat.w])
         transformedOffset = numpy.dot(rot[0:3, 0:3], offset)
 
         footstep.location.x += transformedOffset[0]
         footstep.location.y += transformedOffset[1]
-        footstep.location.z = 0.0 #+= transformedOffset[2]
-
+        if (ON_REAL_ROBOT_USE):
+            footstep.location.z = 0.0 #+= transformedOffset[2]
+        else:
+            footstep.location.z = -SOLE_FRAME_Z_OFFSET #+= transformedOffset[2]            
         #print "(left, right)", self.LEFT_FOOT_FRAME_NAME, self.RIGHT_FOOT_FRAME_NAME
         #print "(x,y,z)", footstep.location.x, footstep.location.y, footstep.location.z
 
@@ -599,9 +669,9 @@ class KeyboardTeleop(object):
         marker_msg.pose.position.x = position.x
         marker_msg.pose.position.y = position.y
         if ON_REAL_ROBOT_USE:        
-            marker_msg.pose.position.z = position.z + 0.09 
+            marker_msg.pose.position.z = position.z - SOLE_FRAME_Z_OFFSET            
         else:
-            marker_msg.pose.position.z = position.z            
+            marker_msg.pose.position.z = position.z        
         marker_msg.pose.orientation = orientation
 
         self.loginfo("Marker (x,y,z) (" + str(position.x) + ", " + str(position.y) + ", " + str(position.z) + ")")
@@ -798,15 +868,15 @@ class KeyboardTeleop(object):
 if __name__ == '__main__':
     rospy.init_node('keyboard_teleop')
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-r', '--real-robot',  help='Pass "True" if running on the real robot. argument is set to "False" otherwise', default="False")
-    args = parser.parse_args()
-    print args.real_robot
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('-r', '--real-robot',  help='Pass "True" if running on the real robot. argument is set to "False" otherwise', default="False")
+    # args = parser.parse_args()
+    # print args.real_robot
 
-    if (args.real_robot == "True"):
-        ON_REAL_ROBOT_USE = True
-    else:
-        ON_REAL_ROBOT_USE = False
+    # if (args.real_robot == "True"):
+    #     ON_REAL_ROBOT_USE = True
+    # else:
+    #     ON_REAL_ROBOT_USE = False
 
     teleop = KeyboardTeleop()
     teleop.run()
