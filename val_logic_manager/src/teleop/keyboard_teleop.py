@@ -34,6 +34,10 @@ import argparse
 
 ON_REAL_ROBOT_USE = True
 
+# SOLE_FRAME_X_OFFSET = 0.052
+# SOLE_FRAME_Y_OFFSET = 0.0
+# SOLE_FRAME_Z_OFFSET = -0.09
+
 
 class KeyboardTeleop(object):
 
@@ -42,8 +46,8 @@ class KeyboardTeleop(object):
     RIGHT_FOOT_FRAME_NAME = None
 
     if (ON_REAL_ROBOT_USE):
-        LEFT_FOOT_FRAME_NAME = "leftCOP_Frame" #None
-        RIGHT_FOOT_FRAME_NAME = "rightCOP_Frame" #None
+        LEFT_FOOT_FRAME_NAME = "leftFootSoleFrame" #None
+        RIGHT_FOOT_FRAME_NAME = "rightFootSoleFrame" #None
     else:
         LEFT_FOOT_FRAME_NAME = "leftFoot" #None
         RIGHT_FOOT_FRAME_NAME = "rightFoot" #None        
@@ -447,7 +451,7 @@ class KeyboardTeleop(object):
         left_foot_world = self.tfBuffer.lookup_transform(
             'world', self.LEFT_FOOT_FRAME_NAME, rospy.Time())
         right_foot_world = self.tfBuffer.lookup_transform(
-            'world', self.RIGHT_FOOT_FRAME_NAME, rospy.Time())
+            'world', self.RIGHT_FOOT_FRAME_NAME, rospy.Time())    
         intermediate_transform = Transform()
         # create a virtual fram between the feet, this will be the center of the rotation
         intermediate_transform.translation.x = (
@@ -542,8 +546,10 @@ class KeyboardTeleop(object):
     def getEmptyFootsetListMsg(self):
         msg = FootstepDataListRosMessage()
         if ON_REAL_ROBOT_USE:
-            msg.default_transfer_duration = 3.0#1.5
-            msg.default_swing_duration = 3.0#1.5
+            msg.execution_timing = msg.CONTROL_DURATIONS
+            msg.default_transfer_duration = 0.0 # IHMC default param
+            msg.default_swing_duration = 0.0 # IHMC default param
+            msg.final_transfer_duration = -9.81
         else:
             msg.default_transfer_time = 3.0#1.5
             msg.default_swing_time = 3.0#1.5

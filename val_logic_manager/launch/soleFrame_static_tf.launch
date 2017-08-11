@@ -1,0 +1,15 @@
+<launch>
+
+	<arg name="x_offset_from_ankle" default="0.059" />  
+	<arg name="y_offset_from_ankle" default="0.0" />  
+	<arg name="z_offset_from_ankle" default="-0.09" />  
+
+	<node pkg="tf" type="static_transform_publisher" 
+				   name="tf_leftFootSoleFrame" args="$(arg x_offset_from_ankle)
+													 $(arg y_offset_from_ankle) 
+													 $(arg z_offset_from_ankle) 0 0 0 1 leftFoot leftFootSoleFrame 100" />
+	<node pkg="tf" type="static_transform_publisher" 
+				   name="tf_rightFootSoleFrame" args="$(arg x_offset_from_ankle)
+													  $(arg y_offset_from_ankle) 
+													  $(arg z_offset_from_ankle) 0 0 0 1 rightFoot rightFootSoleFrame 100" />
+</launch>

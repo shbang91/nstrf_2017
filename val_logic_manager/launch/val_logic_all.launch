@@ -12,6 +12,9 @@
   <!-- Run Python GUI-->
   <node name="steven_simple_val_gui" pkg="val_logic_manager" type="GUI_val_logic.py" output="screen"/>
 
+  <!-- Publish Sole Frames -->
+  <include file="$(find val_logic_manager)/launch/soleFrame_static_tf.launch"/>
+
   <!-- Run RVIZ -->
   <include file="$(find val_logic_manager)/launch/val_ik_viz.launch"/>
 
