@@ -718,9 +718,9 @@ class KeyboardTeleop(object):
             self.loginfo('moving feet further apart\n')
             msg = self.getEmptyFootsetListMsg()
             msg.footstep_data_list.append(self.createTranslationFootStepOffset(
-                FootstepDataRosMessage.LEFT, [0.0, 0.05, 0.0]))
+                FootstepDataRosMessage.LEFT, [0.0, 0.075, 0.0]))
             msg.footstep_data_list.append(self.createTranslationFootStepOffset(
-                FootstepDataRosMessage.RIGHT, [0.0, -0.05, 0.0]))
+                FootstepDataRosMessage.RIGHT, [0.0, -0.075, 0.0]))
             self.execute_footsteps(msg)
             self.loginfo('done moving feet further apart\n')
 

@@ -990,6 +990,14 @@ Visualization Manager:
       Topic: /path_visualization
       Unreliable: false
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /visualize_footstep_teleop
+      Name: Footstep Visualization
+      Namespaces:
+        visualize_footstep_cmds: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -1014,22 +1022,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.50871
+      Distance: 4.71958
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.116137
-        Y: -0.169243
-        Z: 0.791389
+        X: -0.0458039
+        Y: 0.25207
+        Z: 0.666714
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.350204
+      Pitch: 0.490203
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.430987
+      Yaw: 0.590991
     Saved: ~
 Window Geometry:
   Displays:
