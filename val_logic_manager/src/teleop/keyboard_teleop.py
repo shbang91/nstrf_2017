@@ -42,7 +42,7 @@ MESH_LOCATION = "package://val_desc/model/meshes/legs/foot_green.dae"
 
 # SOLE_FRAME_X_OFFSET = 0.052
 # SOLE_FRAME_Y_OFFSET = 0.0
-# SOLE_FRAME_Z_OFFSET = -0.09
+SOLE_FRAME_Z_OFFSET = -0.09
 
 
 class KeyboardTeleop(object):
@@ -596,7 +596,12 @@ class KeyboardTeleop(object):
         marker_msg.type = marker_msg.MESH_RESOURCE;
         marker_msg.mesh_resource = MESH_LOCATION #"package://val_description/model/meshes/legs/foot.dae"
         marker_msg.action = marker_msg.ADD
-        marker_msg.pose.position = position
+        marker_msg.pose.position.x = position.x
+        marker_msg.pose.position.y = position.y
+        if ON_REAL_ROBOT_USE:        
+            marker_msg.pose.position.z = position.z + 0.09 
+        else:
+            marker_msg.pose.position.z = position.z            
         marker_msg.pose.orientation = orientation
 
         self.loginfo("Marker (x,y,z) (" + str(position.x) + ", " + str(position.y) + ", " + str(position.z) + ")")
@@ -718,9 +723,9 @@ class KeyboardTeleop(object):
             self.loginfo('moving feet further apart\n')
             msg = self.getEmptyFootsetListMsg()
             msg.footstep_data_list.append(self.createTranslationFootStepOffset(
-                FootstepDataRosMessage.LEFT, [0.0, 0.075, 0.0]))
+                FootstepDataRosMessage.LEFT, [0.0, 0.06, 0.0]))
             msg.footstep_data_list.append(self.createTranslationFootStepOffset(
-                FootstepDataRosMessage.RIGHT, [0.0, -0.075, 0.0]))
+                FootstepDataRosMessage.RIGHT, [0.0, -0.06, 0.0]))
             self.execute_footsteps(msg)
             self.loginfo('done moving feet further apart\n')
 
