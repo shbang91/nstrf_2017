@@ -551,8 +551,8 @@ class KeyboardTeleop(object):
             msg.default_swing_duration = 0.0 # IHMC default param
             msg.final_transfer_duration = -9.81
         else:
-            msg.default_transfer_time = 3.0#1.5
-            msg.default_swing_time = 3.0#1.5
+            msg.default_transfer_time = 0.0 #3.0#1.5
+            msg.default_swing_time = 0.0 #3.0#1.5
         msg.execution_mode = 0
         msg.unique_id = -1
         return msg

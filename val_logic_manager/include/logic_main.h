@@ -32,6 +32,9 @@
 //IHMC Control Messages
 #include "ihmc_msgs/WholeBodyTrajectoryRosMessage.h"
 #include "ihmc_msgs/GoHomeRosMessage.h"
+#include "ihmc_msgs/StopAllTrajectoryRosMessage.h"
+#include "ihmc_msgs/AbortWalkingRosMessage.h"
+
 
 // Include ROS Service
 #include "val_ik/DrakeIKVal.h"
@@ -54,10 +57,15 @@ public:
 	ros::Publisher						val_ik_initpose_robot_joint_states_pub;	
 	ros::Publisher						val_ik_finalpose_robot_joint_states_pub;	
 	ros::Publisher						marker_pub;		
+
+	// IHMC Controller Interface Publishers
 	ros::Publisher 						ihmc_wholebody_pub;
 	ros::Publisher 						ihmc_go_home_pub;	
 	ros::Publisher 						ihmc_pelvis_traj_pub;
+	ros::Publisher 						ihmc_stop_all_traj_pub;	
+	ros::Publisher 						ihmc_abort_walking_pub;	
 
+	// NASA Controller Interface Publishers
 	ros::Publisher 						nasa_left_arm_pub;	
 	ros::Publisher 						nasa_right_arm_pub;	
 

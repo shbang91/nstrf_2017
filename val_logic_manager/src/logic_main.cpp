@@ -45,11 +45,12 @@ int main(int argc, char** argv){
     logic_manager.val_ik_finalpose_robot_joint_states_pub = logic_manager.nh.advertise<sensor_msgs::JointState>("/val_ik_finalpose_robot/joint_states", 10);
     logic_manager.val_ik_initpose_robot_joint_states_pub = logic_manager.nh.advertise<sensor_msgs::JointState>("/val_ik_initpose_robot/joint_states", 10);
     logic_manager.marker_pub = logic_manager.nh.advertise<visualization_msgs::Marker>("val_logic_manager/sample_marker", 0);
+
     logic_manager.ihmc_wholebody_pub = logic_manager.nh.advertise<ihmc_msgs::WholeBodyTrajectoryRosMessage>("/ihmc_ros/valkyrie/control/whole_body_trajectory", 0);
-
     logic_manager.ihmc_go_home_pub = logic_manager.nh.advertise<ihmc_msgs::GoHomeRosMessage>("/ihmc_ros/valkyrie/control/go_home", 10);    
-
     logic_manager.ihmc_pelvis_traj_pub = logic_manager.nh.advertise<ihmc_msgs::PelvisTrajectoryRosMessage>("/ihmc_ros/valkyrie/control/pelvis_trajectory", 10);    
+    logic_manager.ihmc_stop_all_traj_pub = logic_manager.nh.advertise<ihmc_msgs::StopAllTrajectoryRosMessage>("/ihmc_ros/valkyrie/control/stop_all_trajectories", 10);
+    logic_manager.ihmc_abort_walking_pub = logic_manager.nh.advertise<ihmc_msgs::AbortWalkingRosMessage>("/ihmc_ros/valkyrie/control/abort_walking", 10);    
 
     logic_manager.nasa_left_arm_pub = logic_manager.nh.advertise<sensor_msgs::JointState>("/left_hand_command", 10);    
     logic_manager.nasa_right_arm_pub = logic_manager.nh.advertise<sensor_msgs::JointState>("/right_hand_command", 10);        

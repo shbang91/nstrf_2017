@@ -46,7 +46,7 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
 	std::string try_next_grasp_ik;       try_next_grasp_ik = "try_next_grasp_ik";
 	std::string use_right_hand;       	 use_right_hand = "use_right_hand";
 	std::string use_left_hand;       	 use_left_hand = "use_left_hand";	
-
+	std::string stop_all_trajectories;	 stop_all_trajectories = "stop_all_trajectories";
 
 
 	if (send_single_ik_wbc.compare(msg->data) == 0){
@@ -98,7 +98,20 @@ void  LogicManager::operator_command_callback(const std_msgs::StringConstPtr& ms
 	}else if(use_left_hand.compare(msg->data) == 0){
 		ROS_INFO("Will use left hand");
 		hand_to_use = LEFT_HAND;		
-	}	
+	}else if(stop_all_trajectories.compare(msg->data) == 0){
+		ROS_INFO("Sending stopping all trajectories command");
+		ihmc_msgs::StopAllTrajectoryRosMessage stop_traj_msg;
+		ihmc_msgs::AbortWalkingRosMessage abort_walk_msg;
+
+		stop_traj_msg.unique_id = 10;
+		abort_walk_msg.unique_id = 11;
+
+		ihmc_stop_all_traj_pub.publish(stop_traj_msg);
+        ros::Duration(0.5).sleep();
+        ihmc_abort_walking_pub.publish(abort_walk_msg);
+
+
+	}		
 	else{
 		ROS_WARN("Unknown Operator Command");
 	}

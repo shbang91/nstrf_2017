@@ -21,6 +21,7 @@ TRY_NEXT_GRASP_IK, TRY_NEXT_GRASP_IK_GUI_STRING = "try_next_grasp_ik", "Try IK f
 
 USE_RIGHT_HAND, USE_RIGHT_HAND_GUI_STRING = "use_right_hand", "Use Right Hand"
 USE_LEFT_HAND, USE_LEFT_HAND_GUI_STRING = "use_left_hand", "Use Left Hand"
+STOP_ALL_TRAJECTORIES, STOP_ALL_TRAJECTORIES_GUI_STRING = "stop_all_trajectories", "Stop All Trajectories"
 
 
 # ----- Start ------
@@ -63,7 +64,8 @@ class ValGui(QtGui.QWidget):
                        GET_NEAREST_GRASP_IK_GUI_STRING,
                        TRY_NEXT_GRASP_IK_GUI_STRING,
                        USE_RIGHT_HAND_GUI_STRING,
-                       USE_LEFT_HAND_GUI_STRING
+                       USE_LEFT_HAND_GUI_STRING,
+                       STOP_ALL_TRAJECTORIES_GUI_STRING
                        ] 
       
       positions = [(i,j) for i in range(len(self.commands)) for j in range(3)]
@@ -118,7 +120,9 @@ class ValGui(QtGui.QWidget):
       elif command == USE_RIGHT_HAND_GUI_STRING: 
         string_cmd = USE_RIGHT_HAND
       elif command == USE_LEFT_HAND_GUI_STRING: 
-        string_cmd = USE_LEFT_HAND        
+        string_cmd = USE_LEFT_HAND
+      elif command == STOP_ALL_TRAJECTORIES_GUI_STRING:
+        string_cmd = STOP_ALL_TRAJECTORIES        
       else:
         string_cmd = INVALID_CMD
       
