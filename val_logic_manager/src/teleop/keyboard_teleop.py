@@ -37,7 +37,7 @@ import argparse
 
 
 
-ON_REAL_ROBOT_USE = False
+ON_REAL_ROBOT_USE = True
 EXECUTE_FOOTSTEPS = True
 
 MESH_LOCATION = "package://val_desc/model/meshes/legs/foot_green.dae"
@@ -466,6 +466,10 @@ class KeyboardTeleop(object):
         pelvis_y_dir = R_pelvis[1][:]
         pelvis_z_dir = R_pelvis[2][:]       
 
+        # Zero out the z's of x and y
+        pelvis_x_dir[2] = 0.0
+        pelvis_y_dir[2] = 0.0        
+
         # Set directions to be coplanar to x-y and normalize the directions
         pelvis_x_dir = pelvis_x_dir /  numpy.linalg.norm(pelvis_x_dir)
         pelvis_y_dir = pelvis_y_dir /  numpy.linalg.norm(pelvis_y_dir)
@@ -583,7 +587,23 @@ class KeyboardTeleop(object):
             foot_frame = self.RIGHT_FOOT_FRAME_NAME
 
         footWorld = self.tfBuffer.lookup_transform('world', foot_frame, rospy.Time())
-        footstep.orientation = footWorld.transform.rotation
+
+
+        #Get Pelvis orientation as we want to be with respect to the pelvis
+        pelvis_world = self.tfBuffer.lookup_transform(
+            'world', self.PELVIS_FRAME_NAME, rospy.Time())                
+
+        quat_pelvis_world = pelvis_world.transform.rotation
+        quat_pelvis = numpy.array([quat_pelvis_world.w, quat_pelvis_world.x, quat_pelvis_world.y, quat_pelvis_world.z])
+        quat_to_use = self.get_pelvis_xy_coplanar_quat(quat_pelvis)
+
+        quat = Quaternion()
+        quat.w = quat_to_use[0]
+        quat.x = quat_to_use[1]
+        quat.y = quat_to_use[2]
+        quat.z = quat_to_use[3]
+
+        footstep.orientation = quat #footWorld.transform.rotation
         footstep.location = footWorld.transform.translation
 
         return footstep
