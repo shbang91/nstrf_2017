@@ -127,8 +127,8 @@ int main(int argc, char** argv){
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_target (new pcl::PointCloud<pcl::PointXYZ>);
 
 
-    std::string path = ros::package::getPath("object_registration");
-    std::string filepath = path + "/pcd_examples";
+    std::string package_path = ros::package::getPath("object_registration");
+    std::string filepath = package_path + "/pcd_examples";
     // Load Point Cloud File 1
     pcl::io::loadPCDFile (filepath + "/bun0.pcd", *cloud_source);
     // Load Point Cloud File 2
@@ -154,8 +154,18 @@ int main(int argc, char** argv){
 
     viewer.addPointCloud (cloud_source, source_cloud_color_handler, "original_cloud");
     viewer.addPointCloud (cloud_target, target_cloud_color_handler, "target_cloud");
-    viewer.addPointCloud (transformed_cloud, transformed_cloud_color_handler, "transformed_cloud");
-    
+    //viewer.addPointCloud (transformed_cloud, transformed_cloud_color_handler, "transformed_cloud");
+
+    // Save Transformed Cloud
+    pcl::io::savePCDFileASCII (package_path + "/pcd_saved_files/icp_example_transformed.pcd", *transformed_cloud);
+    std::cerr << "Saved " << transformed_cloud->points.size () << " data points to icp_example_transformed.pcd." << std::endl;
+
+    // Load and Visualize the saved Transformed Cloud
+    pcl::PointCloud<pcl::PointXYZ>::Ptr saved_cloud (new pcl::PointCloud<pcl::PointXYZ>);    
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> saved_cloud_color_handler (saved_cloud, 0, 255, 0);
+    pcl::io::loadPCDFile (package_path + "/pcd_saved_files/icp_example_transformed.pcd", *saved_cloud);        
+    viewer.addPointCloud (saved_cloud, saved_cloud_color_handler, "saved_cloud");
+
 
     while (!viewer.wasStopped ()) { // Display the visualiser until 'q' key is pressed
       viewer.spinOnce ();
