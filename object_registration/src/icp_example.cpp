@@ -114,7 +114,7 @@ void svd_est_transform(pcl::PointCloud<pcl::PointXYZ>::Ptr& source, pcl::PointCl
 
 int main(int argc, char** argv){
     // Test Basic ICP
-    icp_example();
+    //icp_example();
 
     // Initialize ROS
     ros::init(argc, argv, "object_registration_node_test");
@@ -150,7 +150,7 @@ int main(int argc, char** argv){
    // Define R,G,B colors for the point clouds
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> source_cloud_color_handler (cloud_source, 255, 255, 255);
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> target_cloud_color_handler (cloud_target, 255, 0, 0);
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> transformed_cloud_color_handler (cloud_target, 0, 255, 0);
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> transformed_cloud_color_handler (transformed_cloud, 0, 255, 0);
 
     viewer.addPointCloud (cloud_source, source_cloud_color_handler, "original_cloud");
     viewer.addPointCloud (cloud_target, target_cloud_color_handler, "target_cloud");

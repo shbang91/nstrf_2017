@@ -56,6 +56,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(object_registration_node src/object_registration_node.cpp)
-target_link_libraries(object_registration_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_executable(icp_example src/icp_example.cpp)
+target_link_libraries(icp_example ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
