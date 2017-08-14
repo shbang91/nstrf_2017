@@ -1,0 +1,61 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(object_registration)
+
+add_compile_options(-std=c++11)
+## Find catkin macros and libraries
+
+find_package(catkin REQUIRED COMPONENTS
+  #pcl_ros
+  pcl_conversions
+  roscpp
+  rospy
+  sensor_msgs
+  visualization_msgs  
+  message_generation
+  message_filters
+  roslib
+  std_msgs
+  tf
+  cv_bridge
+)
+
+find_package(PCL 1.7 REQUIRED)
+
+#add_service_files(
+#   FILES
+#)
+
+#generate_messages(
+#  DEPENDENCIES
+#  sensor_msgs
+#  std_msgs 
+#)
+
+catkin_package(
+  CATKIN_DEPENDS 
+  	roscpp 
+  	message_runtime
+    cv_bridge
+    pcl_ros
+    rospy
+  	sensor_msgs
+  	std_msgs
+  DEPENDS
+  	roscpp
+	system_lib
+	tf
+)
+
+# This must occur before including Catkin package directories
+include_directories(${PCL_INCLUDE_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+link_directories(${PCL_LIBRARY_DIRS})
+
+# Include remaining catkin packages
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
+
+add_executable(object_registration_node src/object_registration_node.cpp)
+target_link_libraries(object_registration_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+

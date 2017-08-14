@@ -37,7 +37,7 @@ import argparse
 
 
 
-ON_REAL_ROBOT_USE = True
+ON_REAL_ROBOT_USE = False
 EXECUTE_FOOTSTEPS = True
 
 MESH_LOCATION = "package://val_desc/model/meshes/legs/foot_green.dae"
