@@ -46,10 +46,10 @@ catkin_package(
 	tf
 )
 
-# This must occur before including Catkin package directories
+# This must occur before including catkin package directories
 include_directories(${PCL_INCLUDE_DIRS})
-add_definitions(${PCL_DEFINITIONS})
 link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
 # Include remaining catkin packages
 include_directories(

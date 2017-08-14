@@ -41,14 +41,14 @@ class ValGui(QtGui.QWidget):
 
   def __init__(self):
       QtGui.QWidget.__init__(self)
-      newFont = QtGui.QFont("Helvetica", 18, QtGui.QFont.Bold)
+      newFont = QtGui.QFont("Helvetica", 14, QtGui.QFont.Bold)
 
       # Add a main layout
       mainLayout = QtGui.QVBoxLayout(self)
       #mainLayout->setMeubBar(menuBar)
       # Add buttons with the commands
       grid = QtGui.QGridLayout()
-      grid.setSpacing(20)
+      grid.setSpacing(3)
 
       # Initialize rosnode
       rospy.init_node("steven_simple_val_gui") 

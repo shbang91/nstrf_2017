@@ -15,6 +15,12 @@
 #include <pcl/filters/voxel_grid.h>
 
 #include <pcl/registration/icp.h>
+#include <pcl/visualization/pcl_visualizer.h>
+ #include <pcl/visualization/cloud_viewer.h>
+
+
+#include <pcl/common/transforms.h>
+
 /*#include <pcl/registration/transformation_estimation_svd.h>*/
 
 
@@ -60,6 +66,29 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in (new pcl::PointCloud<pcl::PointXYZ>
   std::cout << icp.getFinalTransformation() << std::endl;
 }
 
+void run_icp_on_pc(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_in, 
+                   const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_target,
+                   Eigen::Matrix4f& icp_transform_out,
+                   double& fitnessScore){ 
+  std::cout << "Running ICP" << std::endl;
+
+  std::cout << "Input Cloud Size:" << cloud_in->points.size() << " Target Cloud Size:" << cloud_target->points.size() << std::endl;
+  pcl::IterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
+  icp.setInputSource(cloud_in);
+  icp.setInputTarget(cloud_target);
+  pcl::PointCloud<pcl::PointXYZ> Final;
+  icp.align(Final);
+
+  std::cout << "has converged:" << icp.hasConverged() << " score: " <<
+  icp.getFitnessScore() << std::endl;
+
+  icp_transform_out = icp.getFinalTransformation();
+  fitnessScore = icp.getFitnessScore();
+
+  std::cout << icp_transform_out << std::endl;
+}
+
+
 /*
 void svd_est_transform(pcl::PointCloud<pcl::PointXYZ>::Ptr& source, pcl::PointCloud<pcl::PointXYZ>::Ptr& target){
   //pcl::PointCloud<pcl::PointXYZ>::Ptr source (new pcl::PointCloud<pcl::PointXYZ>(cloud_source));
@@ -84,14 +113,56 @@ void svd_est_transform(pcl::PointCloud<pcl::PointXYZ>::Ptr& source, pcl::PointCl
 }*/
 
 int main(int argc, char** argv){
+    // Test Basic ICP
+    icp_example();
+
     // Initialize ROS
     ros::init(argc, argv, "object_registration_node_test");
 
     // Declare Node Handle
     ros::NodeHandle nh;
 
+    // Define Source and Target Clouds
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_source (new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_target (new pcl::PointCloud<pcl::PointXYZ>);
+
+
+    std::string path = ros::package::getPath("object_registration");
+    std::string filepath = path + "/pcd_examples";
+    // Load Point Cloud File 1
+    pcl::io::loadPCDFile (filepath + "/bun0.pcd", *cloud_source);
+    // Load Point Cloud File 2
+    pcl::io::loadPCDFile (filepath + "/bun4.pcd", *cloud_target);    
+
+
+    // Perform ICP and get the 4x4 Transform
+    Eigen::Matrix4f icp_transform_out;
+    double fitnessScore = 1000;
+    run_icp_on_pc(cloud_source, cloud_target, icp_transform_out, fitnessScore);
+
+   // Execute the Transform
+    pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::transformPointCloud (*cloud_source, *transformed_cloud, icp_transform_out);
+
+    // View Inputs and Outputs
+    pcl::visualization::PCLVisualizer viewer("Input Cloud Viewer");
+
+   // Define R,G,B colors for the point clouds
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> source_cloud_color_handler (cloud_source, 255, 255, 255);
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> target_cloud_color_handler (cloud_target, 255, 0, 0);
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> transformed_cloud_color_handler (cloud_target, 0, 255, 0);
+
+    viewer.addPointCloud (cloud_source, source_cloud_color_handler, "original_cloud");
+    viewer.addPointCloud (cloud_target, target_cloud_color_handler, "target_cloud");
+    viewer.addPointCloud (transformed_cloud, transformed_cloud_color_handler, "transformed_cloud");
+    
+
+    while (!viewer.wasStopped ()) { // Display the visualiser until 'q' key is pressed
+      viewer.spinOnce ();
+    }
+    ROS_INFO("Viewer was Stopped. Node will spin forever.");
+
     // Spin Forever
-    icp_example();
     ros::spin();
 
     return 0;
