@@ -20,13 +20,19 @@ void processFeedback(
   server->get("my_marker", this_box_marker);
   std::cout << "box marker x scale:" << this_box_marker.controls[0].markers[1].scale.x << std::endl;
 
-/*  visualization_msgs::InteractiveMarker arrow_marker;
-  server->get("arrow_x", arrow_marker);*/
-
   geometry_msgs::Pose pose = feedback->pose;
 
   pose.position.x = pose.position.x + this_box_marker.controls[0].markers[1].scale.x/2.0;
   server->setPose("arrow_x", pose);
+
+  visualization_msgs::InteractiveMarker arrow_y_marker;
+  server->get("arrow_y", arrow_y_marker);
+
+
+  geometry_msgs::Pose pose_arrow_y = feedback->pose;
+  pose_arrow_y.position.y = pose_arrow_y.position.y + this_box_marker.controls[0].markers[1].scale.y/2.0;
+  pose_arrow_y.orientation = arrow_y_marker.pose.orientation;
+  server->setPose("arrow_y", pose_arrow_y);  
   server->applyChanges();
 
 }
@@ -42,6 +48,23 @@ void processFeedbackArrow(
   server->get("my_marker", this_box_marker);
   std::cout << "box marker x scale:" << this_box_marker.controls[0].markers[1].scale.x << std::endl;
   this_box_marker.controls[0].markers[1].scale.x = 2.0*(feedback->pose.position.x - this_box_marker.pose.position.x);
+
+  server->insert(this_box_marker);
+  server->applyChanges();
+
+}
+
+void processFeedbackArrow_y(
+    const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback )
+{
+  ROS_INFO_STREAM( feedback->marker_name << " is now at "
+      << feedback->pose.position.x << ", " << feedback->pose.position.y
+      << ", " << feedback->pose.position.z );
+
+  visualization_msgs::InteractiveMarker this_box_marker;
+  server->get("my_marker", this_box_marker);
+  std::cout << "box marker y scale:" << this_box_marker.controls[0].markers[1].scale.y << std::endl;
+  this_box_marker.controls[0].markers[1].scale.y = 2.0*(feedback->pose.position.y - this_box_marker.pose.position.y);
 
   server->insert(this_box_marker);
   server->applyChanges();
@@ -105,8 +128,6 @@ int main(int argc, char** argv)
   int_marker_arrow_x.header.frame_id = "base_link";
   int_marker_arrow_x.header.stamp=ros::Time::now();
   int_marker_arrow_x.name = "arrow_x";
-//  int_marker_arrow_x.description = "x_scale_control";
-
 
   visualization_msgs::Marker arrow_x;
   arrow_x.pose.orientation.x = 0.0;   arrow_x.pose.orientation.y = 0.0;   arrow_x.pose.orientation.z = 0.0;  
@@ -121,7 +142,6 @@ int main(int argc, char** argv)
   arrow_x.color.b = 0.0;
   arrow_x.color.a = 0.5;
 
-
   visualization_msgs::InteractiveMarkerControl size_arrow_x;
   size_arrow_x.always_visible = true;
   size_arrow_x.name = "move_x";
@@ -129,8 +149,49 @@ int main(int argc, char** argv)
   size_arrow_x.markers.push_back(arrow_x);
   int_marker_arrow_x.controls.push_back(size_arrow_x);  
 
+
+
+
+
+  // create an interactive marker for our server
+  visualization_msgs::InteractiveMarker int_marker_arrow_y;
+  int_marker_arrow_y.pose.position.y = box_marker.scale.y/2.0;
+  int_marker_arrow_y.header.frame_id = "base_link";
+  int_marker_arrow_y.header.stamp=ros::Time::now();
+  int_marker_arrow_y.name = "arrow_y";
+  int_marker_arrow_y.pose.orientation.z = 1.0;
+  int_marker_arrow_y.pose.orientation.w = 1.0;  
+
+
+  visualization_msgs::Marker arrow_y;
+  arrow_y.pose.orientation.x = 0.0;   
+  arrow_y.pose.orientation.y = 0.0;   
+  arrow_y.pose.orientation.z = 0.0;  
+  arrow_y.pose.orientation.w = 1;
+  arrow_y.type = visualization_msgs::Marker::ARROW;
+  arrow_y.scale.x = 0.25;
+  arrow_y.scale.y = 0.1;
+  arrow_y.scale.z = 0.1;
+
+  arrow_y.color.r = 0.0; 
+  arrow_y.color.g = 1.0;
+  arrow_y.color.b = 0.0;
+  arrow_y.color.a = 0.5;
+
+  visualization_msgs::InteractiveMarkerControl size_arrow_y;
+  size_arrow_y.always_visible = true;
+  size_arrow_y.name = "move_x";
+  size_arrow_y.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
+
+  size_arrow_y.markers.push_back(arrow_x);
+  int_marker_arrow_y.controls.push_back(size_arrow_y);    
+
+
+
+
   server->insert(int_marker, &processFeedback);
   server->insert(int_marker_arrow_x, &processFeedbackArrow);  
+  server->insert(int_marker_arrow_y, &processFeedbackArrow_y);    
 
   // 'commit' changes and send to all clients
   server->applyChanges();
