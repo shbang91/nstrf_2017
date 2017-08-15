@@ -171,13 +171,15 @@ main (int argc, char **argv)
 
   
   // Estimate normals for scene
-  pcl::console::print_highlight ("Estimating scene normals...\n");
+/*  pcl::console::print_highlight ("Estimating scene normals...\n");
   pcl::NormalEstimationOMP<PointNT,PointNT> nest;
   nest.setRadiusSearch (0.01);
   nest.setInputCloud (scene);
-  nest.compute (*scene);
+  nest.compute (*scene_normals);
   
-
+  nest.setInputCloud (object);
+  nest.compute (*object_normals);
+*/
   pcl::NormalEstimation<PointNT, PointNT> normalEstimation;
   pcl::search::KdTree<PointNT>::Ptr kdtree(new pcl::search::KdTree<PointNT>);
   normalEstimation.setRadiusSearch( 0.01 ); //0.06 .045 0.1 .03 .1 
