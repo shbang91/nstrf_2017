@@ -62,3 +62,8 @@ target_link_libraries(icp_example ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_executable(object_pose_estimate_sample src/object_pose_estimate_sample.cpp)
 target_link_libraries(object_pose_estimate_sample ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
+add_executable(object_pose_estimate_iss_keypoints_and_icp src/object_pose_estimate_iss_keypoints_and_icp.cpp)
+target_link_libraries(object_pose_estimate_iss_keypoints_and_icp ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+
+
