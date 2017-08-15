@@ -59,3 +59,6 @@ include_directories(
 add_executable(icp_example src/icp_example.cpp)
 target_link_libraries(icp_example ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
+add_executable(object_pose_estimate_sample src/object_pose_estimate_sample.cpp)
+target_link_libraries(object_pose_estimate_sample ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
