@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   visualization_msgs  
+  interactive_markers  
   message_generation
   message_filters
   roslib
@@ -64,6 +65,13 @@ target_link_libraries(object_pose_estimate_sample ${catkin_LIBRARIES} ${PCL_LIBR
 
 add_executable(object_pose_estimate_iss_keypoints_and_icp src/object_pose_estimate_iss_keypoints_and_icp.cpp)
 target_link_libraries(object_pose_estimate_iss_keypoints_and_icp ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(basic_controls src/basic_controls.cpp)
+target_link_libraries(basic_controls ${catkin_LIBRARIES})
+
+
+add_executable(interest_box_marker src/interest_box_marker.cpp)
+target_link_libraries(interest_box_marker ${catkin_LIBRARIES})
 
 
 

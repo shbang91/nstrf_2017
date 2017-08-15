@@ -8,6 +8,8 @@
 #include <pcl/common/time.h>
 #include <pcl/console/print.h>
 #include <pcl/features/normal_3d_omp.h>
+#include <pcl/features/normal_3d.h>
+
 #include <pcl/features/fpfh_omp.h>
 #include <pcl/filters/filter.h>
 #include <pcl/filters/voxel_grid.h>
@@ -19,6 +21,7 @@
 
 #include <pcl/common/transforms.h>
 #include <pcl/filters/extract_indices.h>
+#include <pcl/kdtree/kdtree.h>
 
 // Types
 typedef pcl::PointNormal PointNT;
@@ -65,7 +68,12 @@ main (int argc, char **argv)
   PointCloudT::Ptr scene (new PointCloudT);
   FeatureCloudT::Ptr object_features (new FeatureCloudT);
   FeatureCloudT::Ptr scene_features (new FeatureCloudT);
+
+  // Normals
+  PointCloudT::Ptr object_normals (new PointCloudT);  
+  PointCloudT::Ptr scene_normals (new PointCloudT);  
   
+
   // Get input object and scene
 /*  if (argc != 3)
   {
@@ -95,21 +103,38 @@ main (int argc, char **argv)
   grid.filter (*scene);
   
   // Estimate normals for scene
-  pcl::console::print_highlight ("Estimating scene normals...\n");
+/*  pcl::console::print_highlight ("Estimating scene normals...\n");
   pcl::NormalEstimationOMP<PointNT,PointNT> nest;
   nest.setRadiusSearch (0.01);
   nest.setInputCloud (scene);
-  nest.compute (*scene);
+  nest.compute (*scene);*/
+
+
+  // Slower Estimation of Normals, but produces better Pose Estimate bfore ICP is run
+  pcl::NormalEstimation<PointNT, PointNT> normalEstimation;
+  pcl::search::KdTree<PointNT>::Ptr kdtree(new pcl::search::KdTree<PointNT>);
+  normalEstimation.setRadiusSearch( 0.01 ); //0.06 .045 0.1 .03 .1 
+  normalEstimation.setSearchMethod(kdtree);
   
+  normalEstimation.setInputCloud(scene); // only do keypoints  
+  normalEstimation.setSearchSurface(scene); // use the entire cloud to define the keypoint's normal
+  normalEstimation.compute(*scene_normals);
+
+  normalEstimation.setInputCloud(object); // only do keypoints  
+  normalEstimation.setSearchSurface(object); // use the entire cloud to define the keypoint's normal
+  normalEstimation.compute(*object_normals);  
+
   // Estimate features
   pcl::console::print_highlight ("Estimating features...\n");
   FeatureEstimationT fest;
   fest.setRadiusSearch (0.025);
   fest.setInputCloud (object);
-  fest.setInputNormals (object);
+  fest.setInputNormals (object_normals);
+//  fest.setInputNormals (object);
   fest.compute (*object_features);
   fest.setInputCloud (scene);
-  fest.setInputNormals (scene);
+  fest.setInputNormals (scene_normals);
+//  fest.setInputNormals (scene);
   fest.compute (*scene_features);
   
   // Perform alignment
