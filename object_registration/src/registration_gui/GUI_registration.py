@@ -32,6 +32,7 @@ class ValGui(QtGui.QWidget):
 
   def __init__(self):
       QtGui.QWidget.__init__(self)
+      self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
       newFont = QtGui.QFont("Helvetica", 14, QtGui.QFont.Bold)
 
       # Add a main layout
