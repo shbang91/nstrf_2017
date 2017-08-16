@@ -2,7 +2,6 @@
 #include <interactive_markers/interactive_marker_server.h>
 
 
-
 #define MARKER_FRAME "world"
 #define MARKER_NAME "interestBox"
 
@@ -115,57 +114,64 @@ void createArrowMarker(const std::string arrow_name, const float box_size_in_dim
   int_marker_arrow.controls.push_back(size_arrow_control);    
 }
 
-void updateArrowLocations(){
-}
-
-void processFeedback(
-    const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback )
-{
-  ROS_INFO_STREAM( feedback->marker_name << " is now at " << feedback->pose.position.x << ", " << feedback->pose.position.y  << ", " << feedback->pose.position.z );
-
-  visualization_msgs::InteractiveMarker this_box_marker;
-  server->get(MARKER_NAME, this_box_marker);
-
+void updateArrowLocations(const geometry_msgs::Pose box_pose, 
+                          const visualization_msgs::Marker box_marker){
   // Update location of x arrow 
-  geometry_msgs::Pose pose_arrow_x = feedback->pose;
-  pose_arrow_x.position.x = pose_arrow_x.position.x + this_box_marker.controls[0].markers[1].scale.x/2.0;
+  geometry_msgs::Pose pose_arrow_x = box_pose;
+  pose_arrow_x.position.x = pose_arrow_x.position.x + box_marker.scale.x/2.0;
   server->setPose(X_SIZE_ARROW_1, pose_arrow_x);
 
   // Update location of y arrow 
-  geometry_msgs::Pose pose_arrow_y = feedback->pose;
-  pose_arrow_y.position.y = pose_arrow_y.position.y + this_box_marker.controls[0].markers[1].scale.y/2.0;
+  geometry_msgs::Pose pose_arrow_y = box_pose;
+  pose_arrow_y.position.y = pose_arrow_y.position.y + box_marker.scale.y/2.0;
   server->setPose(Y_SIZE_ARROW_1, pose_arrow_y);  
 
   // Update location of z arrow
-  geometry_msgs::Pose pose_arrow_z = feedback->pose;
-  pose_arrow_z.position.z = pose_arrow_y.position.z + this_box_marker.controls[0].markers[1].scale.z/2.0;
-  server->setPose(Z_SIZE_ARROW_1, pose_arrow_z);  
+  geometry_msgs::Pose pose_arrow_z = box_pose;
+  pose_arrow_z.position.z = pose_arrow_y.position.z + box_marker.scale.z/2.0;
+  server->setPose(Z_SIZE_ARROW_1, pose_arrow_z);
 
   server->applyChanges();
-
 }
 
-void processFeedbackArrow(
-    const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback )
-{
+
+void processFeedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback){
+  ROS_INFO_STREAM( feedback->marker_name << " is now at " << feedback->pose.position.x << ", " << feedback->pose.position.y  << ", " << feedback->pose.position.z );
+
+  visualization_msgs::InteractiveMarker int_box_marker;
+  visualization_msgs::Marker box_marker_copy;
+
+  server->get(MARKER_NAME, int_box_marker);
+  box_marker_copy = int_box_marker.controls[0].markers[1];
+
+  updateArrowLocations(feedback->pose, box_marker_copy);
+}
+
+void processFeedbackArrow(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback){
   ROS_INFO_STREAM( feedback->marker_name << " is now at "<< feedback->pose.position.x << ", " << feedback->pose.position.y << ", " << feedback->pose.position.z );
 
-  visualization_msgs::InteractiveMarker this_box_marker;
-  server->get(MARKER_NAME, this_box_marker);
+  visualization_msgs::InteractiveMarker int_box_marker;
+  visualization_msgs::Marker box_marker_copy;
+
+  // Get a copy of the Interactive box marker
+  server->get(MARKER_NAME, int_box_marker);
+  box_marker_copy = int_box_marker.controls[0].markers[1];  
 
   // Change the size of the box depending on the arrow type
   if ( (feedback->marker_name).compare(X_SIZE_ARROW_1) == 0 ){
-    std::cout << "box marker x scale:" << this_box_marker.controls[0].markers[1].scale.x << std::endl;
-    this_box_marker.controls[0].markers[1].scale.x = 2.0*(feedback->pose.position.x - this_box_marker.pose.position.x);    
+    std::cout << "box marker x scale:" << int_box_marker.controls[0].markers[1].scale.x << std::endl;
+    box_marker_copy.scale.x = 2.0*(feedback->pose.position.x - int_box_marker.pose.position.x);    
   }else if( (feedback->marker_name).compare(Y_SIZE_ARROW_1) == 0) {
-    std::cout << "box marker y scale:" << this_box_marker.controls[0].markers[1].scale.y << std::endl;
-    this_box_marker.controls[0].markers[1].scale.y = 2.0*(feedback->pose.position.y - this_box_marker.pose.position.y);
+    std::cout << "box marker y scale:" << int_box_marker.controls[0].markers[1].scale.y << std::endl;
+    box_marker_copy.scale.y = 2.0*(feedback->pose.position.y - int_box_marker.pose.position.y);
   }else if( (feedback->marker_name).compare(Z_SIZE_ARROW_1) == 0) {
-    std::cout << "box marker z scale:" << this_box_marker.controls[0].markers[1].scale.z << std::endl;
-    this_box_marker.controls[0].markers[1].scale.z = 2.0*(feedback->pose.position.z - this_box_marker.pose.position.z);
+    std::cout << "box marker z scale:" << int_box_marker.controls[0].markers[1].scale.z << std::endl;
+    box_marker_copy.scale.z = 2.0*(feedback->pose.position.z - int_box_marker.pose.position.z);
   }
 
-  server->insert(this_box_marker);
+  // Update the interactive box marker with a new size
+  int_box_marker.controls[0].markers[1] = box_marker_copy;
+  server->insert(int_box_marker);
   server->applyChanges();
 }
 
