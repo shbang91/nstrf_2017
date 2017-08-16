@@ -6,13 +6,12 @@
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
 #include <tf/tf.h>
+#include <interactive_markers/interactive_marker_server.h>
+#include <std_msgs/String.h>
+#include <sensor_msgs/PointCloud2.h>
 
 #include <pcl_ros/impl/transforms.hpp>
-
-#include <interactive_markers/interactive_marker_server.h>
-
 #include <pcl_ros/point_cloud.h>
-#include <sensor_msgs/PointCloud2.h>
 
 #include <pcl/point_types.h>
 #include <pcl/filters/passthrough.h>
@@ -34,22 +33,15 @@ typedef pcl::PointCloud<PointRGB> PointCloudRGB;
 
 //true if Ctrl-C is pressed
 bool g_caught_sigint = false;
-
+boost::mutex cloud_mutex;
 ros::Publisher  pointcloud_pub;
+tf::TransformListener *tf_listener;
 
 boost::shared_ptr<interactive_markers::InteractiveMarkerServer> server;
 visualization_msgs::Marker interest_box_marker;
 
-
-
-
 PointCloudRGB::Ptr cloud(new PointCloudRGB);
 PointCloudRGB::Ptr boxed_cloud (new PointCloudRGB);
-boost::mutex cloud_mutex;
-
-bool found_transform = false;
-tf::StampedTransform transform;
-tf::TransformListener *tf_listener;
 
 // what happens when Ctrl-c is pressed
 void sig_handler(int sig)
@@ -224,27 +216,12 @@ void processFeedbackArrow(const visualization_msgs::InteractiveMarkerFeedbackCon
   server->applyChanges();
 }
 
-void TFlookupOnce(){
-  if (!found_transform){
-    while (ros::ok()){
-          try{
-          // Look up transform
-            tf_listener->lookupTransform(MARKER_FRAME, cloud->header.frame_id, ros::Time(0), transform);
-            found_transform = true;
-          break;
-          }
-          //keep trying until we get the transform
-          catch (tf::TransformException &ex){
-            ROS_ERROR_THROTTLE(2,"%s",ex.what());
-            ROS_WARN_THROTTLE(2, "   Waiting for tf to transform desired SAC axis to point cloud frame. trying again");
-          }
-    }
+bool getCloudinBox(){
+  if (!cloud->points.size() > 0){
+    ROS_ERROR("point cloud is empty");
+    return false;
   }
 
-}
-
-
-bool getCloudinBox(){
   // Clear the points
   boxed_cloud->points.clear();  
   PointCloudRGB::Ptr cloud_in_world_frame (new PointCloudRGB);  
@@ -344,6 +321,17 @@ void cloud_callback(const sensor_msgs::PointCloud2::ConstPtr& msg){
   //getCloudinBox();
 }
 
+void command_callback(const std_msgs::String::ConstPtr& msg){
+  std::string get_cloud_in_box;   get_cloud_in_box = "get_cloud_in_box";
+
+
+  if (get_cloud_in_box.compare(msg->data) == 0){
+    ROS_INFO("Getting Cloud within the Box");
+    getCloudinBox();  
+  }
+
+}
+
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "object_registration_interest_box");
@@ -358,7 +346,10 @@ int main(int argc, char** argv)
 
   // Declare Subscribers
   ros::Subscriber  pointcloud_sub;
+  ros::Subscriber  operator_command_sub;
+
   pointcloud_sub = nh.subscribe<sensor_msgs::PointCloud2>(DEFAULT_POINTCLOUD_SUB, 10, cloud_callback);    
+  operator_command_sub = nh.subscribe<std_msgs::String>("gui_object_registration_manager/operator_command", 1, command_callback);
 
   // Declare Publishers
   pointcloud_pub = nh.advertise<sensor_msgs::PointCloud2>(POINTCLOUD_PUB_NAME, 0);
