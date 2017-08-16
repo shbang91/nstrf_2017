@@ -67,7 +67,7 @@ add_executable(object_pose_estimate_iss_keypoints_and_icp src/object_pose_estima
 target_link_libraries(object_pose_estimate_iss_keypoints_and_icp ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(interest_box_marker src/interest_box_marker.cpp)
-target_link_libraries(interest_box_marker ${catkin_LIBRARIES})
+target_link_libraries(interest_box_marker ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 
 

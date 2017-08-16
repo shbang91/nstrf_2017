@@ -1,16 +1,42 @@
+#include <signal.h>
+
 #include <ros/ros.h>
+#include <ros/package.h>
+
 #include <interactive_markers/interactive_marker_server.h>
 
+#include <pcl_ros/point_cloud.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <pcl/io/pcd_io.h>
 
-#define MARKER_FRAME "world"
+#define MARKER_FRAME "multisense/world_frame"
 #define MARKER_NAME "interestBox"
+
+#define DEFAULT_POINTCLOUD_SUB "/multisense/image_points2_color"
 
 #define X_SIZE_ARROW_1 "arrow_x"
 #define Y_SIZE_ARROW_1 "arrow_y"
 #define Z_SIZE_ARROW_1 "arrow_z"
 
+//true if Ctrl-C is pressed
+bool g_caught_sigint=false;
+
 boost::shared_ptr<interactive_markers::InteractiveMarkerServer> server;
 visualization_msgs::Marker interest_box_marker;
+
+
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+boost::mutex cloud_mutex;
+
+// what happens when Ctrl-c is pressed
+void sig_handler(int sig)
+{
+  g_caught_sigint = true;
+  ROS_INFO("caught sigint, init shutdown sequence...");
+  ros::shutdown();
+  exit(1);
+};
+
 
 void createBoxMarker(visualization_msgs::InteractiveMarker& int_marker,
                      visualization_msgs::Marker& box_marker_copy){
@@ -186,9 +212,34 @@ void storeCloudandRelativePose(){
 }
 
 
+void cloud_callback(const sensor_msgs::PointCloud2::ConstPtr& msg){
+  cloud_mutex.lock();  // Lock Mutex
+  pcl::fromROSMsg(*msg, *cloud);   // Perform Copy
+  cloud_mutex.unlock();   // Unlock Mutex
+
+  ROS_INFO("Pointcloud has %zu points", cloud->points.size());
+}
+
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "object_registration_interest_box");
+  ros::NodeHandle nh;
+  ros::NodeHandle private_nh("~");
+
+  // Get ROS params
+/*  std::string point_cloud_topic_name;
+  private_nh.param<std::string>("point_cloud_topic_name", point_cloud_topic_name, DEFAULT_POINTCLOUD_SUB);
+  std::cout << "Subscribing to " << point_cloud_topic_name << std::endl;
+  */
+
+  // Declare Subscribers
+  ros::Subscriber  pointcloud_sub;
+  pointcloud_sub = nh.subscribe<sensor_msgs::PointCloud2>(DEFAULT_POINTCLOUD_SUB, 10, cloud_callback);    
+
+
+  //register ctrl-c
+  signal(SIGINT, sig_handler);
+
   // Set the interactive marker server on the topic namespace simple_marker
   server.reset( new interactive_markers::InteractiveMarkerServer("simple_marker","",false) );
 
@@ -213,6 +264,8 @@ int main(int argc, char** argv)
 
   // 'commit' changes and send to all clients
   server->applyChanges();
+
+
 
   // start the ROS main loop
   ros::spin();
