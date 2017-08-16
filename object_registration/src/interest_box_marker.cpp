@@ -20,19 +20,21 @@ void processFeedback(
   server->get("my_marker", this_box_marker);
   std::cout << "box marker x scale:" << this_box_marker.controls[0].markers[1].scale.x << std::endl;
 
-  geometry_msgs::Pose pose = feedback->pose;
+  // Update location of x arrow 
+  geometry_msgs::Pose pose_arrow_x = feedback->pose;
+  pose_arrow_x.position.x = pose_arrow_x.position.x + this_box_marker.controls[0].markers[1].scale.x/2.0;
+  server->setPose("arrow_x", pose_arrow_x);
 
-  pose.position.x = pose.position.x + this_box_marker.controls[0].markers[1].scale.x/2.0;
-  server->setPose("arrow_x", pose);
-
-  visualization_msgs::InteractiveMarker arrow_y_marker;
-  server->get("arrow_y", arrow_y_marker);
-
-
+  // Update location of y arrow 
   geometry_msgs::Pose pose_arrow_y = feedback->pose;
   pose_arrow_y.position.y = pose_arrow_y.position.y + this_box_marker.controls[0].markers[1].scale.y/2.0;
-  pose_arrow_y.orientation = arrow_y_marker.pose.orientation;
   server->setPose("arrow_y", pose_arrow_y);  
+
+  // Update location of z arrow
+  geometry_msgs::Pose pose_arrow_z = feedback->pose;
+  pose_arrow_z.position.z = pose_arrow_y.position.z + this_box_marker.controls[0].markers[1].scale.z/2.0;
+  server->setPose("arrow_z", pose_arrow_z);  
+
   server->applyChanges();
 
 }
@@ -46,8 +48,18 @@ void processFeedbackArrow(
 
   visualization_msgs::InteractiveMarker this_box_marker;
   server->get("my_marker", this_box_marker);
-  std::cout << "box marker x scale:" << this_box_marker.controls[0].markers[1].scale.x << std::endl;
-  this_box_marker.controls[0].markers[1].scale.x = 2.0*(feedback->pose.position.x - this_box_marker.pose.position.x);
+
+  // Change the size of the box depending on the arrow type
+  if ( (feedback->marker_name).compare("arrow_x") == 0 ){
+    std::cout << "box marker x scale:" << this_box_marker.controls[0].markers[1].scale.x << std::endl;
+    this_box_marker.controls[0].markers[1].scale.x = 2.0*(feedback->pose.position.x - this_box_marker.pose.position.x);    
+  }else if( (feedback->marker_name).compare("arrow_y") == 0) {
+    std::cout << "box marker y scale:" << this_box_marker.controls[0].markers[1].scale.y << std::endl;
+    this_box_marker.controls[0].markers[1].scale.y = 2.0*(feedback->pose.position.y - this_box_marker.pose.position.y);
+  }else if( (feedback->marker_name).compare("arrow_z") == 0) {
+    std::cout << "box marker z scale:" << this_box_marker.controls[0].markers[1].scale.z << std::endl;
+    this_box_marker.controls[0].markers[1].scale.z = 2.0*(feedback->pose.position.z - this_box_marker.pose.position.z);
+  }
 
   server->insert(this_box_marker);
   server->applyChanges();
@@ -122,7 +134,7 @@ int main(int argc, char** argv)
   int_marker.controls.push_back( sphere_control );
 
 
-  // create an interactive marker for our server
+  // Create x size arrow interactive marker
   visualization_msgs::InteractiveMarker int_marker_arrow_x;
   int_marker_arrow_x.pose.position.x = box_marker.scale.x/2.0;
   int_marker_arrow_x.header.frame_id = "base_link";
@@ -151,23 +163,19 @@ int main(int argc, char** argv)
 
 
 
-
-
-  // create an interactive marker for our server
+  // Create y size arrow interactive marker
   visualization_msgs::InteractiveMarker int_marker_arrow_y;
   int_marker_arrow_y.pose.position.y = box_marker.scale.y/2.0;
   int_marker_arrow_y.header.frame_id = "base_link";
   int_marker_arrow_y.header.stamp=ros::Time::now();
   int_marker_arrow_y.name = "arrow_y";
-  int_marker_arrow_y.pose.orientation.z = 1.0;
-  int_marker_arrow_y.pose.orientation.w = 1.0;  
-
 
   visualization_msgs::Marker arrow_y;
   arrow_y.pose.orientation.x = 0.0;   
   arrow_y.pose.orientation.y = 0.0;   
-  arrow_y.pose.orientation.z = 0.0;  
-  arrow_y.pose.orientation.w = 1;
+  arrow_y.pose.orientation.z = 1.0;
+  arrow_y.pose.orientation.w = 1.0;  
+
   arrow_y.type = visualization_msgs::Marker::ARROW;
   arrow_y.scale.x = 0.25;
   arrow_y.scale.y = 0.1;
@@ -180,18 +188,50 @@ int main(int argc, char** argv)
 
   visualization_msgs::InteractiveMarkerControl size_arrow_y;
   size_arrow_y.always_visible = true;
-  size_arrow_y.name = "move_x";
+  size_arrow_y.name = "move_y";
   size_arrow_y.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
+  size_arrow_y.orientation = arrow_y.pose.orientation;
 
-  size_arrow_y.markers.push_back(arrow_x);
+  size_arrow_y.markers.push_back(arrow_y);
   int_marker_arrow_y.controls.push_back(size_arrow_y);    
 
 
+  // Create z size arrow interactive marker
+  visualization_msgs::InteractiveMarker int_marker_arrow_z;
+  int_marker_arrow_z.pose.position.z = box_marker.scale.z/2.0;
+  int_marker_arrow_z.header.frame_id = "base_link";
+  int_marker_arrow_z.header.stamp=ros::Time::now();
+  int_marker_arrow_z.name = "arrow_z";
+
+  visualization_msgs::Marker arrow_z;
+  arrow_z.pose.orientation.x = 0.0;   
+  arrow_z.pose.orientation.y = 1.0;   
+  arrow_z.pose.orientation.z = 0.0;  
+  arrow_z.pose.orientation.w = -1;
+  arrow_z.type = visualization_msgs::Marker::ARROW;
+  arrow_z.scale.x = 0.25;
+  arrow_z.scale.y = 0.1;
+  arrow_z.scale.z = 0.1;
+
+  arrow_z.color.r = 0.0; 
+  arrow_z.color.g = 1.0;
+  arrow_z.color.b = 0.0;
+  arrow_z.color.a = 0.5;
+
+  visualization_msgs::InteractiveMarkerControl size_arrow_z;
+  size_arrow_z.always_visible = true;
+  size_arrow_z.name = "move_z";
+  size_arrow_z.orientation = arrow_z.pose.orientation;
+  size_arrow_z.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
+
+  size_arrow_z.markers.push_back(arrow_z);
+  int_marker_arrow_z.controls.push_back(size_arrow_z);    
 
 
   server->insert(int_marker, &processFeedback);
   server->insert(int_marker_arrow_x, &processFeedbackArrow);  
-  server->insert(int_marker_arrow_y, &processFeedbackArrow_y);    
+  server->insert(int_marker_arrow_y, &processFeedbackArrow);    
+  server->insert(int_marker_arrow_z, &processFeedbackArrow);      
 
   // 'commit' changes and send to all clients
   server->applyChanges();
