@@ -3,30 +3,53 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 
+#include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
+#include <tf/tf.h>
+
+#include <pcl_ros/impl/transforms.hpp>
+
 #include <interactive_markers/interactive_marker_server.h>
 
 #include <pcl_ros/point_cloud.h>
 #include <sensor_msgs/PointCloud2.h>
+
+#include <pcl/point_types.h>
+#include <pcl/filters/passthrough.h>
 #include <pcl/io/pcd_io.h>
 
 #define MARKER_FRAME "multisense/world_frame"
 #define MARKER_NAME "interestBox"
 
 #define DEFAULT_POINTCLOUD_SUB "/multisense/image_points2_color"
+#define POINTCLOUD_PUB_NAME "/object_registration_interest_box/boxed_points"
 
 #define X_SIZE_ARROW_1 "arrow_x"
 #define Y_SIZE_ARROW_1 "arrow_y"
 #define Z_SIZE_ARROW_1 "arrow_z"
 
+
+typedef pcl::PointXYZRGB PointRGB;
+typedef pcl::PointCloud<PointRGB> PointCloudRGB;
+
 //true if Ctrl-C is pressed
-bool g_caught_sigint=false;
+bool g_caught_sigint = false;
+
+ros::Publisher  pointcloud_pub;
 
 boost::shared_ptr<interactive_markers::InteractiveMarkerServer> server;
 visualization_msgs::Marker interest_box_marker;
 
 
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+
+
+PointCloudRGB::Ptr cloud(new PointCloudRGB);
+PointCloudRGB::Ptr boxed_cloud (new PointCloudRGB);
 boost::mutex cloud_mutex;
+
+bool found_transform = false;
+tf::StampedTransform transform;
+tf::TransformListener *tf_listener;
 
 // what happens when Ctrl-c is pressed
 void sig_handler(int sig)
@@ -201,8 +224,108 @@ void processFeedbackArrow(const visualization_msgs::InteractiveMarkerFeedbackCon
   server->applyChanges();
 }
 
+void TFlookupOnce(){
+  if (!found_transform){
+    while (ros::ok()){
+          try{
+          // Look up transform
+            tf_listener->lookupTransform(MARKER_FRAME, cloud->header.frame_id, ros::Time(0), transform);
+            found_transform = true;
+          break;
+          }
+          //keep trying until we get the transform
+          catch (tf::TransformException &ex){
+            ROS_ERROR_THROTTLE(2,"%s",ex.what());
+            ROS_WARN_THROTTLE(2, "   Waiting for tf to transform desired SAC axis to point cloud frame. trying again");
+          }
+    }
+  }
 
-void getCloudinBox(){ 
+}
+
+
+bool getCloudinBox(){
+  // Clear the points
+  boxed_cloud->points.clear();  
+  PointCloudRGB::Ptr cloud_in_world_frame (new PointCloudRGB);  
+
+  tf::StampedTransform transform;
+  int attempts = 0;
+  while (ros::ok()){
+      try{
+          if (attempts == 10){
+            ROS_ERROR("Cannot Get transform for the pointcloud after 10 attempts");
+            return false;
+            break;
+          }
+        // Look up transform
+        tf_listener->lookupTransform(MARKER_FRAME, cloud->header.frame_id, ros::Time(0), transform);
+        pcl_ros::transformPointCloud((*cloud), (*cloud_in_world_frame), transform);          
+      break;
+      }
+      //keep trying until we get the transform
+      catch (tf::TransformException &ex){
+        ROS_ERROR_THROTTLE(2,"%s",ex.what());
+        ROS_WARN_THROTTLE(2, "   Waiting for tf to transform desired SAC axis to point cloud frame. trying again");
+        ros::Duration(1.0).sleep();
+        attempts++;
+      }
+  }
+
+  // Grab the state of the bounding box
+  visualization_msgs::InteractiveMarker int_box_marker;
+  visualization_msgs::Marker box;
+  geometry_msgs::Pose box_pose;
+  server->get(MARKER_NAME, int_box_marker);
+
+
+  // Create copies
+  box = int_box_marker.controls[0].markers[1];  
+  box_pose = int_box_marker.pose;
+
+  // Set axis-aligned min and max for the filter
+  double x_min = (box_pose.position.x - (box.scale.x/2.0));
+  double x_max = (box_pose.position.x + (box.scale.x/2.0));  
+
+  double y_min = (box_pose.position.y - (box.scale.y/2.0));
+  double y_max = (box_pose.position.y + (box.scale.y/2.0));  
+
+  double z_min = (box_pose.position.z - (box.scale.z/2.0));
+  double z_max = (box_pose.position.z + (box.scale.z/2.0));  
+
+  // Create Containers for each filter iteration
+  PointCloudRGB::Ptr x_filtered (new PointCloudRGB);
+  PointCloudRGB::Ptr y_filtered (new PointCloudRGB);  
+
+  // Create the filtering object
+  pcl::PassThrough<PointRGB> pass;
+  // Filter x dimension:
+  pass.setInputCloud (cloud_in_world_frame);
+  pass.setFilterFieldName ("x");
+  pass.setFilterLimits (x_min , x_max);
+  pass.filter (*x_filtered);
+
+  // Filter y dimension:
+  pass.setInputCloud (x_filtered);
+  pass.setFilterFieldName ("y");
+  pass.setFilterLimits (y_min , y_max);
+  pass.filter (*y_filtered);
+
+  // Filter z dimension:
+  pass.setInputCloud (y_filtered);  
+  pass.setFilterFieldName ("z");
+  pass.setFilterLimits (z_min , z_max);
+  pass.filter (*boxed_cloud);  
+
+  // Update the header
+  boxed_cloud->header = (*cloud).header; 
+  boxed_cloud->header.frame_id = MARKER_FRAME;
+  std::cout << "Frame to publish: " <<  boxed_cloud->header.frame_id << std::endl;
+
+  ROS_INFO("Filtered Cloud has: %zu points", boxed_cloud->points.size());
+
+  pointcloud_pub.publish(boxed_cloud);
+  return true;
 }
 
 void getRelativePose(std::string hand_side){ 
@@ -218,6 +341,7 @@ void cloud_callback(const sensor_msgs::PointCloud2::ConstPtr& msg){
   cloud_mutex.unlock();   // Unlock Mutex
 
   ROS_INFO("Pointcloud has %zu points", cloud->points.size());
+  //getCloudinBox();
 }
 
 int main(int argc, char** argv)
@@ -236,6 +360,10 @@ int main(int argc, char** argv)
   ros::Subscriber  pointcloud_sub;
   pointcloud_sub = nh.subscribe<sensor_msgs::PointCloud2>(DEFAULT_POINTCLOUD_SUB, 10, cloud_callback);    
 
+  // Declare Publishers
+  pointcloud_pub = nh.advertise<sensor_msgs::PointCloud2>(POINTCLOUD_PUB_NAME, 0);
+
+  tf_listener = new tf::TransformListener;
 
   //register ctrl-c
   signal(SIGINT, sig_handler);
