@@ -15,6 +15,9 @@
   <!-- Publish Sole Frames -->
   <include file="$(find val_logic_manager)/launch/soleFrame_static_tf.launch"/>
 
+  <!-- Run Self Filter and Object Registration Nodes -->
+  <include file="$(find val_logic_manager)/launch/self_filter_and_object_registration_nodes.launch"/>
+
   <!-- Run RVIZ -->
   <include file="$(find val_logic_manager)/launch/val_ik_viz.launch"/>
 

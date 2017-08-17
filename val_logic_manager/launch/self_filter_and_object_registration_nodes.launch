@@ -1,0 +1,9 @@
+<launch>
+  <!-- Add the self filtering node -->
+  <include file="$(find robot_self_filter)/launch/robot_self_filter.launch"/>
+  <!-- Run Object Registration Python GUI-->
+  <node name="simple_object_reg_gui" pkg="object_registration" type="GUI_registration.py" output="screen"/>
+  <!-- Run Object Interest Box Marker Node-->
+  <node name="object_registration_interest_box" pkg="object_registration" type="interest_box_marker" output="screen"/>
+
+</launch>

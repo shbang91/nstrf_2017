@@ -6,13 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /TrueRobotModel1
-        - /TF1
         - /TF1/Frames1
-        - /InteractiveMarkers1
-        - /IK_finalPose1
-        - /Axes2
-        - /Axes3
       Splitter Ratio: 0.5
     Tree Height: 935
   - Class: rviz/Selection
@@ -33,7 +27,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: multisensePC
 Visualization Manager:
   Class: ""
   Displays:
@@ -1891,14 +1885,14 @@ Visualization Manager:
     - Class: rviz/Axes
       Enabled: true
       Length: 0.5
-      Name: Axes
+      Name: rightPalm
       Radius: 0.01
       Reference Frame: val_ik_finalpose_robot/rightPalm
       Value: true
     - Class: rviz/Axes
       Enabled: true
       Length: 0.25
-      Name: Axes
+      Name: imFrame
       Radius: 0.05
       Reference Frame: basic_controls/im_frame
       Value: true
@@ -1922,13 +1916,13 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
       Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: PointCloud2
+      Name: multisensePC
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
@@ -1939,7 +1933,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Arrow Length: 0.3
       Class: rviz/PoseArray
       Color: 255; 25; 0
@@ -1969,8 +1963,107 @@ Visualization Manager:
       Marker Topic: /visualize_footstep_teleop
       Name: Footstep Visualization
       Namespaces:
-        visualize_footstep_cmds: true
+        {}
       Queue Size: 100
+      Value: true
+    - Class: rviz/InteractiveMarkers
+      Enable Transparency: true
+      Enabled: false
+      Name: interest_box
+      Show Axes: false
+      Show Descriptions: true
+      Show Visual Aids: false
+      Update Topic: /simple_marker/update
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: selfFiltered
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Flat Squares
+      Topic: /self_filter/output
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 85; 255; 127
+      Color Transformer: FlatColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: boxedPoints
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Flat Squares
+      Topic: /object_registration_interest_box/boxed_points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 0
+      Color Transformer: FlatColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: storedPoints
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Flat Squares
+      Topic: /object_registration_interest_box/stored_points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
       Value: true
   Enabled: true
   Global Options:
@@ -1996,22 +2089,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.68821
+      Distance: 3.99338
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.962048
-        Y: 0.579923
-        Z: 0.251164
+        X: 0.371671
+        Y: 0.214458
+        Z: 1.05482
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.239797
+      Pitch: 0.229797
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.331015
+      Yaw: 0.576017
     Saved: ~
 Window Geometry:
   Displays:

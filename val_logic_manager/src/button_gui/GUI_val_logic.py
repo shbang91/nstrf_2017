@@ -85,7 +85,7 @@ class ValGui(QtGui.QWidget):
       # Show the GUI 
       self.adjustSize()
       self.setWindowTitle("GUI Val Logic")
-      self.move(400,400)
+      self.move(400,100)
       self.show()
       self.raise_()
 

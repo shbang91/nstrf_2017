@@ -52,8 +52,7 @@ class ValGui(QtGui.QWidget):
 
       # Set Commands
       self.commands = [GET_CLOUD_IN_BOX_GUI_STRING,
-                       STORE_CACHED_CLOUD_GUI_STRING,
-                       INPUT_FILENAME_GUI_STRING
+                       STORE_CACHED_CLOUD_GUI_STRING
                        ] 
       
       positions = [(i,j) for i in range(len(self.commands)) for j in range(1)]
@@ -72,7 +71,7 @@ class ValGui(QtGui.QWidget):
       # Show the GUI 
       self.adjustSize()
       self.setWindowTitle("GUI Object Registration")
-      self.move(400,400)
+      self.move(200,100)
       self.show()
       self.raise_()
 
@@ -82,14 +81,20 @@ class ValGui(QtGui.QWidget):
       rospy.loginfo("Finished initializing GUI Object Registration")
 
   def gettext(self):
-    text, ok = QInputDialog.getText(self, 'Set a text', 'Enter a text:')
+    text, ok = QInputDialog.getText(self, 'Set a text', 'Enter a filename for saving this pointcloud data:')
 
     if ok:
       print "    Your filename input:", text
       new_filename = str(text)
-      if not(".pcd" in text):
+      if (len(new_filename) == 0):
+        print("    You entered an empty filename. using default name as: boxed_cloud.pcd")
+        new_filename = "boxed_cloud.pcd"
+
+      if not(".pcd" in new_filename):
         print "    Your filename did not contain .pcd, the program will manually add it"
         new_filename = str(text) + ".pcd"
+
+
 
       old_name = rospy.get_param('/object_registration_interest_box/filename', "no_param_found")
       print "    Filename was previously set to:", old_name
@@ -113,6 +118,7 @@ class ValGui(QtGui.QWidget):
       if command == GET_CLOUD_IN_BOX_GUI_STRING: 
         string_cmd = GET_CLOUD_IN_BOX
       elif command == STORE_CACHED_CLOUD_GUI_STRING: 
+        self.gettext()
         string_cmd = STORE_CACHED_CLOUD
       elif command == INPUT_FILENAME_GUI_STRING:
         #string_cmd = INPUT_FILENAME

@@ -17,7 +17,7 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/io/pcd_io.h>
 
-#define MARKER_FRAME "multisense/world_frame"
+#define MARKER_FRAME "world"
 #define MARKER_NAME "interestBox"
 
 #define DEFAULT_POINTCLOUD_SUB "/multisense/image_points2_color"
