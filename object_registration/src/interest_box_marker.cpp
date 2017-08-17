@@ -308,7 +308,26 @@ bool getCloudinBox(){
 void getRelativePose(std::string hand_side){ 
 }
 
-void storeCloudandRelativePose(){
+bool storeCloudInfo(){
+    if (!cloud->points.size() > 0){
+      ROS_ERROR("point cloud is empty");
+      return false;
+    }  
+    std::string package_path = ros::package::getPath("object_registration");
+    std::string savepath = package_path + "/pcd_save_files";
+
+    try{
+      // Save Transformed Cloud
+      pcl::io::savePCDFileASCII (package_path + "/pcd_saved_files/boxed_cloud.pcd", *cloud);
+    }
+      //keep trying until we get the transform
+    catch (pcl::IOException& pcl_ex){//(...){
+      ROS_ERROR("Caught PCL exception. Cannot open the directory to save the file");
+      return false;
+    }
+
+    return true;
+
 }
 
 
@@ -322,12 +341,16 @@ void cloud_callback(const sensor_msgs::PointCloud2::ConstPtr& msg){
 }
 
 void command_callback(const std_msgs::String::ConstPtr& msg){
-  std::string get_cloud_in_box;   get_cloud_in_box = "get_cloud_in_box";
+  std::string get_cloud_in_box;     get_cloud_in_box = "get_cloud_in_box";
+  std::string store_cached_cloud;   store_cached_cloud = "store_cached_cloud";  
 
 
   if (get_cloud_in_box.compare(msg->data) == 0){
     ROS_INFO("Getting Cloud within the Box");
     getCloudinBox();  
+  }else if (store_cached_cloud.compare(msg->data) == 0){
+    ROS_INFO("Storing Cloud within the Box");
+    storeCloudInfo();      
   }
 
 }
