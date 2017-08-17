@@ -69,5 +69,8 @@ target_link_libraries(object_pose_estimate_iss_keypoints_and_icp ${catkin_LIBRAR
 add_executable(interest_box_marker src/interest_box_marker.cpp)
 target_link_libraries(interest_box_marker ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
+add_executable(yaml-cpp_test src/yaml-cpp_test.cpp)
+target_link_libraries(yaml-cpp_test ${catkin_LIBRARIES} yaml-cpp)
+
 
 

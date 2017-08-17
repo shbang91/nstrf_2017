@@ -1,4 +1,5 @@
 #include <signal.h>
+#include "yaml-cpp/yaml.h"
 
 #include <ros/ros.h>
 #include <ros/package.h>
