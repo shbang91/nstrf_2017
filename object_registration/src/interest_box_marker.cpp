@@ -22,6 +22,7 @@
 
 #define DEFAULT_POINTCLOUD_SUB "/multisense/image_points2_color"
 #define POINTCLOUD_PUB_NAME "/object_registration_interest_box/boxed_points"
+#define STORED_CLOUD_PUB_NAME "/object_registration_interest_box/stored_points"
 
 #define X_SIZE_ARROW_1 "arrow_x"
 #define Y_SIZE_ARROW_1 "arrow_y"
@@ -35,6 +36,7 @@ typedef pcl::PointCloud<PointRGB> PointCloudRGB;
 bool g_caught_sigint = false;
 boost::mutex cloud_mutex;
 ros::Publisher  pointcloud_pub;
+ros::Publisher  storedcloud_pub;
 tf::TransformListener *tf_listener;
 
 boost::shared_ptr<interactive_markers::InteractiveMarkerServer> server;
@@ -42,6 +44,7 @@ visualization_msgs::Marker interest_box_marker;
 
 PointCloudRGB::Ptr cloud(new PointCloudRGB);
 PointCloudRGB::Ptr boxed_cloud (new PointCloudRGB);
+std::string stored_cloud_topic = STORED_CLOUD_PUB_NAME;
 
 // what happens when Ctrl-c is pressed
 void sig_handler(int sig)
@@ -308,17 +311,41 @@ bool getCloudinBox(){
 void getRelativePose(std::string hand_side){ 
 }
 
+bool loadStoredCloud(){
+  PointCloudRGB::Ptr  stored_pc(new PointCloudRGB);
+  try{
+    // Save Transformed Cloud
+    std::string package_path = ros::package::getPath("object_registration");
+    std::string savepath = package_path + "/pcd_saved_files";
+    pcl::io::loadPCDFile (package_path + "/pcd_saved_files/boxed_cloud.pcd", *stored_pc);
+    ROS_INFO("Successfully loaded the point cloud");
+    ROS_INFO("Visualizing on the topic %s", stored_cloud_topic.c_str());      
+    
+    stored_pc->header.frame_id = MARKER_FRAME;
+    stored_pc->header.stamp = ros::Time::now().toNSec() / 1000ull; // Convert from ns to us
+    storedcloud_pub.publish(stored_pc);
+  }
+    //keep trying until we get the transform
+  catch (pcl::IOException& pcl_ex){//(...){
+    ROS_ERROR("Caught PCL exception. Cannot open the directory to save the file");
+    return false;
+  }
+  return true;
+}
+
 bool storeCloudInfo(){
     if (!cloud->points.size() > 0){
       ROS_ERROR("point cloud is empty");
       return false;
     }  
     std::string package_path = ros::package::getPath("object_registration");
-    std::string savepath = package_path + "/pcd_save_files";
+    std::string savepath = package_path + "/pcd_saved_files";
 
     try{
       // Save Transformed Cloud
-      pcl::io::savePCDFileASCII (package_path + "/pcd_saved_files/boxed_cloud.pcd", *cloud);
+      pcl::io::savePCDFileASCII (package_path + "/pcd_saved_files/boxed_cloud.pcd", *boxed_cloud);
+      ROS_INFO("Successfully saved the point clouds in the boxed region");
+      loadStoredCloud();
     }
       //keep trying until we get the transform
     catch (pcl::IOException& pcl_ex){//(...){
@@ -376,6 +403,7 @@ int main(int argc, char** argv)
 
   // Declare Publishers
   pointcloud_pub = nh.advertise<sensor_msgs::PointCloud2>(POINTCLOUD_PUB_NAME, 0);
+  storedcloud_pub = nh.advertise<sensor_msgs::PointCloud2>(STORED_CLOUD_PUB_NAME, 0);
 
   tf_listener = new tf::TransformListener;
 
