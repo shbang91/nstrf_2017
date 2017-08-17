@@ -13,6 +13,7 @@ INVALID_CMD = "invalid_cmd"
 
 GET_CLOUD_IN_BOX, GET_CLOUD_IN_BOX_GUI_STRING  = "get_cloud_in_box", "Get Boxed Cloud"
 STORE_CACHED_CLOUD, STORE_CACHED_CLOUD_GUI_STRING   = "store_cached_cloud", "Store Cached Cloud"
+INPUT_FILENAME, INPUT_FILENAME_GUI_STRING   = "input_filename", "Set Filename"
 
 
 # ----- Start ------
@@ -27,6 +28,7 @@ from std_msgs.msg import String
 from std_msgs.msg import Int8
 from PyQt4.QtCore import QTimer
 from PyQt4 import QtGui, QtCore
+from PyQt4.QtGui import QInputDialog
 
 class ValGui(QtGui.QWidget):
 
@@ -50,7 +52,8 @@ class ValGui(QtGui.QWidget):
 
       # Set Commands
       self.commands = [GET_CLOUD_IN_BOX_GUI_STRING,
-                       STORE_CACHED_CLOUD_GUI_STRING
+                       STORE_CACHED_CLOUD_GUI_STRING,
+                       INPUT_FILENAME_GUI_STRING
                        ] 
       
       positions = [(i,j) for i in range(len(self.commands)) for j in range(1)]
@@ -78,6 +81,23 @@ class ValGui(QtGui.QWidget):
 
       rospy.loginfo("Finished initializing GUI Object Registration")
 
+  def gettext(self):
+    text, ok = QInputDialog.getText(self, 'Set a text', 'Enter a text:')
+
+    if ok:
+      print "    Your filename input:", text
+      new_filename = str(text)
+      if not(".pcd" in text):
+        print "    Your filename did not contain .pcd, the program will manually add it"
+        new_filename = str(text) + ".pcd"
+
+      old_name = rospy.get_param('/object_registration_interest_box/filename', "no_param_found")
+      print "    Filename was previously set to:", old_name
+      rospy.set_param('/object_registration_interest_box/filename', new_filename)
+      new_name = rospy.get_param('/object_registration_interest_box/filename', "no_param_found")
+      print "    Filename is now set to:", new_name
+
+
   # Button handler after its clicked
   def handleButton(self):
       clicked_button = self.sender()
@@ -94,6 +114,10 @@ class ValGui(QtGui.QWidget):
         string_cmd = GET_CLOUD_IN_BOX
       elif command == STORE_CACHED_CLOUD_GUI_STRING: 
         string_cmd = STORE_CACHED_CLOUD
+      elif command == INPUT_FILENAME_GUI_STRING:
+        #string_cmd = INPUT_FILENAME
+        send_command = False
+        self.gettext()
       else:
         string_cmd = INVALID_CMD
       
