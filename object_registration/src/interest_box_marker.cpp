@@ -24,6 +24,8 @@
 #define POINTCLOUD_PUB_NAME "/object_registration_interest_box/boxed_points"
 #define STORED_CLOUD_PUB_NAME "/object_registration_interest_box/stored_points"
 
+#define DEFAULT_PC_NAME "boxed_cloud.pcd"
+
 #define X_SIZE_ARROW_1 "arrow_x"
 #define Y_SIZE_ARROW_1 "arrow_y"
 #define Z_SIZE_ARROW_1 "arrow_z"
@@ -313,11 +315,15 @@ void getRelativePose(std::string hand_side){
 
 bool loadStoredCloud(){
   PointCloudRGB::Ptr  stored_pc(new PointCloudRGB);
+  std::string package_path = ros::package::getPath("object_registration");
+  std::string savepath = package_path + "/pcd_saved_files/";
   try{
     // Save Transformed Cloud
-    std::string package_path = ros::package::getPath("object_registration");
-    std::string savepath = package_path + "/pcd_saved_files";
-    pcl::io::loadPCDFile (package_path + "/pcd_saved_files/boxed_cloud.pcd", *stored_pc);
+    ros::NodeHandle private_nh("~");      
+    std::string filename;
+    private_nh.param<std::string>("filename", filename, DEFAULT_PC_NAME);
+
+    pcl::io::loadPCDFile (savepath + filename, *stored_pc);
     ROS_INFO("Successfully loaded the point cloud");
     ROS_INFO("Visualizing on the topic %s", stored_cloud_topic.c_str());      
     
@@ -339,11 +345,15 @@ bool storeCloudInfo(){
       return false;
     }  
     std::string package_path = ros::package::getPath("object_registration");
-    std::string savepath = package_path + "/pcd_saved_files";
+    std::string savepath = package_path + "/pcd_saved_files/";
 
     try{
+      ros::NodeHandle private_nh("~");      
+      std::string filename;
+      private_nh.param<std::string>("filename", filename, DEFAULT_PC_NAME);
+
       // Save Transformed Cloud
-      pcl::io::savePCDFileASCII (package_path + "/pcd_saved_files/boxed_cloud.pcd", *boxed_cloud);
+      pcl::io::savePCDFileASCII (savepath + filename, *boxed_cloud);
       ROS_INFO("Successfully saved the point clouds in the boxed region");
       loadStoredCloud();
     }
