@@ -100,7 +100,12 @@ class ValGui(QtGui.QWidget):
       print "    Filename was previously set to:", old_name
       rospy.set_param('/object_registration_interest_box/filename', new_filename)
       new_name = rospy.get_param('/object_registration_interest_box/filename', "no_param_found")
+      rospy.loginfo("filename parameter successfully changed")
       print "    Filename is now set to:", new_name
+      return True
+    else:
+      rospy.loginfo("Canceled Prompt")
+      return False
 
 
   # Button handler after its clicked
@@ -118,8 +123,11 @@ class ValGui(QtGui.QWidget):
       if command == GET_CLOUD_IN_BOX_GUI_STRING: 
         string_cmd = GET_CLOUD_IN_BOX
       elif command == STORE_CACHED_CLOUD_GUI_STRING: 
-        self.gettext()
-        string_cmd = STORE_CACHED_CLOUD
+        if(self.gettext()):
+          string_cmd = STORE_CACHED_CLOUD
+        else:
+          send_command = False
+
       elif command == INPUT_FILENAME_GUI_STRING:
         #string_cmd = INPUT_FILENAME
         send_command = False
@@ -127,12 +135,13 @@ class ValGui(QtGui.QWidget):
       else:
         string_cmd = INVALID_CMD
       
-      rospy.loginfo(command)
-
       if send_command:
+        rospy.loginfo(command)
         msg = String()
         msg.data = string_cmd
         self.pub.publish(msg)
+      else:
+        rospy.loginfo(string_cmd)
 
 # def gui_start():
 #     app = QtGui.QApplication(sys.argv)
