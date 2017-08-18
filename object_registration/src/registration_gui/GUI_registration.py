@@ -13,7 +13,9 @@ INVALID_CMD = "invalid_cmd"
 
 GET_CLOUD_IN_BOX, GET_CLOUD_IN_BOX_GUI_STRING  = "get_cloud_in_box", "Get Boxed Cloud"
 STORE_CACHED_CLOUD, STORE_CACHED_CLOUD_GUI_STRING   = "store_cached_cloud", "Store Cached Cloud"
-INPUT_FILENAME, INPUT_FILENAME_GUI_STRING   = "input_filename", "Set Filename"
+LOAD_OBJ, LOAD_OBJ_GUI_STRING   = "load_object", "Load Object"
+OBJ_POSE_ESTIMATE, OBJ_POSE_ESTIMATE_GUI_STRING = "obj_pose_estimate", "Object Pose Estimate"
+
 
 
 # ----- Start ------
@@ -30,7 +32,7 @@ from PyQt4.QtCore import QTimer
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtGui import QInputDialog
 
-class ValGui(QtGui.QWidget):
+class ObjRegGui(QtGui.QWidget):
 
   def __init__(self):
       QtGui.QWidget.__init__(self)
@@ -52,7 +54,9 @@ class ValGui(QtGui.QWidget):
 
       # Set Commands
       self.commands = [GET_CLOUD_IN_BOX_GUI_STRING,
-                       STORE_CACHED_CLOUD_GUI_STRING
+                       STORE_CACHED_CLOUD_GUI_STRING,
+                       LOAD_OBJ_GUI_STRING,
+                       OBJ_POSE_ESTIMATE_GUI_STRING
                        ] 
       
       positions = [(i,j) for i in range(len(self.commands)) for j in range(1)]
@@ -81,7 +85,7 @@ class ValGui(QtGui.QWidget):
       rospy.loginfo("Finished initializing GUI Object Registration")
 
   def gettext(self):
-    text, ok = QInputDialog.getText(self, 'Set a text', 'Enter a filename for saving this pointcloud data:')
+    text, ok = QInputDialog.getText(self, 'Store Boxed Pointcloud', 'Enter a filename for saving this pointcloud data:')
 
     if ok:
       print "    Your filename input:", text
@@ -107,6 +111,17 @@ class ValGui(QtGui.QWidget):
       rospy.loginfo("Canceled Prompt")
       return False
 
+  def load_pcd_data(self):
+    text, ok = QInputDialog.getText(self, 'Load Stored Pointcloud', 'Enter the filename of previously stored point cloud:')      
+    if ok:
+      print "    Your filename input:", text
+      load_filename = str(text)
+      # Change rosparam here
+      return True
+    else:
+      rospy.loginfo("Canceled Prompt")
+      return False
+
 
   # Button handler after its clicked
   def handleButton(self):
@@ -127,11 +142,14 @@ class ValGui(QtGui.QWidget):
           string_cmd = STORE_CACHED_CLOUD
         else:
           send_command = False
+      elif command == LOAD_OBJ_GUI_STRING:  
+        if(self.load_pcd_data()):
+          string_cmd = LOAD_OBJ
+        else:
+          send_command = False
 
-      elif command == INPUT_FILENAME_GUI_STRING:
-        #string_cmd = INPUT_FILENAME
-        send_command = False
-        self.gettext()
+      elif command == OBJ_POSE_ESTIMATE_GUI_STRING:  
+        string_cmd = OBJ_POSE_ESTIMATE
       else:
         string_cmd = INVALID_CMD
       
@@ -145,7 +163,7 @@ class ValGui(QtGui.QWidget):
 
 # def gui_start():
 #     app = QtGui.QApplication(sys.argv)
-#     sg = ValGui()
+#     sg = ObjRegGui()
 #     sys.exit(app.exec_())
 
 
@@ -163,6 +181,6 @@ if __name__ == "__main__":
   timer.start(100)  # You may change this if you wish.
   timer.timeout.connect(lambda: None)  # Let the interpreter run each 100 ms.
 
-  sg = ValGui()
+  sg = ObjRegGui()
   sys.exit(app.exec_())
 
