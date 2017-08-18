@@ -19,11 +19,16 @@
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
+#include <pcl_ros/impl/transforms.hpp>
+#include <pcl_ros/point_cloud.h>
+
 #include <pcl/common/transforms.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/kdtree/kdtree.h>
 
 #include "object_registration/ObjectLocalize.h"
+
+#define PCL_VISUALIZE false
 
 // Types
 typedef pcl::PointNormal PointNT;
@@ -60,7 +65,7 @@ void run_icp_on_pc(const PointCloudT::Ptr& cloud_in,
   std::cout << icp_transform_out << std::endl;
 }
 
-int object_localize(PointCloudT::Ptr& object_in, PointCloudT::Ptr& scene_in){
+bool object_localize(PointCloudT::Ptr& object_in, PointCloudT::Ptr& scene_in){
   // Point clouds
   PointCloudT::Ptr object (new PointCloudT);
   PointCloudT::Ptr object_aligned (new PointCloudT);
@@ -174,22 +179,26 @@ int object_localize(PointCloudT::Ptr& object_in, PointCloudT::Ptr& scene_in){
 
     //pcl::transformPointCloud (*object_aligned, *icp_transformed_cloud, icp_transform_out);
 
-    // Show alignment
-    pcl::visualization::PCLVisualizer visu("Alignment");
-    visu.addPointCloud (scene, ColorHandlerT (scene, 0.0, 255.0, 0.0), "scene");
-    visu.addPointCloud (object_aligned, ColorHandlerT (object_aligned, 0.0, 0.0, 255.0), "object_aligned");
-    visu.addPointCloud (icp_transformed_cloud, ColorHandlerT (icp_transformed_cloud, 255.0, 0.0, 255.0), "icp_object_aligned");
-    visu.addPointCloud (inliers_cloud, ColorHandlerT (inliers_cloud, 255.0, 255.0, 0.0), "object_inliers");    
 
-    visu.spin ();
+    if (PCL_VISUALIZE){
+      // Show alignment
+      pcl::visualization::PCLVisualizer visu("Alignment");
+      visu.addPointCloud (scene, ColorHandlerT (scene, 0.0, 255.0, 0.0), "scene");
+      visu.addPointCloud (object_aligned, ColorHandlerT (object_aligned, 0.0, 0.0, 255.0), "object_aligned");
+      visu.addPointCloud (icp_transformed_cloud, ColorHandlerT (icp_transformed_cloud, 255.0, 0.0, 255.0), "icp_object_aligned");
+      visu.addPointCloud (inliers_cloud, ColorHandlerT (inliers_cloud, 255.0, 255.0, 0.0), "object_inliers");    
+      visu.spin ();
+    }
+
+    return true;
   }
   else
   {
     pcl::console::print_error ("Alignment failed!\n");
-    return (1);
+    return true;
   }
   
-  return (0);
+  return false;
 }
 
 // Test
@@ -213,8 +222,13 @@ bool localize_service(object_registration::ObjectLocalize::Request  &req,
   ROS_INFO("sending back response: [%ld]", (long int)res.sum);*/
 
   ROS_INFO("Service requested");
+  PointCloudT::Ptr object_in (new PointCloudT);
+  PointCloudT::Ptr scene_in (new PointCloudT);
 
-  return true;
+  pcl::fromROSMsg(req.object_cloud, *object_in);   // Perform Copy
+  pcl::fromROSMsg(req.target_cloud, *scene_in);   // Perform Copy  
+
+  return  object_localize(object_in, scene_in);
 }
 
 // Align a rigid object to a scene with clutter and occlusions

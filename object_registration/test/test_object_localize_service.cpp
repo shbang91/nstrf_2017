@@ -31,8 +31,9 @@ bool call_localize_object_service(PointCloudT::Ptr object_in, PointCloudT::Ptr s
 
     pcl::toROSMsg(*object_in, object_msg);
     pcl::toROSMsg(*scene_in, scene_msg);    
-/*    srv.request.a = atoll(argv[1]);
-    srv.request.b = atoll(argv[2]);*/
+    srv.request.object_cloud = object_msg;
+    srv.request.target_cloud = scene_msg;
+
 
     ROS_INFO("Calling service");
     if (object_localize_client.call(srv)){
