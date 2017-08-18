@@ -1,0 +1,4 @@
+sensor_msgs/PointCloud2 object_cloud
+sensor_msgs/PointCloud2 target_cloud
+---
+geometry_msgs/Pose pose_offset
