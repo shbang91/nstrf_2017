@@ -1,15 +1,15 @@
 object_name: hammer
 box_marker_pose:
-  - position:
-      - x: 0.1
-      - y: 0.2
-      - z: 0.3
-  - orientation:
-      - x: 0
-      - y: 0
-      - z: 0
-      - w: 1
+  position:
+    x: 0.1
+    y: 0.2
+    z: 0.3
+  orientation:
+    x: 1.1
+    y: 2.2
+    z: 3.3
+    w: 4.4
 box_marker_size:
   scale_x: 1
-  scale_y: 1
-  scale_z: 1
+  scale_y: 2
+  scale_z: 3

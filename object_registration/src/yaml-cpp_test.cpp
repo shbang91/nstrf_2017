@@ -48,32 +48,30 @@ bool test_nested_maps_yaml_emit(std::string filename){
         YAML::Emitter out;
         out << YAML::BeginMap;
         out << YAML::Key << "object_name" << YAML::Value << "hammer";
-        out << YAML::Key << "box_marker_pose"
-            << YAML::Value  << YAML::BeginSeq 
-                                << YAML::BeginMap                       
-                                << YAML::Key << "position" 
-                                << YAML::Value << YAML::BeginSeq 
-                                                    << YAML::BeginMap << YAML::Key << "x" << YAML::Value << 0.1 << YAML::EndMap 
-                                                    << YAML::BeginMap << YAML::Key << "y" << YAML::Value << 0.2 << YAML::EndMap
-                                                    << YAML::BeginMap << YAML::Key << "z" << YAML::Value << 0.3 << YAML::EndMap
-                                               << YAML::EndSeq 
-                                << YAML::EndMap
+        out << YAML::Key << "box_marker_pose" << YAML::Value 
+            << YAML::BeginMap                       
+                 << YAML::Key << "position" << YAML::Value 
+                    << YAML::BeginMap 
+                        << YAML::Key << "x" << YAML::Value << 0.1  
+                        << YAML::Key << "y" << YAML::Value << 0.2 
+                        << YAML::Key << "z" << YAML::Value << 0.3 
+                    << YAML::EndMap                               
+                  << YAML::Key << "orientation" 
+                    << YAML::Value << YAML::BeginMap 
+                        << YAML::Key << "x" << YAML::Value << 1.1 
+                        << YAML::Key << "y" << YAML::Value << 2.2
+                        << YAML::Key << "z" << YAML::Value << 3.3 
+                        << YAML::Key << "w" << YAML::Value << 4.4                                                         
+                    << YAML::EndMap                           
+            << YAML::EndMap;
 
-                                << YAML::BeginMap                       
-                                << YAML::Key << "orientation" 
-                                << YAML::Value << YAML::BeginSeq 
-                                                    << YAML::BeginMap << YAML::Key << "x" << YAML::Value << 0.0 << YAML::EndMap 
-                                                    << YAML::BeginMap << YAML::Key << "y" << YAML::Value << 0.0 << YAML::EndMap
-                                                    << YAML::BeginMap << YAML::Key << "z" << YAML::Value << 0.0 << YAML::EndMap
-                                                    << YAML::BeginMap << YAML::Key << "w" << YAML::Value << 1.0 << YAML::EndMap
-                                               << YAML::EndSeq 
-                                << YAML::EndMap
-                            << YAML::EndSeq;
-        out << YAML::Key << "box_marker_size"
-            << YAML::Value << YAML::BeginMap << YAML::Key << "scale_x" << YAML::Value << 1.0  
-                                             << YAML::Key << "scale_y" << YAML::Value << 1.0 
-                                             << YAML::Key << "scale_z" << YAML::Value << 1.0 
-                            << YAML::EndMap;
+        out << YAML::Key << "box_marker_size" << YAML::Value 
+            << YAML::BeginMap 
+                << YAML::Key << "scale_x" << YAML::Value << 1.0  
+                << YAML::Key << "scale_y" << YAML::Value << 2.0 
+                << YAML::Key << "scale_z" << YAML::Value << 3.0 
+            << YAML::EndMap;
+        
         out << YAML::EndMap;
         std::cout << "Here's the output YAML:\n" << out.c_str() << std::endl; // prints "out the yaml contents
 
@@ -93,19 +91,30 @@ bool read_nested_maps_yaml(std::string filename){
         YAML::Node baseNode = YAML::LoadFile(filename);
 
         YAML::Node box_marker_pose_node = baseNode["box_marker_pose"];
-        YAML::Node position = box_marker_pose_node[0]["position"];
+        YAML::Node position = box_marker_pose_node["position"];
+        YAML::Node orientation = box_marker_pose_node["orientation"];        
 
-        double x = position[0]["x"].as<double>();
-        double y = position[1]["y"].as<double>();
-        double z = position[2]["z"].as<double>();
+        double pos_x = position["x"].as<double>();
+        double pos_y = position["y"].as<double>();
+        double pos_z = position["z"].as<double>();
 
-        std::cout << x << " " << y << " " << z << std::endl;
+        std::cout << "position x: " << pos_x << std::endl;
+        std::cout << "position y "  << pos_y << std::endl;
+        std::cout << "position z "  << pos_z << std::endl;       
 
-        for(size_t i = 0; i < box_marker_pose_node.size(); i ++){
-            std::cout << i << std::endl;
+        double or_x = orientation["x"].as<double>();
+        double or_y = orientation["y"].as<double>();
+        double or_z = orientation["z"].as<double>();
+        double or_w = orientation["w"].as<double>();
 
-        }
+        std::cout << "position x: " << pos_x << std::endl;
+        std::cout << "position y "  << pos_y << std::endl;
+        std::cout << "position z "  << pos_z << std::endl;       
 
+        std::cout << "orientation x: " << or_x << std::endl;
+        std::cout << "orientation y "  << or_y << std::endl;
+        std::cout << "orientation z "  << or_z << std::endl;       
+        std::cout << "orientation z "  << or_w << std::endl;       
 
         YAML::Node box_marker_size = baseNode["box_marker_size"];
         double size_x = box_marker_size["scale_x"].as<double>();
