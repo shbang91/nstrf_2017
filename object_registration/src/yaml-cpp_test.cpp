@@ -42,9 +42,94 @@ bool read_yaml_file(){
     }   
 }
 
+
+bool test_nested_maps_yaml_emit(std::string filename){
+    try{
+        YAML::Emitter out;
+        out << YAML::BeginMap;
+        out << YAML::Key << "object_name" << YAML::Value << "hammer";
+        out << YAML::Key << "box_marker_pose"
+            << YAML::Value  << YAML::BeginSeq 
+                                << YAML::BeginMap                       
+                                << YAML::Key << "position" 
+                                << YAML::Value << YAML::BeginSeq 
+                                                    << YAML::BeginMap << YAML::Key << "x" << YAML::Value << 0.1 << YAML::EndMap 
+                                                    << YAML::BeginMap << YAML::Key << "y" << YAML::Value << 0.2 << YAML::EndMap
+                                                    << YAML::BeginMap << YAML::Key << "z" << YAML::Value << 0.3 << YAML::EndMap
+                                               << YAML::EndSeq 
+                                << YAML::EndMap
+
+                                << YAML::BeginMap                       
+                                << YAML::Key << "orientation" 
+                                << YAML::Value << YAML::BeginSeq 
+                                                    << YAML::BeginMap << YAML::Key << "x" << YAML::Value << 0.0 << YAML::EndMap 
+                                                    << YAML::BeginMap << YAML::Key << "y" << YAML::Value << 0.0 << YAML::EndMap
+                                                    << YAML::BeginMap << YAML::Key << "z" << YAML::Value << 0.0 << YAML::EndMap
+                                                    << YAML::BeginMap << YAML::Key << "w" << YAML::Value << 1.0 << YAML::EndMap
+                                               << YAML::EndSeq 
+                                << YAML::EndMap
+                            << YAML::EndSeq;
+        out << YAML::Key << "box_marker_size"
+            << YAML::Value << YAML::BeginMap << YAML::Key << "scale_x" << YAML::Value << 1.0  
+                                             << YAML::Key << "scale_y" << YAML::Value << 1.0 
+                                             << YAML::Key << "scale_z" << YAML::Value << 1.0 
+                            << YAML::EndMap;
+        out << YAML::EndMap;
+        std::cout << "Here's the output YAML:\n" << out.c_str() << std::endl; // prints "out the yaml contents
+
+
+        std::ofstream fout(filename);
+        fout << out.c_str();
+        return true;
+    }catch(...){
+        std::cout << "Failed to write out to yaml file" << std::endl;
+        return false;
+    }
+}
+
+bool read_nested_maps_yaml(std::string filename){
+    try{
+        std::cout << "\nLoading yaml file" << std::endl;
+        YAML::Node baseNode = YAML::LoadFile(filename);
+
+        YAML::Node box_marker_pose_node = baseNode["box_marker_pose"];
+        YAML::Node position = box_marker_pose_node[0]["position"];
+
+        double x = position[0]["x"].as<double>();
+        double y = position[1]["y"].as<double>();
+        double z = position[2]["z"].as<double>();
+
+        std::cout << x << " " << y << " " << z << std::endl;
+
+        for(size_t i = 0; i < box_marker_pose_node.size(); i ++){
+            std::cout << i << std::endl;
+
+        }
+
+
+        YAML::Node box_marker_size = baseNode["box_marker_size"];
+        double size_x = box_marker_size["scale_x"].as<double>();
+        double size_y = box_marker_size["scale_y"].as<double>();
+        double size_z = box_marker_size["scale_z"].as<double>();
+
+        std::cout << "size_x: " << size_x << std::endl;
+        std::cout << "size_y: " << size_y << std::endl;
+        std::cout << "size_z: " << size_z << std::endl;       
+
+
+        return true;
+    }catch(...){
+        std::cout << "Failed to read yaml file" << std::endl;
+        return false;
+    }   
+}
+
+
 int main()
 {
     test_yaml_emit();
-    read_yaml_file();    
+    read_yaml_file();
+    test_nested_maps_yaml_emit("object_grasp.yaml");    
+    read_nested_maps_yaml("object_grasp.yaml");
    return 0;
 }
