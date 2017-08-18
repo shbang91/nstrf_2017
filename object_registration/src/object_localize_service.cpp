@@ -223,9 +223,11 @@ int main (int argc, char **argv){
   ros::NodeHandle nh;
 
   // Advertise Service
-  ros::ServiceServer service = nh.advertiseService("object_localizer_service", localize_service);
+  ros::ServiceServer service = nh.advertiseService("object_registration/object_localizer_service", localize_service);
 
-  test_simple_registration();
+  //test_simple_registration();
 
+  // Spin forever
+  ros::spin();
   return 0;
 }
