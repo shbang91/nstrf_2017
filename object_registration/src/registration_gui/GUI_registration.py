@@ -89,21 +89,21 @@ class ObjRegGui(QtGui.QWidget):
 
     if ok:
       print "    Your filename input:", text
-      new_filename = str(text)
-      if (len(new_filename) == 0):
+      save_filename = str(text)
+      if (len(save_filename) == 0):
         print("    You entered an empty filename. using default name as: boxed_cloud.pcd")
-        new_filename = "boxed_cloud.pcd"
+        save_filename = "boxed_cloud.pcd"
 
-      if not(".pcd" in new_filename):
+      if not(".pcd" in save_filename):
         print "    Your filename did not contain .pcd, the program will manually add it"
-        new_filename = str(text) + ".pcd"
+        save_filename = str(text) + ".pcd"
 
 
 
-      old_name = rospy.get_param('/object_registration_interest_box/filename', "no_param_found")
+      old_name = rospy.get_param('/object_registration_interest_box/save_filename', "no_param_found")
       print "    Filename was previously set to:", old_name
-      rospy.set_param('/object_registration_interest_box/filename', new_filename)
-      new_name = rospy.get_param('/object_registration_interest_box/filename', "no_param_found")
+      rospy.set_param('/object_registration_interest_box/save_filename', save_filename)
+      new_name = rospy.get_param('/object_registration_interest_box/save_filename', "no_param_found")
       rospy.loginfo("filename parameter successfully changed")
       print "    Filename is now set to:", new_name
       return True
@@ -117,6 +117,24 @@ class ObjRegGui(QtGui.QWidget):
       print "    Your filename input:", text
       load_filename = str(text)
       # Change rosparam here
+
+      if (len(load_filename) == 0):
+        print("    You entered an empty filename. using default name as: boxed_cloud.pcd")
+        load_filename = "boxed_cloud.pcd"
+
+      if not(".pcd" in load_filename):
+        print "    Your filename did not contain .pcd, the program will manually add it"
+        load_filename = str(text) + ".pcd"
+
+
+
+      old_name = rospy.get_param('/object_registration_interest_box/load_filename', "no_param_found")
+      print "    Filename was previously set to:", old_name
+      rospy.set_param('/object_registration_interest_box/load_filename', load_filename)
+      new_name = rospy.get_param('/object_registration_interest_box/load_filename', "no_param_found")
+      rospy.loginfo("filename parameter successfully changed")
+      print "    Filename is now set to:", new_name
+
       return True
     else:
       rospy.loginfo("Canceled Prompt")

@@ -18,7 +18,7 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/io/pcd_io.h>
 
-#define MARKER_FRAME "world"
+#define MARKER_FRAME "multisense/world_frame" //"world" // must be at the fixed frame
 #define MARKER_NAME "interestBox"
 
 #define DEFAULT_POINTCLOUD_SUB "/multisense/image_points2_color"
@@ -321,10 +321,10 @@ bool loadStoredCloud(){
   try{
     // Save Transformed Cloud
     ros::NodeHandle private_nh("~");      
-    std::string filename;
-    private_nh.param<std::string>("filename", filename, DEFAULT_PC_NAME);
+    std::string load_filename;
+    private_nh.param<std::string>("load_filename", load_filename, DEFAULT_PC_NAME);
 
-    pcl::io::loadPCDFile (savepath + filename, *stored_pc);
+    pcl::io::loadPCDFile (savepath + load_filename, *stored_pc);
     ROS_INFO("Successfully loaded the point cloud");
     ROS_INFO("Visualizing on the topic %s", stored_cloud_topic.c_str());      
     
@@ -350,13 +350,12 @@ bool storeCloudInfo(){
 
     try{
       ros::NodeHandle private_nh("~");      
-      std::string filename;
-      private_nh.param<std::string>("filename", filename, DEFAULT_PC_NAME);
+      std::string save_filename;
+      private_nh.param<std::string>("save_filename", save_filename, DEFAULT_PC_NAME);
 
       // Save Transformed Cloud
-      pcl::io::savePCDFileASCII (savepath + filename, *boxed_cloud);
+      pcl::io::savePCDFileASCII (savepath + save_filename, *boxed_cloud);
       ROS_INFO("Successfully saved the point clouds in the boxed region");
-      loadStoredCloud();
     }
       //keep trying until we get the transform
     catch (pcl::IOException& pcl_ex){//(...){
@@ -381,7 +380,7 @@ void cloud_callback(const sensor_msgs::PointCloud2::ConstPtr& msg){
 void command_callback(const std_msgs::String::ConstPtr& msg){
   std::string get_cloud_in_box;     get_cloud_in_box = "get_cloud_in_box";
   std::string store_cached_cloud;   store_cached_cloud = "store_cached_cloud";  
-
+  std::string load_object;          load_object = "load_object";    
 
   if (get_cloud_in_box.compare(msg->data) == 0){
     ROS_INFO("Getting Cloud within the Box");
@@ -389,6 +388,9 @@ void command_callback(const std_msgs::String::ConstPtr& msg){
   }else if (store_cached_cloud.compare(msg->data) == 0){
     ROS_INFO("Storing Cloud within the Box");
     storeCloudInfo();      
+  } else if(load_object.compare(msg->data) == 0){
+    ROS_INFO("Loading the stored cloud");
+    loadStoredCloud();
   }
 
 }
