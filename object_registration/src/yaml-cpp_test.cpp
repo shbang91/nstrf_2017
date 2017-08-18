@@ -71,9 +71,33 @@ bool test_nested_maps_yaml_emit(std::string filename){
                 << YAML::Key << "scale_y" << YAML::Value << 2.0 
                 << YAML::Key << "scale_z" << YAML::Value << 3.0 
             << YAML::EndMap;
+
+        out << YAML::Key << "robot_hand_tf_name" << YAML::Value << "rightPalm";
+        out << YAML::Key << "grasp_relative_pose" << YAML::Value 
+            << YAML::BeginMap                       
+                 << YAML::Key << "position" << YAML::Value 
+                    << YAML::BeginMap 
+                        << YAML::Key << "x" << YAML::Value << 2.1  
+                        << YAML::Key << "y" << YAML::Value << 2.2 
+                        << YAML::Key << "z" << YAML::Value << 2.3 
+                    << YAML::EndMap                               
+                  << YAML::Key << "orientation" 
+                    << YAML::Value << YAML::BeginMap 
+                        << YAML::Key << "x" << YAML::Value << 2.1 
+                        << YAML::Key << "y" << YAML::Value << 4.2
+                        << YAML::Key << "z" << YAML::Value << 6.3 
+                        << YAML::Key << "w" << YAML::Value << 8.4                                                         
+                    << YAML::EndMap                           
+            << YAML::EndMap;        
         
         out << YAML::EndMap;
+
+
+
+
+
         std::cout << "Here's the output YAML:\n" << out.c_str() << std::endl; // prints "out the yaml contents
+
 
 
         std::ofstream fout(filename);
@@ -99,8 +123,8 @@ bool read_nested_maps_yaml(std::string filename){
         double pos_z = position["z"].as<double>();
 
         std::cout << "position x: " << pos_x << std::endl;
-        std::cout << "position y "  << pos_y << std::endl;
-        std::cout << "position z "  << pos_z << std::endl;       
+        std::cout << "position y: "  << pos_y << std::endl;
+        std::cout << "position z: "  << pos_z << std::endl;       
 
         double or_x = orientation["x"].as<double>();
         double or_y = orientation["y"].as<double>();
@@ -108,8 +132,8 @@ bool read_nested_maps_yaml(std::string filename){
         double or_w = orientation["w"].as<double>();
 
         std::cout << "position x: " << pos_x << std::endl;
-        std::cout << "position y "  << pos_y << std::endl;
-        std::cout << "position z "  << pos_z << std::endl;       
+        std::cout << "position y: "  << pos_y << std::endl;
+        std::cout << "position z: "  << pos_z << std::endl;       
 
         std::cout << "orientation x: " << or_x << std::endl;
         std::cout << "orientation y "  << or_y << std::endl;
