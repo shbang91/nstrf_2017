@@ -20,7 +20,7 @@ RotMat3f quat_to_R(geometry_msgs::Quaternion quat_msg){
 
 	float r11 = pow(q0, 2) + pow(q1, 2) - pow(q2, 2) - pow(q3, 2);
 	float r21 = 2.0*(q0*q3 + q1*q2);
-	float r31 = 2.0*(q1*q2 - q0*q2);
+	float r31 = 2.0*(q1*q3 - q0*q2);
 
 	float r12 = 2.0*(q1*q2 - q0*q3);
 	float r22 = pow(q0, 2) - pow(q1, 2) + pow(q2, 2) - pow(q3, 2);

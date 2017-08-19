@@ -30,7 +30,7 @@
 #include "quat_helper.h"
 #include "geometry_msgs/Pose.h"
 
-#define PCL_VISUALIZE false
+#define PCL_VISUALIZE true
 
 // Types
 typedef pcl::PointNormal PointNT;
@@ -181,30 +181,25 @@ bool object_localize(const PointCloudT::Ptr& object_in, const PointCloudT::Ptr& 
 
     //pcl::transformPointCloud (*object_aligned, *icp_transformed_cloud, icp_transform_out);
 
+    PointCloudT::Ptr transform_cloud (new PointCloudT);
+    pcl::transformPointCloud (*object_in, *transform_cloud, transformation);
 
-    if (PCL_VISUALIZE){
-      // Show alignment
-      pcl::visualization::PCLVisualizer visu("Alignment");
-      visu.addPointCloud (scene, ColorHandlerT (scene, 0.0, 255.0, 0.0), "scene");
-      visu.addPointCloud (object_aligned, ColorHandlerT (object_aligned, 0.0, 0.0, 255.0), "object_aligned");
-      visu.addPointCloud (icp_transformed_cloud, ColorHandlerT (icp_transformed_cloud, 255.0, 0.0, 255.0), "icp_object_aligned");
-      visu.addPointCloud (inliers_cloud, ColorHandlerT (inliers_cloud, 255.0, 255.0, 0.0), "object_inliers");    
-      visu.spin ();
-    }
+
+
 
 
     Eigen::Affine3f affine_transform;
     RotMat3f transform_rot; 
     Vector3f transform_translate; 
 
-    affine_transform.matrix() = transformation*icp_transform_out; //transformation
+    affine_transform.matrix() = transformation; //transformation
     transform_rot = affine_transform.rotation();
     transform_translate = affine_transform.translation();
 
     pcl::console::print_info("transform -> affine-> rot and linear");
-    pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transform_rot (0,0), transform_rot (0,1), transform_rot (0,2));
-    pcl::console::print_info ("R = | %6.3f %6.3f %6.3f | \n", transform_rot (1,0), transform_rot (1,1), transform_rot (1,2));
-    pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transform_rot (2,0), transform_rot (2,1), transform_rot (2,2));
+    pcl::console::print_info ("    | %f %f %f | \n", transform_rot (0,0), transform_rot (0,1), transform_rot (0,2));
+    pcl::console::print_info ("R = | %f %f %f | \n", transform_rot (1,0), transform_rot (1,1), transform_rot (1,2));
+    pcl::console::print_info ("    | %f %f %f | \n", transform_rot (2,0), transform_rot (2,1), transform_rot (2,2));
     pcl::console::print_info ("\n");
     pcl::console::print_info ("t = < %0.3f, %0.3f, %0.3f >\n", transform_translate (0), transform_translate (1), transform_translate (2));
     pcl::console::print_info ("\n");
@@ -216,7 +211,16 @@ bool object_localize(const PointCloudT::Ptr& object_in, const PointCloudT::Ptr& 
     relative_pose.position.y = transform_translate (1); 
     relative_pose.position.z = transform_translate (2);  
 
-
+    if (PCL_VISUALIZE){
+      // Show alignment
+      pcl::visualization::PCLVisualizer visu("Alignment");
+      visu.addPointCloud (scene, ColorHandlerT (scene, 0.0, 255.0, 0.0), "scene");
+      visu.addPointCloud (object_aligned, ColorHandlerT (object_aligned, 0.0, 0.0, 255.0), "object_aligned");
+ //     visu.addPointCloud (icp_transformed_cloud, ColorHandlerT (icp_transformed_cloud, 255.0, 0.0, 255.0), "icp_object_aligned");
+ //     visu.addPointCloud (inliers_cloud, ColorHandlerT (inliers_cloud, 255.0, 255.0, 0.0), "object_inliers");    
+      visu.addPointCloud (transform_cloud, ColorHandlerT (transform_cloud, 255.0, 255.0, 0.0), "transform_cloud");          
+      visu.spin ();
+    }
 
     //
     
