@@ -58,6 +58,7 @@ add_definitions(${PCL_DEFINITIONS})
 
 # Include remaining catkin packages
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -68,14 +69,14 @@ add_executable(interest_box_marker src/interest_box_marker.cpp)
 target_link_libraries(interest_box_marker ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 #add_dependencies(interest_box_marker ${catkin_EXPORTED_TARGETS})
 
-add_executable(object_localize_service src/object_localize_service.cpp)
+add_executable(object_localize_service src/object_localize_service.cpp src/quat_math/quat_helper.cpp)
 target_link_libraries(object_localize_service ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_dependencies(object_localize_service ${catkin_EXPORTED_TARGETS})
 
 #--------------------------------------------------------------
 # Test Nodes
 #--------------------------------------------------------------
-add_executable(test_object_localize_service test/test_object_localize_service.cpp)
+add_executable(test_object_localize_service test/test_object_localize_service.cpp src/quat_math/quat_helper.cpp)
 target_link_libraries(test_object_localize_service ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_dependencies(test_object_localize_service ${catkin_EXPORTED_TARGETS})
 

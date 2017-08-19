@@ -27,6 +27,8 @@
 #include <pcl/kdtree/kdtree.h>
 
 #include "object_registration/ObjectLocalize.h"
+#include "quat_helper.h"
+#include "geometry_msgs/Pose.h"
 
 #define PCL_VISUALIZE false
 
@@ -65,7 +67,7 @@ void run_icp_on_pc(const PointCloudT::Ptr& cloud_in,
   std::cout << icp_transform_out << std::endl;
 }
 
-bool object_localize(PointCloudT::Ptr& object_in, PointCloudT::Ptr& scene_in){
+bool object_localize(const PointCloudT::Ptr& object_in, const PointCloudT::Ptr& scene_in, geometry_msgs::Pose& relative_pose){
   // Point clouds
   PointCloudT::Ptr object (new PointCloudT);
   PointCloudT::Ptr object_aligned (new PointCloudT);
@@ -190,6 +192,43 @@ bool object_localize(PointCloudT::Ptr& object_in, PointCloudT::Ptr& scene_in){
       visu.spin ();
     }
 
+
+    Eigen::Affine3f affine_transform;
+    RotMat3f transform_rot; 
+    Vector3f transform_translate; 
+
+    affine_transform.matrix() = transformation*icp_transform_out; //transformation
+    transform_rot = affine_transform.rotation();
+    transform_translate = affine_transform.translation();
+
+    pcl::console::print_info("transform -> affine-> rot and linear");
+    pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transform_rot (0,0), transform_rot (0,1), transform_rot (0,2));
+    pcl::console::print_info ("R = | %6.3f %6.3f %6.3f | \n", transform_rot (1,0), transform_rot (1,1), transform_rot (1,2));
+    pcl::console::print_info ("    | %6.3f %6.3f %6.3f | \n", transform_rot (2,0), transform_rot (2,1), transform_rot (2,2));
+    pcl::console::print_info ("\n");
+    pcl::console::print_info ("t = < %0.3f, %0.3f, %0.3f >\n", transform_translate (0), transform_translate (1), transform_translate (2));
+    pcl::console::print_info ("\n");
+
+
+    // Fill in answer
+    relative_pose.orientation = R_to_quat(transform_rot);
+    relative_pose.position.x = transform_translate (0);
+    relative_pose.position.y = transform_translate (1); 
+    relative_pose.position.z = transform_translate (2);  
+
+
+
+    //
+    
+    // Convert Matrix 4x4 to translation and quaternion:
+    // Extract 3x1 translation vector, p
+    // Extract 3x3 rotation matrix, R
+    // convert R to quat
+    // compose and send message
+
+
+
+
     return true;
   }
   else
@@ -212,7 +251,9 @@ void test_simple_registration(){
   pcl::io::loadPCDFile (filepath + "/chef.pcd", *object_in);
   // Load Scene Point Cloud File 2
   pcl::io::loadPCDFile (filepath + "/rs1.pcd", *scene_in);   
-  object_localize(object_in, scene_in);
+
+  geometry_msgs::Pose relative_pose;
+  object_localize(object_in, scene_in, relative_pose);
 }
 
 bool localize_service(object_registration::ObjectLocalize::Request  &req,
@@ -228,7 +269,7 @@ bool localize_service(object_registration::ObjectLocalize::Request  &req,
   pcl::fromROSMsg(req.object_cloud, *object_in);   // Perform Copy
   pcl::fromROSMsg(req.target_cloud, *scene_in);   // Perform Copy  
 
-  return  object_localize(object_in, scene_in);
+  return  object_localize(object_in, scene_in, res.pose_offset);
 }
 
 // Align a rigid object to a scene with clutter and occlusions

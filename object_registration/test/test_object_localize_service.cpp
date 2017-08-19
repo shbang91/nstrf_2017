@@ -10,7 +10,10 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/io/pcd_io.h>
 
+#include <Eigen/Core>
 #include "object_registration/ObjectLocalize.h"
+#include "quat_helper.h"
+#include "geometry_msgs/Pose.h"
 
 typedef pcl::PointXYZRGB PointNT;
 typedef pcl::PointCloud<PointNT> PointCloudT;
@@ -38,6 +41,42 @@ bool call_localize_object_service(PointCloudT::Ptr object_in, PointCloudT::Ptr s
     ROS_INFO("Calling service");
     if (object_localize_client.call(srv)){
         ROS_INFO("Service returned");
+
+        std::cout << "Position (x,y,z):" << srv.response.pose_offset.position.x << " "
+                                         << srv.response.pose_offset.position.y << " "
+                                         << srv.response.pose_offset.position.z << " "
+                                         << std::endl;
+        std::cout << "Quat (x,y,z,w):" << srv.response.pose_offset.orientation.x << " "
+                                       << srv.response.pose_offset.orientation.y << " "
+                                       << srv.response.pose_offset.orientation.z << " "
+                                       << srv.response.pose_offset.orientation.w 
+                                       << std::endl;
+
+        Vector3f pose_translation(srv.response.pose_offset.position.x,  srv.response.pose_offset.position.y,  srv.response.pose_offset.position.z);
+        RotMat3f pose_rotation;                                                
+
+
+        pose_rotation = quat_to_R(srv.response.pose_offset.orientation);       
+
+        ROS_INFO ("    | %6.3f %6.3f %6.3f | ", pose_rotation (0,0), pose_rotation (0,1), pose_rotation (0,2));
+        ROS_INFO ("R = | %6.3f %6.3f %6.3f | ", pose_rotation (1,0), pose_rotation (1,1), pose_rotation (1,2));
+        ROS_INFO ("    | %6.3f %6.3f %6.3f | ", pose_rotation (2,0), pose_rotation (2,1), pose_rotation (2,2));
+        ROS_INFO ("t = < %0.3f, %0.3f, %0.3f >", pose_translation (0), pose_translation (1), pose_translation (2));
+
+
+
+        // convert position to translation
+        // convert quaternion to 3x3 rotation matrix
+
+        // construct eigen matrix 4x4 again
+        // transform pointcloud to visualize
+
+
+        // create tf::Stamped Transform 
+        // transform.setRotation()
+        // transform.setOrigin()
+
+
         return true;
     }
     else{
@@ -69,7 +108,7 @@ void test_service_call(){
 
     call_localize_object_service(object_in, scene_in);
 
-//  pcl::fromROSMsg(*msg, *cloud);   // Perform Copy
+
 }
 
 int main (int argc, char **argv){
