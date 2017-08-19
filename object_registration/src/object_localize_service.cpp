@@ -30,7 +30,7 @@
 #include "quat_helper.h"
 #include "geometry_msgs/Pose.h"
 
-#define PCL_VISUALIZE true
+#define PCL_VISUALIZE false
 
 // Types
 typedef pcl::PointNormal PointNT;
