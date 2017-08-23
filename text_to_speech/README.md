@@ -1,4 +1,4 @@
-# Install sound play
+# Install the sound_play package
 sudo apt-get install ros-indigo-sound-play
 
 
