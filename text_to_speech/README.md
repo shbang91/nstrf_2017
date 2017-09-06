@@ -1,7 +1,6 @@
 # Install the sound_play package
 sudo apt-get install ros-indigo-sound-play
 
-
 # Download and install the female voice
 Instructions from: http://www.pirobot.org/blog/0022/
 ````
