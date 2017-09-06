@@ -22,7 +22,6 @@ WORLD_FRAME_HASH = 83766130 # REAL_ROBOT_ONLY
 # base_for_control = msg.WORLD
 
 
-
 ON_REAL_ROBOT = False
 
 DESIRED_HAND = 1 # Left = 0, Right = 1 
@@ -151,6 +150,10 @@ class SE3_object():
         zero_vel.y = 0.0
         zero_vel.z = 0.0
 
+        print 'Current Hand Pose:'
+        # Get Current Hand Position and Orientation
+        current_hand_pos, current_hand_ori = self.get_current_hand_se3(DESIRED_HAND)
+
         se3_final.time = 3.0 # Trajectory Time
         se3_final.position.x = DESIRED_HAND_POS.x
         se3_final.position.y = DESIRED_HAND_POS.y
@@ -165,9 +168,9 @@ class SE3_object():
         se3_final.linear_velocity = zero_vel
         se3_final.angular_velocity = zero_vel        
 
-
         #msg.taskspace_trajectory_points.append(se3_init)
         msg.taskspace_trajectory_points.append(se3_final)        
+
 
         print 'Sending Hand Command in World Frame...'
         hand_name = "Right"
@@ -176,11 +179,14 @@ class SE3_object():
         print "     " , hand_name, "Des Hand Pos (x,y,z)",    (DESIRED_HAND_POS.x, DESIRED_HAND_POS.y, DESIRED_HAND_POS.z)
         print "     " , hand_name, "Des Ori (x,y,z,w)",  (DESIRED_HAND_ORI.x, DESIRED_HAND_ORI.y, DESIRED_HAND_ORI.z, DESIRED_HAND_ORI.w)
 
-        # Get Current Hand Position and Orientation
+        print "Sending message....."
+        self.hand_traj_pub.publish(msg)
+        rospy.sleep(4)
+
+        print 'Resulting Hand Pose:'
+        # Get Resulting Hand Position and Orientation
         current_hand_pos, current_hand_ori = self.get_current_hand_se3(DESIRED_HAND)
 
-        self.hand_traj_pub.publish(msg)
-        self.rate.sleep()
         sys.exit()
 
 
