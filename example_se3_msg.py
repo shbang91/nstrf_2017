@@ -28,15 +28,22 @@ DESIRED_HAND = 1 # Left = 0, Right = 1
 DESIRED_HAND_POS = Point()  # Right hand Sim Start Pos: (0.304, -0.242, 0.937)
 DESIRED_HAND_ORI = Quaternion() # Right hand Sim Start Orientation: (-0.03134541605123229, 0.09557238644513989, 0.8871963617792723, 0.4502954579912186)
 
+# There's a linear offset between the rightPalm / leftPalm TF to the actual hand location
+# This offset may only be in the old version. Please check
+palm_to_hand_x_offset = 0.084
+palm_to_hand_y_offset = 0.055
+palm_to_hand_z_offset = -0.0116
+
+
 # Val will raise her hand and bring it to the front of her chest
 dx = 0.10
 dy = 0.04
 dz = 0.25
 
 # estimated and actual hand positions are slightly different.
-DESIRED_HAND_POS.x = 0.304 + dx
-DESIRED_HAND_POS.y = -0.242 + dy
-DESIRED_HAND_POS.z = 0.937 + dz
+DESIRED_HAND_POS.x = 0.304 + palm_to_hand_x_offset + dx
+DESIRED_HAND_POS.y = -0.242 + palm_to_hand_y_offset + dy
+DESIRED_HAND_POS.z = 0.937 + palm_to_hand_z_offset + dz
 
 DESIRED_HAND_ORI.x = -0.0313
 DESIRED_HAND_ORI.y = 0.0955
@@ -109,16 +116,16 @@ class SE3_object():
 
         hand_orientation = Quaternion()
 
-        hand_position.x = hand_transform.transform.translation.x
-        hand_position.y = hand_transform.transform.translation.y        
-        hand_position.z = hand_transform.transform.translation.z
+        # Add linear offsets
+        hand_position.x = hand_transform.transform.translation.x + palm_to_hand_x_offset
+        hand_position.y = hand_transform.transform.translation.y + palm_to_hand_y_offset       
+        hand_position.z = hand_transform.transform.translation.z + palm_to_hand_z_offset
 
         hand_orientation.x = hand_transform.transform.rotation.x
         hand_orientation.y = hand_transform.transform.rotation.y
         hand_orientation.z = hand_transform.transform.rotation.z
         hand_orientation.w = hand_transform.transform.rotation.w
 
-        print "  Actual Hand Pose"
         print "     " , hand_name, "Hand Pos (x,y,z)",    (hand_position.x, hand_position.y, hand_position.z)
         print "     " , hand_name, "Ori (x,y,z,w)",  (hand_orientation.x, hand_orientation.y, hand_orientation.z, hand_orientation.w)
 
@@ -150,7 +157,7 @@ class SE3_object():
         zero_vel.y = 0.0
         zero_vel.z = 0.0
 
-        print 'Current Hand Pose:'
+        print 'Initial Hand Pose:'
         # Get Current Hand Position and Orientation
         current_hand_pos, current_hand_ori = self.get_current_hand_se3(DESIRED_HAND)
 
@@ -179,13 +186,15 @@ class SE3_object():
         print "     " , hand_name, "Des Hand Pos (x,y,z)",    (DESIRED_HAND_POS.x, DESIRED_HAND_POS.y, DESIRED_HAND_POS.z)
         print "     " , hand_name, "Des Ori (x,y,z,w)",  (DESIRED_HAND_ORI.x, DESIRED_HAND_ORI.y, DESIRED_HAND_ORI.z, DESIRED_HAND_ORI.w)
 
-        print "Sending message....."
+        print "......Sending message......"
         self.hand_traj_pub.publish(msg)
         rospy.sleep(4)
 
         print 'Resulting Hand Pose:'
         # Get Resulting Hand Position and Orientation
         current_hand_pos, current_hand_ori = self.get_current_hand_se3(DESIRED_HAND)
+
+        print " Position (x,y,z) error: ", (DESIRED_HAND_POS.x - current_hand_pos.x, DESIRED_HAND_POS.y - current_hand_pos.y, DESIRED_HAND_POS.z - current_hand_pos.z  )
 
         sys.exit()
 
