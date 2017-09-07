@@ -25,8 +25,8 @@ WORLD_FRAME_HASH = 83766130 # REAL_ROBOT_ONLY
 ON_REAL_ROBOT = False
 
 DESIRED_HAND = 1 # Left = 0, Right = 1 
-DESIRED_HAND_POS = Point()  # Right hand Sim Start Pos: (0.304, -0.242, 0.937)
-DESIRED_HAND_ORI = Quaternion() # Right hand Sim Start Orientation: (-0.03134541605123229, 0.09557238644513989, 0.8871963617792723, 0.4502954579912186)
+DESIRED_HAND_POS = Point()  # Right hand Sim Palm Start Pos: (0.304, -0.242, 0.937)
+DESIRED_HAND_ORI = Quaternion() # Right hand Sim Palm Start Orientation: (-0.03134541605123229, 0.09557238644513989, 0.8871963617792723, 0.4502954579912186)
 
 # There's a linear offset between the rightPalm / leftPalm TF to the actual hand location
 # This offset may only be in the old version. Please check
