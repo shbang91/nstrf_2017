@@ -144,7 +144,7 @@ class SE3_object():
             print 'On real Robot'
             msg.frame_information.trajectory_reference_frame_id = WORLD_FRAME_HASH;
             msg.frame_information.data_reference_frame_id = WORLD_FRAME_HASH;         
-            msg.use_custom_control_frame = 0;
+            msg.use_custom_control_frame = False;
             # END REAL_ROBOT_ONLY
         else:
             base_for_control = msg.WORLD
